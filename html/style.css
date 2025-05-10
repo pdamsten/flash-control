@@ -1,0 +1,226 @@
+:root {
+  --background-color: hsl(0, 0%, 20%);
+  --background-color-darker: hsl(0, 0%, 15%);
+  --font-size: 0.85rem;
+  --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
+  --active: hsl(0, 0%, 90%);;
+  --inactive: hsl(0, 0%, 50%);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  font: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  color: var(--active);
+  border-color: var(--active);
+  font-size: var(--font-size);
+  font-family: var(--font-family);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+select, button {
+  appearance: none;
+  border-width: 1px;
+  border-style: solid;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  outline: none;
+  font-family: var(--font-family);
+  color: var(--active);
+  border-color: var(--active);
+  margin-bottom: 5px;
+  background-color: transparent;
+}
+
+select {
+  background-position: 97% center;
+  background-repeat: no-repeat;
+  background-image: url(../svg/icon-down.svg);
+  padding-left: 0.5rem;
+  padding-right: 1.5rem;
+  height: 2rem;
+  font-size: var(--font-size);
+}
+
+button {
+  border-color: var(--active);
+  background: var(--background-color);
+  text-align: center;
+  height: 4rem;
+  font-size: 1.7rem;
+  font-weight: bold;
+  padding: 1rem;
+}
+
+button:active, button:hover {
+  border-color: var(--active);
+  background: var(--active);
+  color: var(--background-color-darker);
+}
+
+.inactive {
+  color: var(--inactive);
+  border-color: var(--inactive);
+} 
+
+button img {
+  width: 2rem;
+  height: 2rem;
+  filter: brightness(90%);
+}
+
+.inactive img {
+  filter: brightness(50%);
+}
+
+.top-bar, .bottom-bar {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat( auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+  overflow: visible;
+  z-index: 1;
+  position: fixed;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+.top-bar {
+  height: 4.5rem;
+  padding-left: 6rem;
+  top: 0;
+}
+
+.bottom-bar {
+  bottom: 0;
+  height: 6.5rem;
+}
+
+#scroll-container {
+  flex: 1;
+  display: grid;
+  background-color: var(--background-color-darker);
+  gap: 1rem;
+  padding: 1rem;
+  justify-items: center;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  grid-template-rows: repeat(auto-fit, 1fr);
+  padding-top: 5rem;
+  padding-bottom: 7rem;
+}
+
+.flash-container {
+  background-color: var(--background-color);
+  display: grid;
+  grid-template-areas:
+    "flash-group flash-power flash-sound"
+    "flash-group flash-power flash-mode"
+    ". flash-power flash-light"
+    "flash-info-a flash-info-a flash-info-a"
+    "flash-info-b flash-info-b flash-info-b";
+  grid-template-columns: min-content 1fr min-content;
+  grid-template-rows: min-content min-content min-content min-content min-content;
+  align-items: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--inactive);
+  width: 100%;
+  height: 100%;
+  max-height: 25rem;
+}
+
+.flash-container:focus-within {
+  border-color: var(--active);
+}
+
+.flash-group {
+  grid-area: flash-group;
+  font-weight: bold;
+  font-size: 5rem;
+  height: 6rem;
+  aspect-ratio: 1;
+  padding: 0;
+  align-self: start;
+}
+
+.flash-power {
+  grid-area: flash-power;
+  font-size: 12rem;
+  font-weight: bold;
+}
+
+.flash-mode {
+  grid-area: flash-mode;
+  width: 6rem;
+}
+
+.flash-sound {
+  grid-area: flash-sound;
+  width: 6rem;
+}
+
+.flash-light {
+  grid-area: flash-light;
+  width: 6rem;
+}
+
+.flash-info-a {
+  grid-area: flash-info-a;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+}
+
+.flash-info-b {
+  grid-area: flash-info-b;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+}
+
+#shutter-button {
+  border: none;
+  overflow: visible;
+}
+
+#shutter-button img {
+  width: 4rem;
+  height: auto;
+  aspect-ratio: 1;
+  margin-top: -1rem;
+}
+
+.flash-sound-all {
+  width: 6rem;
+}
+
+.flash-light-all {
+  justify-self: end;
+  width: 6rem;
+}

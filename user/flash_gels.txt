@@ -1,0 +1,15 @@
+No Gel
+#23 Orange
+#26 Light Red
+102 Primary Red
+106 Light Scarlet
+201 Deep Purple Rose
+206 Medium Purple Rose
+404 Golden Amber
+405 Light Amber
+501 Deep Yellow
+503 Yellow
+603 Medium Green
+6001 Dark Green
+8002 Deep Blue
+806 Light Blue

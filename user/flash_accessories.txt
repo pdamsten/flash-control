@@ -1,0 +1,7 @@
+No Accessory
+with Grid
+with Diffusor
+with White Wall
+with V-Flat
+without Diffusor
+without Outer Diffusor

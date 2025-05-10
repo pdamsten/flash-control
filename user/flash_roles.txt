@@ -1,0 +1,8 @@
+No Role
+Key Light
+Rim Light
+Accent Light
+Hair Light
+Fill Light
+Background Light
+Catch Light
