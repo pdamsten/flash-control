@@ -107,8 +107,8 @@ button img {
 }
 
 .top-bar {
-  height: 4.5rem;
-  padding-left: 6rem;
+  height: 6rem;
+  padding-top: 2.5rem;
   top: 0;
 }
 
@@ -127,7 +127,7 @@ button img {
   align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
   grid-template-rows: repeat(auto-fit, 1fr);
-  padding-top: 5rem;
+  padding-top: 6.5rem;
   padding-bottom: 7rem;
 }
 
