@@ -38,13 +38,13 @@ flash_group = '''
       <button class="flash-mode">M</button>
       <button class="flash-light"><img src="svg/light.svg"></button>
       <div class="flash-info-a">
-        <select class="flash-name"></select>
-        <select class="flash-role"></select>
+        <select class="flash-name" data-key="flash-{group_id}/Name"></select>
+        <select class="flash-role" data-key="flash-{group_id}/Role"></select>
       </div>
       <div class="flash-info-b">
-        <select class="flash-modifier"></select>
-        <select class="flash-accessory"></select>
-        <select class="flash-gel"></select>
+        <select class="flash-modifier" data-key="flash-{group_id}/Modifier"></select>
+        <select class="flash-accessory" data-key="flash-{group_id}/Accessory"></select>
+        <select class="flash-gel" data-key="flash-{group_id}/Gel"></select>
       </div>
     </div>
 '''
@@ -59,17 +59,25 @@ class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
         super().__init__(title, html, css, api)
 
-    def fill_select(self, element, items):
+    def fill_select(self, e, items, value = None):
+        e = self.window.dom.get_elements(e)[0]
         for i, item in enumerate(items):
-            element.append(f'<option value="{i}">{item}</option>')
+            selected = ' selected' if item == value else ''
+            e.append(f'<option value="{i}"{selected}>{item}</option>')
 
     def onShutterClicked(self, e):
         print(e['currentTarget']['id'])
 
-    def onChange(self, e):
-        #pprint.pp(e['target'])
-        print(e['target']['selectedIndex'])
-        print(e['target']['childNodes'][e['target']['selectedIndex']]['text'])
+    def onSelectChange(self, e):
+        sid = e['target']['id'] if 'id' in e['target'] else None
+        n = e['target']['selectedIndex'] 
+        value = None if n== 0 else e['target']['childNodes'][n]['text']
+        if sid:
+            self.config[sid] = value
+        else:
+            key = e['target']['attributes']['data-key']
+            key = key.split('/')
+            self.config[key[0]][key[1]] = value
 
     def saveDebugHtml(self):
         js = "document.documentElement.outerHTML"
@@ -79,38 +87,35 @@ class FlashControlWindow(HTMLMainWindow):
 
     def init(self, window):
         super().init(window)
-        self.stands = window.dom.get_elements('#stands')[0]
-        self.remotes = window.dom.get_elements('#remotes')[0]
-        self.triggers = window.dom.get_elements('#triggers')[0]
-        self.tethering = window.dom.get_elements('#tethering')[0]
-        self.filters = window.dom.get_elements('#filters')[0]
-        self.extension_tubes = window.dom.get_elements('#extension_tubes')[0]
-        self.scroll_container = window.dom.get_elements('#scroll-container')[0]
 
-        self.fill_select(self.stands, self.slist('user/stands.txt'))
-        self.stands.events.change += self.onChange
-
-        self.fill_select(self.remotes, self.slist('user/remotes.txt'))
-        self.fill_select(self.triggers, self.slist('user/triggers.txt'))
-        self.fill_select(self.tethering, self.slist('user/tethering.txt'))
-        self.fill_select(self.filters, self.slist('user/filters.txt'))
-        self.fill_select(self.extension_tubes, self.slist('user/extension_tubes.txt'))
+        self.fill_select('#stands', self.slist('user/stands.txt'), self.cv('stands'))
+        self.fill_select('#remotes', self.slist('user/remotes.txt'), self.cv('remotes'))
+        self.fill_select('#triggers', self.slist('user/triggers.txt'), self.cv('triggers'))
+        self.fill_select('#tethering', self.slist('user/tethering.txt'), self.cv('tethering'))
+        self.fill_select('#filters', self.slist('user/filters.txt'), self.cv('filters'))
+        self.fill_select('#extension_tubes', self.slist('user/extension_tubes.txt'), 
+                         self.cv('extension_tubes'))
 
         for i in range(self.cv('flash-groups', 6)):
             gid = chr(ord('A') + i)
-            self.scroll_container.append(flash_group.format(group_id = gid))
-            self.fill_select(window.dom.get_elements(f'#flash-{gid} .flash-name')[0], 
-                             self.slist('user/flash_names.txt'))
-            self.fill_select(window.dom.get_elements(f'#flash-{gid} .flash-role')[0], 
-                             self.slist('user/flash_roles.txt'))
-            self.fill_select(window.dom.get_elements(f'#flash-{gid} .flash-modifier')[0], 
-                             self.slist('user/flash_modifiers.txt'))
-            self.fill_select(window.dom.get_elements(f'#flash-{gid} .flash-accessory')[0], 
-                             self.slist('user/flash_accessories.txt'))
-            self.fill_select(window.dom.get_elements(f'#flash-{gid} .flash-gel')[0],
-                              self.slist('user/flash_gels.txt'))
+            c = window.dom.get_elements('#scroll-container')[0]
+            c.append(flash_group.format(group_id = gid))
+            fid = f'flash-{gid}/'
+            self.fill_select(f'#flash-{gid} .flash-name', self.slist('user/flash_names.txt'),
+                             self.cv(fid + 'Name'))
+            self.fill_select(f'#flash-{gid} .flash-role', self.slist('user/flash_roles.txt'),
+                             self.cv(fid + 'Role'))
+            self.fill_select(f'#flash-{gid} .flash-modifier', 
+                             self.slist('user/flash_modifiers.txt'), self.cv(fid + 'Modifier'))
+            self.fill_select(f'#flash-{gid} .flash-accessory', 
+                             self.slist('user/flash_accessories.txt'), self.cv(fid + 'Accessory'))
+            self.fill_select(f'#flash-{gid} .flash-gel', self.slist('user/flash_gels.txt'), 
+                             self.cv(fid + 'Gel'))
         
         window.dom.get_elements('#shutter-button')[0].events.click += self.onShutterClicked
+
+        for e in window.dom.get_elements('select'):
+            e.events.change += self.onSelectChange
         #self.saveDebugHtml()
 
 def main():

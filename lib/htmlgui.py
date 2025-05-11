@@ -66,7 +66,7 @@ class HTMLMainWindow():
 
     def on_moved(self, x, y):
         self.config['x'] = x
-        self.config['y'] = y - 25
+        self.config['y'] = y
     
     def json(self, filename):
         data = {}
@@ -88,9 +88,15 @@ class HTMLMainWindow():
         return data
 
     def cv(self, key, default = None):
-        if not key in self.config:
-            self.config[key] = default
-        return self.config[key]
+        keys = key.split('/')
+        d = self.config
+        for k in keys[:-1]:
+            if not k in self.config:
+                d[k] = {}
+            d = d[k]
+        if keys[-1] not in d:
+            d[keys[-1]] = default
+        return d[keys[-1]]
 
     @staticmethod
     def path(filename):
