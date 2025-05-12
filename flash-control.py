@@ -38,13 +38,13 @@ flash_group = '''
       <button class="flash-mode">M</button>
       <button class="flash-light"><img src="svg/light.svg"></button>
       <div class="flash-info-a">
-        <select class="flash-name" data-key="flash-{group_id}/Name"></select>
-        <select class="flash-role" data-key="flash-{group_id}/Role"></select>
+        <select class="flash-name" data-key="Name"></select>
+        <select class="flash-role" data-key="Role"></select>
       </div>
       <div class="flash-info-b">
-        <select class="flash-modifier" data-key="flash-{group_id}/Modifier"></select>
-        <select class="flash-accessory" data-key="flash-{group_id}/Accessory"></select>
-        <select class="flash-gel" data-key="flash-{group_id}/Gel"></select>
+        <select class="flash-modifier" data-key="Modifier"></select>
+        <select class="flash-accessory" data-key="Accessory"></select>
+        <select class="flash-gel" data-key="Gel"></select>
       </div>
     </div>
 '''
@@ -60,24 +60,24 @@ class FlashControlWindow(HTMLMainWindow):
         super().__init__(title, html, css, api)
 
     def fill_select(self, e, items, value = None):
-        e = self.window.dom.get_elements(e)[0]
+        e = self.elem(e)
         for i, item in enumerate(items):
             selected = ' selected' if item == value else ''
             e.append(f'<option value="{i}"{selected}>{item}</option>')
 
     def onShutterClicked(self, e):
-        print(e['currentTarget']['id'])
+        e = self.elem(e)
+        print(e.id)
 
     def onSelectChange(self, e):
-        sid = e['target']['id'] if 'id' in e['target'] else None
+        elem = self.elem(e)
+        pid = elem.parent.parent.id
         n = e['target']['selectedIndex'] 
-        value = None if n== 0 else e['target']['childNodes'][n]['text']
-        if sid:
-            self.config[sid] = value
+        value = None if n == 0 else e['target']['childNodes'][n]['text']
+        if pid.startswith('flash-'):
+            self.config[pid][elem.attributes['data-key']] = value
         else:
-            key = e['target']['attributes']['data-key']
-            key = key.split('/')
-            self.config[key[0]][key[1]] = value
+            self.config[elem.id] = value
 
     def saveDebugHtml(self):
         js = "document.documentElement.outerHTML"
@@ -98,7 +98,7 @@ class FlashControlWindow(HTMLMainWindow):
 
         for i in range(self.cv('flash-groups', 6)):
             gid = chr(ord('A') + i)
-            c = window.dom.get_elements('#scroll-container')[0]
+            c = self.elem('#scroll-container')
             c.append(flash_group.format(group_id = gid))
             fid = f'flash-{gid}/'
             self.fill_select(f'#flash-{gid} .flash-name', self.slist('user/flash_names.txt'),
@@ -112,7 +112,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.fill_select(f'#flash-{gid} .flash-gel', self.slist('user/flash_gels.txt'), 
                              self.cv(fid + 'Gel'))
         
-        window.dom.get_elements('#shutter-button')[0].events.click += self.onShutterClicked
+        self.elem('#shutter-button').events.click += self.onShutterClicked
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange

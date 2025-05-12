@@ -216,11 +216,11 @@ button img {
   margin-top: -1rem;
 }
 
-.flash-sound-all {
+#flash-sound-all {
   width: 6rem;
 }
 
-.flash-light-all {
+#flash-light-all {
   justify-self: end;
   width: 6rem;
 }

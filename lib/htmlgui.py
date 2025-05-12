@@ -68,6 +68,22 @@ class HTMLMainWindow():
         self.config['x'] = x
         self.config['y'] = y
     
+    def elem(self, search):
+        if isinstance(search, dict):
+            if 'data-pywebview-id' in search['target']['attributes']:
+                key = f'[data-pywebview-id={search['target']['attributes']['data-pywebview-id']}]'
+            elif 'id' in search['target']['attributes']:
+                key = '#' + search['target']['attributes']['id']
+            elif 'id' in search['currentTarget']:
+                key = '#' + search['currentTarget']['id']
+            else:
+                return None
+        else:
+             key = search
+        if not key in self.elements:
+            self.elements[key] = self.window.dom.get_elements(key)[0]
+        return self.elements[key]
+    
     def json(self, filename):
         data = {}
         try:
@@ -109,6 +125,7 @@ class HTMLMainWindow():
         self.api = api
         self.css = css
         self.config = self.json(CONFIG)
+        self.elements = {}
         print (f'Config: {self.config}')
         hpath = html if isPath(html) else None
         html = html if not isPath(html) else None
