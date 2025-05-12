@@ -57,6 +57,7 @@ class Api():
 
 class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
+        self.power = ''
         super().__init__(title, html, css, api)
 
     def fill_select(self, e, items, value = None):
@@ -84,10 +85,30 @@ class FlashControlWindow(HTMLMainWindow):
         html = self.window.evaluate_js(js)
         with open(self.path('html/debug.html'), 'w') as f:
             f.write(html)
+    def setPower(self, group_id, power):
+        print(f'setPower({group_id}, {power})')
+        pass
+
+    def onKeyPress(self, e):
+        print(e['which'])
+        if e['which'] >= 48 and e['which'] <= 57:
+            n = e['which'] - 48
+            if len(self.power) == 1 and (self.power != '1' and n != 0):
+                self.power += '.'
+            self.power += str(n)
+            self.elem('#flash-A .flash-power').text = self.power
+            if self.power == '10' or len(self.power) == 3:
+                self.setPower('A', self.power)
+                self.power = ''
+        elif e['which'] in [44, 46, 32, 45]:
+            self.power += '.'
+            self.elem('#flash-A .flash-power').text = self.power
 
     def init(self, window):
         super().init(window)
 
+        window.dom.document.events.keypress += self.onKeyPress
+        
         self.fill_select('#stands', self.slist('user/stands.txt'), self.cv('stands'))
         self.fill_select('#remotes', self.slist('user/remotes.txt'), self.cv('remotes'))
         self.fill_select('#triggers', self.slist('user/triggers.txt'), self.cv('triggers'))
