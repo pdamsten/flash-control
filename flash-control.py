@@ -33,19 +33,19 @@ from webview.dom import DOMEventHandler
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
-      <button class="flash-group">{group_id}</button>
-      <span class="flash-power">8.0</span>
-      <button class="flash-sound"><img src="svg/sound.svg"></button>
-      <button class="flash-mode">M</button>
-      <button class="flash-light"><img src="svg/light.svg"></button>
+      <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
+      <span id="flash-power-{group_id}" class="flash-power">8.0</span>
+      <button id="flash-sound-{group_id}" class="flash-sound"><img src="svg/sound.svg"></button>
+      <button id="flash-mode-{group_id}" class="flash-mode">M</button>
+      <button id="flash-light-{group_id}" class="flash-light"><img src="svg/light.svg"></button>
       <div class="flash-info-a">
-        <select class="flash-name" data-key="Name"></select>
-        <select class="flash-role" data-key="Role"></select>
+        <select id="flash-name-{group_id}" class="flash-name" data-key="Name"></select>
+        <select id="flash-role-{group_id}" class="flash-role" data-key="Role"></select>
       </div>
       <div class="flash-info-b">
-        <select class="flash-modifier" data-key="Modifier"></select>
-        <select class="flash-accessory" data-key="Accessory"></select>
-        <select class="flash-gel" data-key="Gel"></select>
+        <select id="flash-modifier-{group_id}" class="flash-modifier" data-key="Modifier"></select>
+        <select id="flash-accessory{group_id}" class="flash-accessory" data-key="Accessory"></select>
+        <select id="flash-gel-{group_id}" class="flash-gel" data-key="Gel"></select>
       </div>
     </div>
 '''
@@ -79,6 +79,7 @@ class FlashControlWindow(HTMLMainWindow):
         value = None if n == 0 else e['target']['childNodes'][n]['text']
         if pid.startswith('flash-'):
             self.config[pid][elem.attributes['data-key']] = value
+            self.activateGroup(pid[-1:])
         else:
             self.config[elem.id] = value
 
@@ -96,7 +97,6 @@ class FlashControlWindow(HTMLMainWindow):
                 if et:
                     et.classes.remove('active')
             e.classes.append('active')
-            self.saveDebugHtml()
 
     def saveDebugHtml(self):
         js = "document.documentElement.outerHTML"
@@ -162,6 +162,8 @@ class FlashControlWindow(HTMLMainWindow):
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange
+
+        self.activateGroup('A')
 
         if (args.debug):
             self.saveDebugHtml()
