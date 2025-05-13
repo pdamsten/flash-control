@@ -125,6 +125,12 @@ class FlashControlWindow(HTMLMainWindow):
 
     def activateGroup(self, group_id):
         print(group_id)
+        if len(self.power) > 0:
+            if len(self.power) == 1:
+                self.power += '.0'
+            elif len(self.power) == 2:
+                self.power += '0'
+            self.setPower(self.activeGroup, self.power)
         e = self.elem(f'#flash-{group_id}')
         if e:
             self.activeGroup = group_id
@@ -143,6 +149,8 @@ class FlashControlWindow(HTMLMainWindow):
     def setPower(self, group_id, power):
         print(f'setPower({group_id}, {power})')
         self.config[f'flash-{group_id}']['Power'] = power
+        self.elem(f'#flash-power-{self.activeGroup}').text = power
+        self.power = ''
 
     def onKeyPress(self, e):
         # This eats spaces and returns which prevents opening select from keyboard
@@ -156,7 +164,6 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
             if self.power == '10' or len(self.power) == 3:
                 self.setPower(self.activeGroup, self.power)
-                self.power = ''
         elif chr(e['which']) in ['.', ',', ' ', '-'] and len(self.power) == 1:
             self.power += '.'
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
