@@ -32,9 +32,13 @@ body, html {
 
 body {
   margin: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   height: 100vh;
+  width: 100vw;
+  grid-template-columns: 1fr;
+  grid-template-rows: min-content min-content 1fr min-content;
+  gap: 0.5rem;
+  overflow: hidden;
 }
 
 select, button {
@@ -100,27 +104,39 @@ button:active img, button:hover img, select:active img, select:hover img {
   filter: brightness(var(--disabled));
 } 
 
+.mini-button {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  margin: 0;
+  padding: 0;
+} 
+
+.mini-button img {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  margin: 0;
+  padding: 0;
+} 
+
 .top-bar, .bottom-bar {
-  padding: 1rem;
   display: grid;
-  grid-template-columns: repeat( auto-fit, minmax(10rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 1rem;
-  overflow: visible;
-  z-index: 1;
-  position: fixed;
   width: 100%;
   background-color: var(--background-color);
+  padding-inline: 1rem;
 }
 
-.top-bar {
-  height: 6rem;
-  padding-top: 2.5rem;
-  top: 0;
-}
-
-.bottom-bar {
-  bottom: 0;
-  height: 6.5rem;
+.icon-bar {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 1rem;
+  padding-top: 1rem;
 }
 
 #scroll-container {
@@ -133,8 +149,7 @@ button:active img, button:hover img, select:active img, select:hover img {
   align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
   grid-template-rows: repeat(auto-fit, 1fr);
-  padding-top: 6.5rem;
-  padding-bottom: 7rem;
+  overflow-y: auto;
 }
 
 .flash-container {

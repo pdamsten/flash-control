@@ -24,7 +24,7 @@
 #**************************************************************************
 
 import argparse
-import sys, os
+import sys
 from lib.htmlgui import HTMLMainWindow
 import pprint
 from webview.dom import DOMEventHandler
