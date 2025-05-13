@@ -129,6 +129,13 @@ button:active img, button:hover img, select:active img, select:hover img {
   padding-inline: 1rem;
 }
 
+.bottom-bar {
+  grid-template-columns: min-content 1fr min-content;
+  padding-inline: 1rem;
+  padding-top: 0;
+  padding-bottom: 0.5rem;
+}
+
 .icon-bar {
   display: flex;
   gap: 0.5rem;
