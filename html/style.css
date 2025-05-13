@@ -159,10 +159,6 @@ button:active img, button:hover img, select:active img, select:hover img {
   max-height: 25rem;
 }
 
-.flash-container:focus-within {
-  border-color: hsl(0, 0%, var(--active));
-}
-
 .flash-group {
   grid-area: flash-group;
   font-weight: bold;
