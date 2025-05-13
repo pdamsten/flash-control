@@ -3,8 +3,9 @@
   --background-color-darker: hsl(0, 0%, 15%);
   --font-size: 0.85rem;
   --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
-  --active: hsl(0, 0%, 90%);;
-  --inactive: hsl(0, 0%, 50%);
+  --active: 97%;
+  --normal: 85%;
+  --disabled: 50%;
 }
 
 *, *::before, *::after {
@@ -15,6 +16,9 @@
   font: inherit;
   margin: 0;
   padding: 0;
+  background-color: var(--background-color);
+  color: hsl(0, 0%, var(--normal));
+  border-color: hsl(0, 0%, var(--normal));
 }
 
 body, html {
@@ -22,9 +26,6 @@ body, html {
   margin: 0;
   min-height: 100%;
   height: 100%;
-  background-color: var(--background-color);
-  color: var(--active);
-  border-color: var(--active);
   font-size: var(--font-size);
   font-family: var(--font-family);
 }
@@ -47,8 +48,6 @@ select, button {
   margin-top: 0.25rem;
   outline: none;
   font-family: var(--font-family);
-  color: var(--active);
-  border-color: var(--active);
   margin-bottom: 5px;
   background-color: transparent;
 }
@@ -56,7 +55,7 @@ select, button {
 select {
   background-position: 97% center;
   background-repeat: no-repeat;
-  background-image: url(../svg/icon-down.svg);
+  background-image: url(svg/icon-down.svg);
   padding-left: 0.5rem;
   padding-right: 1.5rem;
   height: 2rem;
@@ -64,7 +63,6 @@ select {
 }
 
 button {
-  border-color: var(--active);
   background: var(--background-color);
   text-align: center;
   height: 4rem;
@@ -73,26 +71,34 @@ button {
   padding: 1rem;
 }
 
-button:active, button:hover {
-  border-color: var(--active);
-  background: var(--active);
-  color: var(--background-color-darker);
-}
-
-.inactive {
-  color: var(--inactive);
-  border-color: var(--inactive);
-} 
-
 button img {
   width: 2rem;
   height: 2rem;
-  filter: brightness(90%);
+  filter: brightness(var(--normal));
 }
 
-.inactive img {
-  filter: brightness(50%);
+select img {
+  filter: brightness(var(--normal));
 }
+
+button:active, button:hover, select:active, select:hover, select:focus, select:focus {
+  border-color: hsl(0, 0%, var(--active));
+  color: hsl(0, 0%, var(--active));
+}
+
+button:active img, button:hover img, select:active img, select:hover img {
+  filter: brightness(var(--active));
+}
+
+.disabled {
+  color: hsl(0, 0%, var(--disabled));
+  border-color: hsl(0, 0%, var(--disabled));
+  transition: all 0.2s ease-in-out;
+} 
+
+.disabled img {
+  filter: brightness(var(--disabled));
+} 
 
 .top-bar, .bottom-bar {
   padding: 1rem;
@@ -147,14 +153,14 @@ button img {
   gap: 1rem;
   padding: 1rem;
   border-radius: 1rem;
-  border: 1px solid var(--inactive);
+  border: 1px solid hsl(0, 0%, var(--disabled));
   width: 100%;
   height: 100%;
   max-height: 25rem;
 }
 
 .flash-container:focus-within {
-  border-color: var(--active);
+  border-color: hsl(0, 0%, var(--active));
 }
 
 .flash-group {
@@ -223,4 +229,8 @@ button img {
 #flash-light-all {
   justify-self: end;
   width: 6rem;
+}
+
+.active {
+  border-color: hsl(0, 0%, var(--active));
 }

@@ -81,7 +81,10 @@ class HTMLMainWindow():
         else:
              key = search
         if not key in self.elements:
-            self.elements[key] = self.window.dom.get_elements(key)[0]
+            if e := self.window.dom.get_elements(key):
+                self.elements[key] = e[0]
+            else:
+                return None
         return self.elements[key]
     
     def json(self, filename):

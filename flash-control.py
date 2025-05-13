@@ -27,6 +27,7 @@ import argparse
 import sys, os
 from lib.htmlgui import HTMLMainWindow
 import pprint
+from webview.dom import DOMEventHandler
 
 #iconbutton = '<div class="iconbutton" onclick=\'pywebview.api.buttonPressed("{id}")\'>\n<img src="{svg}">\n<span>{title}</span></div>\n'
 
@@ -58,6 +59,7 @@ class Api():
 class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
         self.power = ''
+        self.activeGroup = 'A'
         super().__init__(title, html, css, api)
 
     def fill_select(self, e, items, value = None):
@@ -80,34 +82,56 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             self.config[elem.id] = value
 
+    def onGroupClicked(self, e):
+        e = self.elem(e)
+        self.activateGroup(e.parent.id[-1:])
+
+    def activateGroup(self, group_id):
+        print(group_id)
+        e = self.elem(f'#flash-{group_id}')
+        if e:
+            self.activeGroup = group_id
+            for ch in range(ord('A'), ord('L') + 1):
+                et = self.elem(f'#flash-{chr(ch)}')
+                if et:
+                    et.classes.remove('active')
+            e.classes.append('active')
+            self.saveDebugHtml()
+
     def saveDebugHtml(self):
         js = "document.documentElement.outerHTML"
         html = self.window.evaluate_js(js)
         with open(self.path('html/debug.html'), 'w') as f:
             f.write(html)
+
     def setPower(self, group_id, power):
         print(f'setPower({group_id}, {power})')
         pass
 
     def onKeyPress(self, e):
-        print(e['which'])
-        if e['which'] >= 48 and e['which'] <= 57:
+        # This eats spaces and returns which prevents opening select from keyboard
+        # on macos tab is not selecting buttons. Custom tab key control?
+        print(chr(e['which']))
+        if e['which'] >= ord('0') and e['which'] <= ord('9'):
             n = e['which'] - 48
-            if len(self.power) == 1 and (self.power != '1' and n != 0):
+            if len(self.power) == 1 and (self.power != '1' or n != 0):
                 self.power += '.'
             self.power += str(n)
             self.elem('#flash-A .flash-power').text = self.power
             if self.power == '10' or len(self.power) == 3:
                 self.setPower('A', self.power)
                 self.power = ''
-        elif e['which'] in [44, 46, 32, 45]:
+        elif chr(e['which']) in ['.', ',', ' ', '-']:
             self.power += '.'
             self.elem('#flash-A .flash-power').text = self.power
-
+        elif e['which'] >= ord('a') and e['which'] <= ord('l'):
+            self.activateGroup(chr(e['which']).upper())
+    
     def init(self, window):
         super().init(window)
 
-        window.dom.document.events.keypress += self.onKeyPress
+        window.dom.document.events.keypress += DOMEventHandler(self.onKeyPress,
+                                                               prevent_default = True)
         
         self.fill_select('#stands', self.slist('user/stands.txt'), self.cv('stands'))
         self.fill_select('#remotes', self.slist('user/remotes.txt'), self.cv('remotes'))
@@ -132,17 +156,21 @@ class FlashControlWindow(HTMLMainWindow):
                              self.slist('user/flash_accessories.txt'), self.cv(fid + 'Accessory'))
             self.fill_select(f'#flash-{gid} .flash-gel', self.slist('user/flash_gels.txt'), 
                              self.cv(fid + 'Gel'))
-        
+            self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupClicked
+    
         self.elem('#shutter-button').events.click += self.onShutterClicked
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange
-        #self.saveDebugHtml()
+
+        if (args.debug):
+            self.saveDebugHtml()
 
 def main():
     FlashControlWindow('Flash Control', HTMLMainWindow.path('html/gui.html'), api = Api())
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--debug', action = 'store_true')
     args = parser.parse_args()    
     main()
