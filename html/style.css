@@ -78,11 +78,11 @@ button {
 button img {
   width: 2rem;
   height: 2rem;
-  filter: brightness(var(--normal));
+  opacity: var(--normal);
 }
 
 select img {
-  filter: brightness(var(--normal));
+  opacity: var(--normal);
 }
 
 button:active, button:hover, select:active, select:hover, select:focus, select:focus {
@@ -91,7 +91,7 @@ button:active, button:hover, select:active, select:hover, select:focus, select:f
 }
 
 button:active img, button:hover img, select:active img, select:hover img {
-  filter: brightness(var(--active));
+  opacity: var(--active);
 }
 
 .disabled {
@@ -101,7 +101,7 @@ button:active img, button:hover img, select:active img, select:hover img {
 } 
 
 .disabled img {
-  filter: brightness(var(--disabled));
+  opacity: calc(var(--disabled) / 2);
 } 
 
 .mini-button {
@@ -168,7 +168,7 @@ button:active img, button:hover img, select:active img, select:hover img {
   gap: 1rem;
   padding: 1rem;
   border-radius: 1rem;
-  border: 1px solid hsl(0, 0%, var(--disabled));
+  border: 1px solid transparent;
   width: 100%;
   height: 100%;
   max-height: 25rem;
