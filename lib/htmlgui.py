@@ -70,16 +70,17 @@ class HTMLMainWindow():
     
     def elem(self, search):
         if isinstance(search, dict):
-            if 'data-pywebview-id' in search['target']['attributes']:
-                key = f'[data-pywebview-id={search['target']['attributes']['data-pywebview-id']}]'
-            elif 'id' in search['target']['attributes']:
+            if 'id' in search['target']['attributes']:
                 key = '#' + search['target']['attributes']['id']
             elif 'id' in search['currentTarget']:
                 key = '#' + search['currentTarget']['id']
+            elif 'data-pywebview-id' in search['target']['attributes']:
+                key = f'[data-pywebview-id={search['target']['attributes']['data-pywebview-id']}]'
             else:
                 return None
         else:
              key = search
+        print(f'elem({key})')
         if not key in self.elements:
             if e := self.window.dom.get_elements(key):
                 self.elements[key] = e[0]
