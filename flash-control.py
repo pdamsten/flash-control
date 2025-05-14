@@ -24,12 +24,8 @@
 #**************************************************************************
 
 import argparse
-import sys, os
 from lib.htmlgui import HTMLMainWindow
-import pprint
 from webview.dom import DOMEventHandler
-
-#iconbutton = '<div class="iconbutton" onclick=\'pywebview.api.buttonPressed("{id}")\'>\n<img src="{svg}">\n<span>{title}</span></div>\n'
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
@@ -49,12 +45,6 @@ flash_group = '''
       </div>
     </div>
 '''
-
-class Api():
-    def buttonPressed(self, value):
-        print(value)
-        HTMLMainWindow.destroy()
-        sys.exit(0)
 
 class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
@@ -265,7 +255,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.saveDebugHtml()
 
 def main():
-    FlashControlWindow('Flash Control', HTMLMainWindow.path('html/gui.html'), api = Api())
+    FlashControlWindow('Flash Control', HTMLMainWindow.path('html/gui.html'))
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
