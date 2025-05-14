@@ -25,6 +25,7 @@
 
 import argparse
 from lib.htmlgui import HTMLMainWindow
+from lib.godox import Godox
 from webview.dom import DOMEventHandler
 
 flash_group = '''
@@ -210,7 +211,16 @@ class FlashControlWindow(HTMLMainWindow):
                 self.power = ''
                 self.elem(f'#flash-power-{self.activeGroup}').text = \
                         self.cv(f'flash-{self.activeGroup}/Power')
-    
+
+    def onGodoxMsg(self, data):
+        pass
+
+    def onGodoxConnected(self, data):
+        self.elem('#flash-button').classes.remove('disabled')
+
+    def onGodoxConfig(self, data):
+        self.config['godox'] = data
+
     def init(self, window):
         super().init(window)
 
@@ -261,6 +271,12 @@ class FlashControlWindow(HTMLMainWindow):
             e.events.change += self.onSelectChange
 
         self.activateGroup('A')
+
+        self.godox = Godox()
+        self.godox.connect('message', self.onGodoxMsg)
+        self.godox.connect('connected', self.onGodoxConnected)
+        self.godox.connect('config', self.onGodoxConfig)
+        self.godox.start(self.cv('godox', {}))
 
         if (args.debug):
             self.saveDebugHtml()
