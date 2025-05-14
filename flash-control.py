@@ -87,6 +87,34 @@ class FlashControlWindow(HTMLMainWindow):
         e = self.elem(e)
         self.activateGroup(e.id[-1:])
 
+    def onGroupButtonClicked(self, e):
+        e = self.elem(e)
+        gid = e.id[-1:]
+        self.setGroupDisabled(gid, not self.cv(f'flash-{gid}/Disabled'))
+
+    def setGroupDisabled(self, group_id, disabled):
+        a = ['flash-group-', 'flash-power-', 'flash-sound-', 'flash-mode-', 'flash-light-', 
+             'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory', 'flash-gel-']
+        
+        self.config[f'flash-{group_id}']['Disabled'] = disabled
+        for s in a:
+            print(f'#{s}{group_id}')
+            e = self.elem(f'#{s}{group_id}')
+            if disabled:
+                e.classes.append('disabled')
+            else:
+                tmp = True
+                if e.id.startswith('flash-sound-'):
+                    tmp = self.cv(f'flash-{group_id}/Sound')
+                elif e.id.startswith('flash-mode-'):
+                    tmp = False
+                elif e.id.startswith('flash-light-'):
+                    tmp = self.cv(f'flash-{group_id}/Light')
+                if tmp:
+                    e.classes.remove('disabled')
+        if not disabled:
+            self.activateGroup(group_id)
+
     def onSoundClicked(self, e):
         e = self.elem(e)
         gid = e.id[-1:]
@@ -124,7 +152,6 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-light-{group_id}').classes.append('disabled')
 
     def activateGroup(self, group_id):
-        print(group_id)
         if len(self.power) > 0:
             if len(self.power) == 1:
                 self.power += '.0'
@@ -147,7 +174,6 @@ class FlashControlWindow(HTMLMainWindow):
             f.write(html)
 
     def setPower(self, group_id, power):
-        print(f'setPower({group_id}, {power})')
         self.config[f'flash-{group_id}']['Power'] = power
         self.elem(f'#flash-power-{self.activeGroup}').text = power
         self.power = ''
@@ -155,7 +181,7 @@ class FlashControlWindow(HTMLMainWindow):
     def onKeyPress(self, e):
         # This eats spaces and returns which prevents opening select from keyboard
         # on macos tab is not selecting buttons. Custom tab key control?
-        print(chr(e['which']))
+        print('Key pressed', chr(e['which']))
         if e['which'] >= ord('0') and e['which'] <= ord('9'):
             n = e['which'] - 48
             if len(self.power) == 1 and (self.power != '1' or n != 0):
@@ -164,11 +190,15 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
             if self.power == '10' or len(self.power) == 3:
                 self.setPower(self.activeGroup, self.power)
-        elif chr(e['which']) in ['.', ',', ' ', '-'] and len(self.power) == 1:
+        elif chr(e['which']) in ['.', ',', '-'] and len(self.power) == 1:
             self.power += '.'
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
         elif e['which'] >= ord('a') and e['which'] <= ord('l'):
             self.activateGroup(chr(e['which']).upper())
+        elif e['which'] == ord(' '):
+            print('Space pressed')
+            self.setGroupDisabled(self.activeGroup, 
+                                  not self.cv(f'flash-{self.activeGroup}/Disabled'))
     
     def init(self, window):
         super().init(window)
@@ -200,7 +230,9 @@ class FlashControlWindow(HTMLMainWindow):
                              self.slist('user/flash_accessories.txt'), self.cv(fid + 'Accessory'))
             self.fill_select(f'#flash-{gid} .flash-gel', self.slist('user/flash_gels.txt'), 
                              self.cv(fid + 'Gel'))
-            self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupClicked
+            self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
+            self.setGroupDisabled(gid, self.cv(fid + 'Disabled', False))
+
             e = self.elem(f'#flash-power-{gid}')
             e.events.click += self.onGroupClicked
             e.text = self.cv(fid + 'Power', 10)

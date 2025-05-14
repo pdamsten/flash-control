@@ -80,7 +80,7 @@ class HTMLMainWindow():
                 return None
         else:
              key = search
-        print(f'elem({key})')
+        #print(f'elem({key})')
         if not key in self.elements:
             if e := self.window.dom.get_elements(key):
                 self.elements[key] = e[0]

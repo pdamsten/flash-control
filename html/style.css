@@ -88,20 +88,24 @@ select img {
 button:active, button:hover, select:active, select:hover, select:focus, select:focus {
   border-color: hsl(0, 0%, var(--active));
   color: hsl(0, 0%, var(--active));
+  transition: all 0.2s ease-in-out;
 }
 
 button:active img, button:hover img, select:active img, select:hover img {
   opacity: var(--active);
+  transition: all 0.2s ease-in-out;
 }
 
 .disabled {
   color: hsl(0, 0%, var(--disabled));
   border-color: hsl(0, 0%, var(--disabled));
   transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 } 
 
 .disabled img {
   opacity: calc(var(--disabled) / 2);
+  transition: all 0.2s ease-in-out;
 } 
 
 .mini-button {
