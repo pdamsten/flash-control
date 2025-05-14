@@ -24,7 +24,7 @@
 #**************************************************************************
 
 import argparse
-import sys
+import sys, os
 from lib.htmlgui import HTMLMainWindow
 import pprint
 from webview.dom import DOMEventHandler
@@ -64,8 +64,10 @@ class FlashControlWindow(HTMLMainWindow):
             'name': 'Flash Control',
             'bundle_version': 'X',
             'version': '0.1',
+            'icon': self.path('app-icon.icns'),
             'copyright': 'Copyright © 2025 Petri Damstén'
         }
+        print(self.path('app_icon.icns'))
         self.setMacOsTitle(info)
 
         super().__init__(title, html, css, api)

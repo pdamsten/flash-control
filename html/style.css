@@ -29,6 +29,7 @@ body, html {
   font-size: var(--font-size);
   font-family: var(--font-family);
   background-color: var(--background-color);
+  color: var(--normal);
 }
 
 body {

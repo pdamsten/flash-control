@@ -34,7 +34,6 @@ def isPath(path):
     p = Path(path)
     return p.exists()
 
-TEST_ICON = os.path.expanduser('~/src/digikam-sc/project/macosx/Icons.icns')
 CONFIG = 'user/config.json'
 
 try:
@@ -147,7 +146,7 @@ class HTMLMainWindow():
                 from Foundation import NSBundle
 
                 app = AppKit.NSApplication.sharedApplication()
-                icon_image = AppKit.NSImage.alloc().initWithContentsOfFile_(TEST_ICON)
+                icon_image = AppKit.NSImage.alloc().initWithContentsOfFile_(info['icon'])
                 if icon_image:
                     app.setApplicationIconImage_(icon_image)
 
