@@ -46,6 +46,10 @@ flash_group = '''
     </div>
 '''
 
+ENTER = 13
+BACKSPACE = 8
+ESCAPE = 27
+
 class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
         self.power = ''
@@ -152,12 +156,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-light-{group_id}').classes.append('disabled')
 
     def activateGroup(self, group_id):
-        if len(self.power) > 0:
-            if len(self.power) == 1:
-                self.power += '.0'
-            elif len(self.power) == 2:
-                self.power += '0'
-            self.setPower(self.activeGroup, self.power)
+        self.onKeyPress(ENTER)
         e = self.elem(f'#flash-{group_id}')
         if e:
             self.activeGroup = group_id
@@ -181,24 +180,36 @@ class FlashControlWindow(HTMLMainWindow):
     def onKeyPress(self, e):
         # This eats spaces and returns which prevents opening select from keyboard
         # on macos tab is not selecting buttons. Custom tab key control?
-        print('Key pressed', chr(e['which']))
-        if e['which'] >= ord('0') and e['which'] <= ord('9'):
-            n = e['which'] - 48
+        key = e['which'] if isinstance(e, dict) else e
+        print('Key pressed', key, chr(key))
+        if key >= ord('0') and key <= ord('9'):
+            n = key - 48
             if len(self.power) == 1 and (self.power != '1' or n != 0):
                 self.power += '.'
             self.power += str(n)
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
             if self.power == '10' or len(self.power) == 3:
                 self.setPower(self.activeGroup, self.power)
-        elif chr(e['which']) in ['.', ',', '-'] and len(self.power) == 1:
+        elif chr(key) in ['.', ',', '-'] and len(self.power) == 1:
             self.power += '.'
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
-        elif e['which'] >= ord('a') and e['which'] <= ord('l'):
-            self.activateGroup(chr(e['which']).upper())
-        elif e['which'] == ord(' '):
-            print('Space pressed')
+        elif key >= ord('a') and key <= ord('l'):
+            self.activateGroup(chr(key).upper())
+        elif key == ord(' '):
             self.setGroupDisabled(self.activeGroup, 
                                   not self.cv(f'flash-{self.activeGroup}/Disabled'))
+        elif key == ENTER:
+            if len(self.power) > 0:
+                if len(self.power) == 1:
+                    self.power += '.0'
+                elif len(self.power) == 2:
+                    self.power += '0'
+                self.setPower(self.activeGroup, self.power)
+        elif key == ESCAPE or key == BACKSPACE:
+            if len(self.power) > 0:
+                self.power = ''
+                self.elem(f'#flash-power-{self.activeGroup}').text = \
+                        self.cv(f'flash-{self.activeGroup}/Power')
     
     def init(self, window):
         super().init(window)
