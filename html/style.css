@@ -5,7 +5,8 @@
   --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
   --active: 97%;
   --normal: 85%;
-  --disabled: 50%;
+  --disabled: 20%;
+  --widget-opacity: var(--normal);
 }
 
 *, *::before, *::after {
@@ -17,8 +18,8 @@
   margin: 0;
   padding: 0;
   background-color: var(--background-color);
-  color: hsl(0, 0%, var(--normal));
-  border-color: hsl(0, 0%, var(--normal));
+  color: hsla(0, 0%, 100%, var(--widget-opacity));
+  border-color: hsla(0, 0%, 100%, var(--widget-opacity));
 }
 
 body, html {
@@ -28,8 +29,6 @@ body, html {
   height: 100%;
   font-size: var(--font-size);
   font-family: var(--font-family);
-  background-color: var(--background-color);
-  color: var(--normal);
 }
 
 body {
@@ -59,9 +58,15 @@ select, button {
 }
 
 select {
-  background-position: 97% center;
+  --widget-opacity: var(--normal);
+  background-position: right 0.75em center;
   background-repeat: no-repeat;
-  background-image: url(svg/icon-down.svg);
+  background-size: 8px 8px, 8px 8px;
+  background-image: -webkit-cross-fade(
+    linear-gradient(0deg, transparent, transparent),
+    url(svg/icon-down.svg),
+    var(--widget-opacity)
+  );
   padding-left: 0.5rem;
   padding-right: 1.5rem;
   height: 2rem;
@@ -69,7 +74,6 @@ select {
 }
 
 button {
-  background: var(--background-color);
   text-align: center;
   height: 4rem;
   font-size: 1.7rem;
@@ -88,9 +92,8 @@ select img {
 }
 
 button:active, button:hover, select:active, select:hover, select:focus, select:focus {
-  border-color: hsl(0, 0%, var(--active));
-  color: hsl(0, 0%, var(--active));
   transition: all 0.2s ease-in-out;
+  --widget-opacity: var(--active);
 }
 
 button:active img, button:hover img, select:active img, select:hover img {
@@ -99,14 +102,12 @@ button:active img, button:hover img, select:active img, select:hover img {
 }
 
 .disabled {
-  color: hsl(0, 0%, var(--disabled));
-  border-color: hsl(0, 0%, var(--disabled));
   transition: all 0.2s ease-in-out;
-  transition: all 0.2s ease-in-out;
+  --widget-opacity: var(--disabled);
 } 
 
 .disabled img {
-  opacity: calc(var(--disabled) / 2);
+  opacity: var(--disabled);
   transition: all 0.2s ease-in-out;
 } 
 
