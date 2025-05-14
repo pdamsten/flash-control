@@ -60,6 +60,14 @@ class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
         self.power = ''
         self.activeGroup = 'A'
+        info = {
+            'name': 'Flash Control',
+            'bundle_version': 'X',
+            'version': '0.1',
+            'copyright': 'Copyright © 2025 Petri Damstén'
+        }
+        self.setMacOsTitle(info)
+
         super().__init__(title, html, css, api)
 
     def fill_select(self, e, items, value = None):

@@ -125,7 +125,6 @@ class HTMLMainWindow():
     def __init__(self, title, html, css = None, api = None):
         HTMLMainWindow.instances.append(self)
 
-        self.setMacOsTitle(title)
         self.api = api
         self.css = css
         self.config = self.json(CONFIG)
@@ -142,7 +141,7 @@ class HTMLMainWindow():
         self.window.events.moved += self.on_moved
         webview.start(self.init, self.window)
 
-    def setMacOsTitle(self, name):
+    def setMacOsTitle(self, info):
         if sys.platform.startswith('darwin'):
             try:
                 from Foundation import NSBundle
@@ -156,11 +155,10 @@ class HTMLMainWindow():
                 if bundle:
                     app_info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
                     if app_info:
-                        app_info['CFBundleName'] = name
-                        # TODO
-                        app_info['CFBundleVersion'] = '0.1'
-                        app_info['CFBundleShortVersionString'] = '0.2'
-                        app_info['NSHumanReadableCopyright'] = 'copyright'
+                        app_info['CFBundleName'] = info['name']
+                        app_info['CFBundleVersion'] = info['bundle_version']
+                        app_info['CFBundleShortVersionString'] = info['version']
+                        app_info['NSHumanReadableCopyright'] = info['copyright']
 
             except ImportError:
                 pass
