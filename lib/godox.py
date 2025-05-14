@@ -26,12 +26,11 @@
 from bleak import BleakScanner
 from bleak import BleakClient
 import PyObjCTools
-import configparser
 from crccheck.crc import Crc8Maxim
 from threading import Thread
 from threading import Timer
 from queue import Queue
-import sys
+import asyncio
 
 class Godox:
     def __init__(self):
@@ -46,13 +45,16 @@ class Godox:
 
     def start(self, cfg):
         self.worker = GodoxWorker()
+        self.worker.start()
         self.sendMsg('start', cfg)
         Timer(0.5, self.poll).start()
 
     def stop(self):
         self.quit = True
         self.sendMsg('stop')
-        self.worker = None
+        if self.worker:
+            self.worker.join()
+            self.worker = None
 
     def setTriggerValues(self, values):
         self.sendMsg('setTriggerValues', values)
@@ -74,13 +76,16 @@ class GodoxWorker(Thread):
     modes = {'-': 3, 'T': 0, 'M': 1}
     fractions = [2 ** n for n in range(9)]
 
-    def __init__(self):
-        self.name = None 
-        self.address = None 
-        self.uuid = None
-        self.client = None
+    def __init__(self, inQueue, outQueue):
         self.config = {}
+        self.inQueue = inQueue
+        self.outQueue = outQueue
+        self.client = None
     
+    def sendMsg(self, cmd, data = None):
+        if self.outQueue:
+            self.outQueue.put((cmd, data))
+
     @staticmethod
     def fraction2godox(s):
         l = s.replace('1/', '').split('+')
@@ -102,8 +107,7 @@ class GodoxWorker(Thread):
         print(' =>', s, '=', res)
         return res
 
-    @staticmethod
-    async def scan(config):
+    async def scan(self):
         print('scanning...')
         devices = await BleakScanner.discover()
         godox = None
@@ -127,30 +131,42 @@ class GodoxWorker(Thread):
                         if pre.strip() != '':
                             uuid = ch.uuid
         if uuid:
-            config['bluetooth'] = {}
-            config['bluetooth']['name'] = name
-            config['bluetooth']['address'] = address
-            config['bluetooth']['uuid'] = uuid
+            self.config = {}
+            self.config['name'] = name
+            self.config['address'] = address
+            self.config['uuid'] = uuid
+            self.sendMsg('config', self.config)
             return True
         else:
-            print('NOT FOUND')
+            if name in self.config and self.config['name']:
+                msg = f'Unable to connect to Godox device: {self.config['name']} and scan failed.'
+            else:
+                msg = 'Godox device scan failed.'
+            self.sendMsg('message', msg)
             return False
 
     async def connect(self):
-        if self.client and self.client.is_connected:
-            #print('already connected')
-            return True
+        tries = 0
+        while tries < 2:
+            if self.client and self.client.is_connected:
+                print('already connected')
+                return True
 
-        if not self.client:
-            self.client = BleakClient(self.address)
-            print('new client')
-        try:
-            await self.client.connect()
-            print('connected')
-            return True
-        except:
-            print('Connect failed.', self.name)
-            return False
+            if 'address' in self.config:
+                if not self.client:
+                    self.client = BleakClient(self.config['address'])
+                    print('new client')
+                try:
+                    await self.client.connect()
+                    self.sendMsg('connected')
+                    return True
+                except:
+                    pass
+
+            if not await self.scan():
+                return False
+
+            tries += 1
 
     @staticmethod
     def checksum(command):
@@ -161,6 +177,9 @@ class GodoxWorker(Thread):
     async def test(self):
         cmd = bytes.fromhex("37353035362C54657374")
         await self.sendCommand(cmd)
+
+    async def setValues(self, values):
+        pass
 
     async def setModellingLight(self, godox, on = True, group = None):
         cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
@@ -186,21 +205,38 @@ class GodoxWorker(Thread):
             await self.client.write_gatt_char(self.uuid, command)
 
     async def start(self, config):
-        if not 'bluetooth' in config:
-            print('No bluetooth in config. Use --scan')
-            sys.exit(1)
-        else:
-            self.name = config['bluetooth']['name']
-            self.address = config['bluetooth']['address']
-            self.uuid = config['bluetooth']['uuid']
+        self.config = config
         await self.connect()
-        return True
 
     async def stop(self):
         if self.client:
             if self.client.is_connected:
                 print('disconnect bt')
                 await self.client.disconnect()
+
+    async def loop(self):
+        while True:
+            cmd, data = self.toWorkerQueue.get()
+
+            if cmd == 'start':
+                print('start')
+                self.config = data
+                await self.start(data)
+            elif cmd == 'stop':
+                print('stop')
+                await self.stop()
+                return
+            elif cmd == 'setTriggerValues':
+                print('setTriggerValues', data)
+                await self.setValues(data)
+            else:
+                print('unknown command', cmd)
+
+    def run():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(loop())
+        loop.close()
 
 if __name__ == '__main__':
     pass
