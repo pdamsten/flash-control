@@ -36,7 +36,7 @@ flash_group = '''
       <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
       <span id="flash-power-{group_id}" class="flash-power">8.0</span>
       <button id="flash-sound-{group_id}" class="flash-sound"><img src="svg/sound.svg"></button>
-      <button id="flash-mode-{group_id}" class="flash-mode">M</button>
+      <button id="flash-mode-{group_id}" class="flash-mode disabled">M</button>
       <button id="flash-light-{group_id}" class="flash-light"><img src="svg/light.svg"></button>
       <div class="flash-info-a">
         <select id="flash-name-{group_id}" class="flash-name" data-key="Name"></select>
