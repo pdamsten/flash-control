@@ -28,6 +28,7 @@ body, html {
   height: 100%;
   font-size: var(--font-size);
   font-family: var(--font-family);
+  background-color: var(--background-color);
 }
 
 body {
@@ -158,7 +159,7 @@ button:active img, button:hover img, select:active img, select:hover img {
   padding: 1rem;
   justify-items: center;
   align-items: center;
-  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
   grid-template-rows: repeat(auto-fit, 1fr);
   overflow-y: auto;
 }
