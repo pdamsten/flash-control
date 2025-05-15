@@ -82,6 +82,34 @@ class FlashControlWindow(HTMLMainWindow):
         e = self.elem(e)
         print(e.id)
 
+    def onSoundClicked(self, e):
+        e = self.elem(e)
+        self.setSound(not self.cv('Sound'))
+
+    def onLightClicked(self, e):
+        e = self.elem(e)
+        self.setLight(not self.cv('ModellingLight'))
+
+    def setSound(self, v):
+        self.config['Sound'] = v
+        if v:
+            self.elem(f'#flash-sound-all').classes.remove('disabled')
+        else:
+            self.elem(f'#flash-sound-all').classes.append('disabled')
+        self.setSoundAndLight()
+
+    def setLight(self, v):
+        self.config['ModellingLight'] = v
+        if v:
+            self.elem(f'#flash-light-all').classes.remove('disabled')
+        else:
+            self.elem(f'#flash-light-all').classes.append('disabled')
+        self.setSoundAndLight()
+
+    def setSoundAndLight(self):
+        if self.godox:
+            self.godox.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
+    
     def onSelectChange(self, e):
         elem = self.elem(e)
         pid = elem.parent.parent.id
@@ -214,6 +242,7 @@ class FlashControlWindow(HTMLMainWindow):
     def onGodoxConnected(self, data):
         self.elem('#flash-button').classes.remove('disabled')
         self.elem('#flash-popup .message').text = f'Connected to: {data}'
+        self.setSoundAndLight()
         self.setFlashValues()
 
     def onGodoxConfig(self, data):
@@ -260,6 +289,10 @@ class FlashControlWindow(HTMLMainWindow):
             self.setMode(gid, self.cv(fid + 'Mode', 'M'))
     
         self.elem('#shutter-button').events.click += self.onShutterClicked
+        self.elem(f'#flash-sound-all').events.click += self.onSoundClicked
+        self.setSound(self.cv('Sound', False))
+        self.elem(f'#flash-light-all').events.click += self.onLightClicked
+        self.setLight(self.cv('ModellingLight', False))
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange

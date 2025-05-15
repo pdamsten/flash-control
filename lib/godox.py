@@ -210,9 +210,9 @@ class GodoxWorker(Thread):
         self.pastValues = values
 
     async def setBeepAndLight(self, beep = True, light = True):
+        cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
         cmd[4] = int(beep)
         cmd[5] = int(light)
-        cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def setPower(self, group, mode, power = '1/1'):
