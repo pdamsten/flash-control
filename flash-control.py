@@ -202,16 +202,37 @@ class FlashControlWindow(HTMLMainWindow):
         # on macos tab is not selecting buttons. Custom tab key control?
         key = e['which'] if isinstance(e, dict) else e
         print('Key pressed', key, chr(key))
+        manual = (self.cv(f'flash-{self.activeGroup}/Mode') == 'M')
         if key >= ord('0') and key <= ord('9'):
             n = key - 48
-            if len(self.power) == 1 and (self.power != '1' or n != 0):
-                self.power += '.'
-            self.power += str(n)
+            if manual:
+                if len(self.power) == 1 and (self.power != '1' or n != 0):
+                    self.power += '.'
+                self.power += str(n)
+                if self.power == '10' or len(self.power) == 3:
+                    self.setPower(self.activeGroup, self.power)
+            else:
+                if len(self.power) == 0:
+                    self.power = '+'
+                if len(self.power) == 2:
+                    self.power += '.'
+                if len(self.power) == 3:
+                    self.power += '0' if n == 0 else '3' if n < 5 else '7'
+                else:
+                    self.power += str(n)
+                if len(self.power) == 4:
+                    self.setPower(self.activeGroup, self.power)
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
-            if self.power == '10' or len(self.power) == 3:
-                self.setPower(self.activeGroup, self.power)
-        elif chr(key) in ['.', ',', '-'] and len(self.power) == 1:
-            self.power += '.'
+        elif chr(key) == '-':
+            if not manual and len(self.power) == 0:
+                self.power = '-'
+        elif chr(key) in ['.', ',']:
+            if manual:
+                 if len(self.power) == 1:
+                    self.power += '.'
+            else:
+                 if len(self.power) == 2:
+                    self.power += '.'
             self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
         elif key >= ord('a') and key <= ord('l'):
             self.activateGroup(chr(key).upper())
