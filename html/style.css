@@ -1,6 +1,6 @@
 :root {
-  --background-color: hsl(0, 0%, 20%);
-  --background-color-darker: hsl(0, 0%, 15%);
+  --background-color: hsl(0, 0%, 12%);
+  --background-color-darker: hsl(0, 0%, 5%);
   --font-size: 0.85rem;
   --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
   --active: 97%;
