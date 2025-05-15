@@ -202,10 +202,6 @@ class GodoxWorker(Thread):
             if not eq('power', i, self.pastValues, values) or \
                not eq('power', i, self.pastValues, values):
                 await self.setPower(v['group'], v['mode'], v['power'])
-            if not eq('light', i, self.pastValues, values):
-                await self.setModellingLight(v['group'], v['light'])
-            if not eq('sound', i, self.pastValues, values):
-                await self.setBeep(v['group'], v['sound'])
         self.pastValues = values
 
     async def setBeepAndLight(self, light = True, beep = True):
@@ -215,15 +211,24 @@ class GodoxWorker(Thread):
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def setPower(self, group, mode, power = '1/1'):
+        # TTL
+        # F0A1 070A 0000 0000 0103 B6 +0.3
+        # 0107 +0.7
+        # 010A +1.0
+        # 0100 0.0
+        # 0183 -0.3
+        # 0187 -0.7
+        # 018A -1.0
+
         print(group, mode, power)
-        cmd = list(bytes.fromhex("F0A10700000000000100"))
+        cmd = list(bytes.fromhex("F0A10000000000000100"))
         cmd[3] = int('0' + group, 16)
         cmd[4] = int(GodoxWorker.modes[mode])
         if mode == 'M':
             cmd[5] = GodoxWorker.power2godox(power)
         elif mode == 'T':
             cmd[5] = 0x17
-            cmd[9] = power
+            cmd[9] = 132 # power # 0 = 0.0, 30 = 3.0, 160 = -3.0
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
