@@ -8,7 +8,13 @@
 </head>
 <body>
   <div class="icon-bar">
-    <button id="flash-button" class="mini-button disabled"><img src="svg/flash.svg"></button>
+    <a href="#flash-popup" id="flash-button" class="mini-button disabled">
+      <img src="svg/flash.svg">
+    </a>
+    <div id="flash-popup" class="popup">
+      <span class="message">Connecting...</span>
+    </div>
+    <a href="#" class="close-popup"></a>
     <button id="nano-button" class="mini-button disabled"><img src="svg/nano.svg"></button>
     <button id="skull-button" class="mini-button"><img src="svg/skull.svg"></button>
   </div>

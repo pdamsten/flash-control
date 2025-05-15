@@ -257,5 +257,53 @@ button:active img, button:hover img, select:active img, select:hover img {
 }
 
 .active {
-  border-color: hsl(0, 0%, var(--active));
+  border-color: hsla(0, 0%, 100%, var(--widget-opacity));
+}
+
+.popup {
+  position: fixed;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: --var(--background-color);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .5s, visibility 0s linear .5s;
+  z-index: 11;
+  position-area: start end;
+  top: 3rem;
+  right: 6rem;
+  min-width: 30rem;
+  min-height: 4rem;
+}
+
+.popup:target {
+  visibility: visible;
+  opacity: 1;
+  -webkit-transition-delay: 0s;
+  transition-delay: 0s;
+}
+
+.close-popup {
+  background: rgba(0,0,0,.2);
+  cursor: default;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .5s, visibility 0s linear .5s;
+  z-index: 10;
+}
+
+.popup:target + .close-popup{  
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.message {
+  font-size: 1rem;
+  text-align: center;
 }
