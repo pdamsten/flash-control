@@ -32,9 +32,7 @@ flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
       <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
       <span id="flash-power-{group_id}" class="flash-power">8.0</span>
-      <button id="flash-sound-{group_id}" class="flash-sound"><img src="svg/sound.svg"></button>
-      <button id="flash-mode-{group_id}" class="flash-mode disabled">M</button>
-      <button id="flash-light-{group_id}" class="flash-light"><img src="svg/light.svg"></button>
+      <button id="flash-mode-{group_id}" class="flash-mode">M</button>
       <div class="flash-info-a">
         <select id="flash-name-{group_id}" class="flash-name" data-key="Name"></select>
         <select id="flash-role-{group_id}" class="flash-role" data-key="Role"></select>
@@ -105,7 +103,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setGroupDisabled(gid, not self.cv(f'flash-{gid}/Disabled'))
 
     def setGroupDisabled(self, group_id, disabled):
-        a = ['flash-group-', 'flash-power-', 'flash-sound-', 'flash-mode-', 'flash-light-', 
+        a = ['flash-group-', 'flash-power-', 'flash-mode-', 
              'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory', 'flash-gel-']
         
         self.config[f'flash-{group_id}']['Disabled'] = disabled
@@ -115,23 +113,13 @@ class FlashControlWindow(HTMLMainWindow):
                 e.classes.append('disabled')
             else:
                 tmp = True
-                if e.id.startswith('flash-sound-'):
-                    tmp = self.cv(f'flash-{group_id}/Sound')
-                elif e.id.startswith('flash-mode-'):
+                if e.id.startswith('flash-mode-'):
                     tmp = False
-                elif e.id.startswith('flash-light-'):
-                    tmp = self.cv(f'flash-{group_id}/Light')
                 if tmp:
                     e.classes.remove('disabled')
         if not disabled:
             self.activateGroup(group_id)
         self.setFlashValues()
-
-    def onSoundClicked(self, e):
-        e = self.elem(e)
-        gid = e.id[-1:]
-        self.activateGroup(gid)
-        self.setSound(gid, not self.cv(f'flash-{gid}/Sound'))
 
     def onModeClicked(self, e):
         e = self.elem(e)
@@ -139,31 +127,9 @@ class FlashControlWindow(HTMLMainWindow):
         self.activateGroup(gid)
         self.setMode(gid, 'M' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'TTL')
 
-    def onLightClicked(self, e):
-        e = self.elem(e)
-        gid = e.id[-1:]
-        self.activateGroup(gid)
-        self.setLight(gid, not self.cv(f'flash-{gid}/Light'))
-
-    def setSound(self, group_id, v):
-        self.config[f'flash-{group_id}']['Sound'] = v
-        if v:
-            self.elem(f'#flash-sound-{group_id}').classes.remove('disabled')
-        else:
-            self.elem(f'#flash-sound-{group_id}').classes.append('disabled')
-        self.setFlashValues()
-
     def setMode(self, group_id, v):
         self.config[f'flash-{group_id}']['Mode'] = v
         self.elem(f'#flash-mode-{group_id}').text = self.config[f'flash-{group_id}']['Mode']
-        self.setFlashValues()
-
-    def setLight(self, group_id, v):
-        self.config[f'flash-{group_id}']['Light'] = v
-        if v:
-            self.elem(f'#flash-light-{group_id}').classes.remove('disabled')
-        else:
-            self.elem(f'#flash-light-{group_id}').classes.append('disabled')
         self.setFlashValues()
 
     def activateGroup(self, group_id):
@@ -197,10 +163,8 @@ class FlashControlWindow(HTMLMainWindow):
                 gid = chr(ord('A') + i)
                 v['group'] = gid
                 v['power'] = self.cv(f'flash-{gid}/Power')
-                v['sound'] = self.cv(f'flash-{gid}/Sound')
                 v['mode'] = '-' if self.cv(f'flash-{gid}/Disabled') else \
                     'T' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'M'
-                v['light'] = self.cv(f'flash-{gid}/Light')
                 values.append(v)
             print(values)
             self.godox.setValues(values)
@@ -292,12 +256,8 @@ class FlashControlWindow(HTMLMainWindow):
             e.events.click += self.onGroupClicked
             e.text = self.cv(fid + 'Power', 10)
 
-            self.elem(f'#flash-sound-{gid}').events.click += self.onSoundClicked
-            self.setSound(gid, self.cv(fid + 'Sound', False))
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
             self.setMode(gid, self.cv(fid + 'Mode', 'M'))
-            self.elem(f'#flash-light-{gid}').events.click += self.onLightClicked
-            self.setLight(gid, self.cv(fid + 'Light', False))
     
         self.elem('#shutter-button').events.click += self.onShutterClicked
 

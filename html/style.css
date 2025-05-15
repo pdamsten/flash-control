@@ -170,12 +170,12 @@ button:active img, button:hover img, select:active img, select:hover img {
   background-color: var(--background-color);
   display: grid;
   grid-template-areas:
-    "flash-group flash-power flash-sound"
-    "flash-group flash-power flash-mode"
-    ". flash-power flash-light"
-    "flash-info-a flash-info-a flash-info-a"
-    "flash-info-b flash-info-b flash-info-b";
-  grid-template-columns: min-content 1fr min-content;
+    "flash-group flash-power"
+    "flash-group flash-power"
+    "flash-mode flash-power "
+    "flash-info-a flash-info-a"
+    "flash-info-b flash-info-b";
+  grid-template-columns: min-content 1fr;
   grid-template-rows: min-content min-content min-content min-content min-content;
   align-items: center;
   justify-items: center;
@@ -206,16 +206,6 @@ button:active img, button:hover img, select:active img, select:hover img {
 
 .flash-mode {
   grid-area: flash-mode;
-  width: 6rem;
-}
-
-.flash-sound {
-  grid-area: flash-sound;
-  width: 6rem;
-}
-
-.flash-light {
-  grid-area: flash-light;
   width: 6rem;
 }
 
