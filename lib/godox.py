@@ -28,7 +28,6 @@ from bleak import BleakClient
 import PyObjCTools
 from crccheck.crc import Crc8Maxim
 from threading import Thread
-from threading import Timer
 from queue import Queue
 import asyncio
 
@@ -50,6 +49,12 @@ class Godox:
 
     def setValues(self, values):
         self.sendMsg('setValues', values)
+
+    def setBeepAndLight(self, beep = True, light = True):
+        self.sendMsg('setBeepAndLight', (beep, light))
+
+    def test(self):
+        self.sendMsg('test')
 
     def close(self):
         self.fromWorkerQueue.put(('quit', None))
@@ -200,11 +205,11 @@ class GodoxWorker(Thread):
         
         for i, v in enumerate(values):
             if not eq('power', i, self.pastValues, values) or \
-               not eq('power', i, self.pastValues, values):
+               not eq('mode', i, self.pastValues, values):
                 await self.setPower(v['group'], v['mode'], v['power'])
         self.pastValues = values
 
-    async def setBeepAndLight(self, light = True, beep = True):
+    async def setBeepAndLight(self, beep = True, light = True):
         cmd[4] = int(beep)
         cmd[5] = int(light)
         cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
@@ -232,7 +237,7 @@ class GodoxWorker(Thread):
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
-        if self.client.is_connected:
+        if self.client and self.client.is_connected:
             print(self.config['uuid'], ''.join('{:02x}'.format(x) for x in command))
             await self.client.write_gatt_char(self.config['uuid'], command)
 
@@ -258,6 +263,12 @@ class GodoxWorker(Thread):
             elif cmd == 'setValues':
                 print('- GodoxWorker::setValues', data)
                 await self.setValues(data)
+            elif cmd == 'setBeepAndLight':
+                print('- GodoxWorker::setBeepAndLight', data)
+                await self.setBeepAndLight(data[0], data[1])
+            elif cmd == 'test':
+                print('- GodoxWorker::test')
+                await self.test()
             else:
                 print('- unknown command', cmd)
 
