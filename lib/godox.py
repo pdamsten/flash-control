@@ -185,7 +185,7 @@ class GodoxWorker(Thread):
         return command + crcinst.finalbytes()
 
     async def test(self):
-        cmd = bytes.fromhex("37353035362C54657374")
+        cmd = bytes.fromhex("31333234312C54657374")
         await self.sendCommand(cmd)
 
     async def setValues(self, values):
@@ -208,16 +208,10 @@ class GodoxWorker(Thread):
                 await self.setBeep(v['group'], v['sound'])
         self.pastValues = values
 
-    async def setBeep(self, group, on = True):
+    async def setBeepAndLight(self, light = True, beep = True):
+        cmd[4] = int(beep)
+        cmd[5] = int(light)
         cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
-        cmd[5] = int(on)
-        cmd[6] = int('0' + group, 16)
-        await self.sendCommand(self.checksum(bytearray(cmd)))
-
-    async def setModellingLight(self, group, on = True):
-        cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
-        cmd[5] = int(on)
-        cmd[6] = int('0' + group, 16)
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def setPower(self, group, mode, power = '1/1'):
@@ -234,7 +228,7 @@ class GodoxWorker(Thread):
 
     async def sendCommand(self, command):
         if self.client.is_connected:
-            #print(self.uuid, ''.join('{:02x}'.format(x) for x in command))
+            print(self.config['uuid'], ''.join('{:02x}'.format(x) for x in command))
             await self.client.write_gatt_char(self.config['uuid'], command)
 
     async def stop(self):

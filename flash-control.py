@@ -151,7 +151,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-sound-{group_id}').classes.remove('disabled')
         else:
             self.elem(f'#flash-sound-{group_id}').classes.append('disabled')
-        #self.setFlashValues()
+        self.setFlashValues()
 
     def setMode(self, group_id, v):
         self.config[f'flash-{group_id}']['Mode'] = v
