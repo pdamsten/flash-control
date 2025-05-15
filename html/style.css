@@ -204,6 +204,13 @@ button:active img, button:hover img, select:active img, select:hover img {
   font-weight: bold;
 }
 
+.flash-prefix {
+  vertical-align: 2rem;
+  font-size: 8rem;
+  padding-right: 1rem;
+}
+
+
 .flash-mode {
   grid-area: flash-mode;
   width: 6rem;
@@ -297,3 +304,4 @@ button:active img, button:hover img, select:active img, select:hover img {
   text-align: center;
   width: 100%;
 }
+

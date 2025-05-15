@@ -31,7 +31,9 @@ from webview.dom import DOMEventHandler
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
       <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
-      <span id="flash-power-{group_id}" class="flash-power">8.0</span>
+      <div id="flash-power-{group_id}" class="flash-power">
+            <span id="flash-power-prefix{group_id}" class="flash-prefix">-</span><span id="flash-power-number{group_id}" class="flash-power-nbr">3.0</span>
+      </div>
       <button id="flash-mode-{group_id}" class="flash-mode">M</button>
       <div class="flash-info-a">
         <select id="flash-name-{group_id}" class="flash-name" data-key="Name"></select>
@@ -179,7 +181,7 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setPower(self, group_id, power):
         self.config[f'flash-{group_id}']['Power'] = power
-        self.elem(f'#flash-power-{self.activeGroup}').text = power
+        self.powerHtml(f'#flash-power-{self.activeGroup}', power)
         self.power = ''
         self.setFlashValues()
 
@@ -196,6 +198,16 @@ class FlashControlWindow(HTMLMainWindow):
                 values.append(v)
             print(values)
             self.godox.setValues(values)
+
+    def powerHtml(self, sel, s):
+        e = self.elem(sel)
+        s = str(s)
+        if s[0] in ['+', '-']:
+            e.children[0].text = s[0]
+            s = s[1:]
+        else:
+            e.children[0].text = ''
+        e.children[1].text = s
 
     def onKeyPress(self, e):
         # This eats spaces and returns which prevents opening select from keyboard
@@ -222,10 +234,11 @@ class FlashControlWindow(HTMLMainWindow):
                     self.power += str(n)
                 if len(self.power) == 4:
                     self.setPower(self.activeGroup, self.power)
-            self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
+            self.powerHtml(f'#flash-{self.activeGroup} .flash-power', self.power)
         elif chr(key) == '-':
             if not manual and len(self.power) == 0:
                 self.power = '-'
+                self.powerHtml(f'#flash-{self.activeGroup} .flash-power', self.power)
         elif chr(key) in ['.', ',']:
             if manual:
                  if len(self.power) == 1:
@@ -233,7 +246,7 @@ class FlashControlWindow(HTMLMainWindow):
             else:
                  if len(self.power) == 2:
                     self.power += '.'
-            self.elem(f'#flash-{self.activeGroup} .flash-power').text = self.power
+            self.powerHtml(f'#flash-{self.activeGroup} .flash-power', self.power)
         elif key >= ord('a') and key <= ord('l'):
             self.activateGroup(chr(key).upper())
         elif key == ord(' '):
@@ -304,7 +317,7 @@ class FlashControlWindow(HTMLMainWindow):
 
             e = self.elem(f'#flash-power-{gid}')
             e.events.click += self.onGroupClicked
-            e.text = self.cv(fid + 'Power', 10)
+            self.powerHtml(f'#flash-power-{gid}', self.cv(fid + 'Power', 10))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
             self.setMode(gid, self.cv(fid + 'Mode', 'M'))
