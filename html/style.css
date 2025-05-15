@@ -272,8 +272,7 @@ button:active img, button:hover img, select:active img, select:hover img {
   position-area: start end;
   top: 3rem;
   right: 6rem;
-  min-width: 30rem;
-  min-height: 4rem;
+  min-width: 20rem;
 }
 
 .popup:target {
@@ -306,4 +305,5 @@ button:active img, button:hover img, select:active img, select:hover img {
 .message {
   font-size: 1rem;
   text-align: center;
+  width: 100%;
 }

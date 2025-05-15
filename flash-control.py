@@ -67,6 +67,12 @@ class FlashControlWindow(HTMLMainWindow):
 
         super().__init__(title, html, css, api)
 
+    def on_closing(self):
+        print('Flash Window closed')
+        self.window.events.closing -= self.on_closing
+        self.godox.close()
+        super().on_closing()
+
     def fill_select(self, e, items, value = None):
         e = self.elem(e)
         for i, item in enumerate(items):
@@ -103,7 +109,6 @@ class FlashControlWindow(HTMLMainWindow):
         
         self.config[f'flash-{group_id}']['Disabled'] = disabled
         for s in a:
-            print(f'#{s}{group_id}')
             e = self.elem(f'#{s}{group_id}')
             if disabled:
                 e.classes.append('disabled')
@@ -217,11 +222,12 @@ class FlashControlWindow(HTMLMainWindow):
             msg = f'Unable to connect to Godox device: {data} and scan failed.'
         else:
             msg = 'Godox device scan failed.'
-        self.elem('#flash-button').classes.add('disabled')
+        self.elem('#flash-button').classes.append('disabled')
+        self.elem('#flash-popup .message').text = msg
 
     def onGodoxConnected(self, data):
-        msg = f'Connected to: {data}'
         self.elem('#flash-button').classes.remove('disabled')
+        self.elem('#flash-popup .message').text = f'Connected to: {data}'
 
     def onGodoxConfig(self, data):
         self.config['godox'] = data
@@ -282,6 +288,8 @@ class FlashControlWindow(HTMLMainWindow):
         self.godox.callback('connected', self.onGodoxConnected)
         self.godox.callback('config', self.onGodoxConfig)
         self.godox.connect(self.cv('godox', {}))
+
+        self.window.events.closing += self.on_closing
 
         if (args.debug):
             self.saveDebugHtml()

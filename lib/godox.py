@@ -37,40 +37,42 @@ class Godox:
         self.callbacks = {}
         self.fromWorkerQueue = Queue()
         self.toWorkerQueue = Queue()
-        self.quit = False
-        self.worker = None
+        self.worker = GodoxWorker(self.toWorkerQueue, self.fromWorkerQueue)
+        self.worker.start()
+        Thread(target = self.poll).start()
 
     def callback(self, name, callback):
         self.callbacks[name] = callback
 
     def connect(self, cfg):
-        self.worker = GodoxWorker(self.toWorkerQueue, self.fromWorkerQueue)
-        self.worker.start()
         self.sendMsg('connect', cfg)
-        Timer(0.5, self.poll).start()
+
+    def setValues(self, values):
+        self.sendMsg('setValues', values)
 
     def close(self):
-        self.quit = True
         self.sendMsg('stop')
         if self.worker:
             self.worker.join()
             self.worker = None
-
-    def setValues(self, values):
-        self.sendMsg('setValues', values)
+        self.fromWorkerQueue.put(('quit', None))
 
     def sendMsg(self, cmd, data = None):
         if self.worker:
             self.toWorkerQueue.put((cmd, data))
 
     def poll(self):
-        msg = self.fromWorkerQueue.get()
+        print('poll')
+        while True:
+            cmd, data = self.fromWorkerQueue.get()
+            print('poll', cmd, data)
 
-        if msg[0] in self.callbacks:
-            self.callbacks[msg[0]](msg[1])
+            if cmd in self.callbacks:
+                self.callbacks[cmd](data)
+            elif cmd == 'quit':
+                print('poll quit')
+                return
 
-        if not self.quit:
-            Timer(1.0, self.poll).start()
 
 class GodoxWorker(Thread):
     modes = {'-': 3, 'T': 0, 'M': 1}
@@ -85,6 +87,7 @@ class GodoxWorker(Thread):
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
+            print('out', cmd, data)
             self.outQueue.put((cmd, data))
 
     @staticmethod
@@ -139,7 +142,8 @@ class GodoxWorker(Thread):
             self.sendMsg('config', self.config)
             return True
         else:
-            self.sendMsg('failed', self.config['name'])
+            print('failed', self.config)
+            self.sendMsg('failed', self.config['name'] if name in self.config else None)
             return False
 
     async def connect(self):
@@ -210,11 +214,12 @@ class GodoxWorker(Thread):
     async def loop(self):
         while True:
             cmd, data = self.inQueue.get()
+            print('loop', cmd, data)
 
             if cmd == 'connect':
                 print('connect')
                 self.config = data
-                await self.connect(data)
+                await self.connect()
             elif cmd == 'stop':
                 print('stop')
                 await self.stop()
