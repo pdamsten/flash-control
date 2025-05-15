@@ -212,10 +212,15 @@ class FlashControlWindow(HTMLMainWindow):
                 self.elem(f'#flash-power-{self.activeGroup}').text = \
                         self.cv(f'flash-{self.activeGroup}/Power')
 
-    def onGodoxMsg(self, data):
-        pass
+    def onGodoxFailed(self, data):
+        if data:
+            msg = f'Unable to connect to Godox device: {data} and scan failed.'
+        else:
+            msg = 'Godox device scan failed.'
+        self.elem('#flash-button').classes.add('disabled')
 
     def onGodoxConnected(self, data):
+        msg = f'Connected to: {data}'
         self.elem('#flash-button').classes.remove('disabled')
 
     def onGodoxConfig(self, data):
@@ -273,10 +278,10 @@ class FlashControlWindow(HTMLMainWindow):
         self.activateGroup('A')
 
         self.godox = Godox()
-        self.godox.connect('message', self.onGodoxMsg)
-        self.godox.connect('connected', self.onGodoxConnected)
-        self.godox.connect('config', self.onGodoxConfig)
-        self.godox.start(self.cv('godox', {}))
+        self.godox.callback('failed', self.onGodoxFailed)
+        self.godox.callback('connected', self.onGodoxConnected)
+        self.godox.callback('config', self.onGodoxConfig)
+        self.godox.connect(self.cv('godox', {}))
 
         if (args.debug):
             self.saveDebugHtml()

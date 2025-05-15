@@ -40,24 +40,24 @@ class Godox:
         self.quit = False
         self.worker = None
 
-    def connect(self, name, callback):
+    def callback(self, name, callback):
         self.callbacks[name] = callback
 
-    def start(self, cfg):
-        self.worker = GodoxWorker()
+    def connect(self, cfg):
+        self.worker = GodoxWorker(self.toWorkerQueue, self.fromWorkerQueue)
         self.worker.start()
-        self.sendMsg('start', cfg)
+        self.sendMsg('connect', cfg)
         Timer(0.5, self.poll).start()
 
-    def stop(self):
+    def close(self):
         self.quit = True
         self.sendMsg('stop')
         if self.worker:
             self.worker.join()
             self.worker = None
 
-    def setTriggerValues(self, values):
-        self.sendMsg('setTriggerValues', values)
+    def setValues(self, values):
+        self.sendMsg('setValues', values)
 
     def sendMsg(self, cmd, data = None):
         if self.worker:
@@ -77,6 +77,7 @@ class GodoxWorker(Thread):
     fractions = [2 ** n for n in range(9)]
 
     def __init__(self, inQueue, outQueue):
+        super().__init__()
         self.config = {}
         self.inQueue = inQueue
         self.outQueue = outQueue
@@ -138,11 +139,7 @@ class GodoxWorker(Thread):
             self.sendMsg('config', self.config)
             return True
         else:
-            if name in self.config and self.config['name']:
-                msg = f'Unable to connect to Godox device: {self.config['name']} and scan failed.'
-            else:
-                msg = 'Godox device scan failed.'
-            self.sendMsg('message', msg)
+            self.sendMsg('failed', self.config['name'])
             return False
 
     async def connect(self):
@@ -204,10 +201,6 @@ class GodoxWorker(Thread):
             #print(self.uuid, ''.join('{:02x}'.format(x) for x in command))
             await self.client.write_gatt_char(self.uuid, command)
 
-    async def start(self, config):
-        self.config = config
-        await self.connect()
-
     async def stop(self):
         if self.client:
             if self.client.is_connected:
@@ -216,26 +209,26 @@ class GodoxWorker(Thread):
 
     async def loop(self):
         while True:
-            cmd, data = self.toWorkerQueue.get()
+            cmd, data = self.inQueue.get()
 
-            if cmd == 'start':
-                print('start')
+            if cmd == 'connect':
+                print('connect')
                 self.config = data
-                await self.start(data)
+                await self.connect(data)
             elif cmd == 'stop':
                 print('stop')
                 await self.stop()
                 return
-            elif cmd == 'setTriggerValues':
-                print('setTriggerValues', data)
+            elif cmd == 'setValues':
+                print('setValues', data)
                 await self.setValues(data)
             else:
                 print('unknown command', cmd)
 
-    def run():
+    def run(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(loop())
+        loop.run_until_complete(self.loop())
         loop.close()
 
 if __name__ == '__main__':
