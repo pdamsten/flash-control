@@ -55,6 +55,7 @@ class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
         self.power = ''
         self.activeGroup = 'A'
+        self.godox = None
         info = {
             'name': 'Flash Control',
             'bundle_version': 'X',
@@ -124,6 +125,7 @@ class FlashControlWindow(HTMLMainWindow):
                     e.classes.remove('disabled')
         if not disabled:
             self.activateGroup(group_id)
+        self.setFlashValues()
 
     def onSoundClicked(self, e):
         e = self.elem(e)
@@ -149,10 +151,12 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-sound-{group_id}').classes.remove('disabled')
         else:
             self.elem(f'#flash-sound-{group_id}').classes.append('disabled')
+        #self.setFlashValues()
 
     def setMode(self, group_id, v):
         self.config[f'flash-{group_id}']['Mode'] = v
         self.elem(f'#flash-mode-{group_id}').text = self.config[f'flash-{group_id}']['Mode']
+        self.setFlashValues()
 
     def setLight(self, group_id, v):
         self.config[f'flash-{group_id}']['Light'] = v
@@ -160,6 +164,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-light-{group_id}').classes.remove('disabled')
         else:
             self.elem(f'#flash-light-{group_id}').classes.append('disabled')
+        self.setFlashValues()
 
     def activateGroup(self, group_id):
         self.onKeyPress(ENTER)
@@ -182,6 +187,23 @@ class FlashControlWindow(HTMLMainWindow):
         self.config[f'flash-{group_id}']['Power'] = power
         self.elem(f'#flash-power-{self.activeGroup}').text = power
         self.power = ''
+        self.setFlashValues()
+
+    def setFlashValues(self):
+        if self.godox:
+            values = []
+            for i in range(self.cv('flash-groups', 6)):
+                v = {}
+                gid = chr(ord('A') + i)
+                v['group'] = gid
+                v['power'] = self.cv(f'flash-{gid}/Power')
+                v['sound'] = self.cv(f'flash-{gid}/Sound')
+                v['mode'] = '-' if self.cv(f'flash-{gid}/Disabled') else \
+                    'T' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'M'
+                v['light'] = self.cv(f'flash-{gid}/Light')
+                values.append(v)
+            print(values)
+            self.godox.setValues(values)
 
     def onKeyPress(self, e):
         # This eats spaces and returns which prevents opening select from keyboard
@@ -228,6 +250,7 @@ class FlashControlWindow(HTMLMainWindow):
     def onGodoxConnected(self, data):
         self.elem('#flash-button').classes.remove('disabled')
         self.elem('#flash-popup .message').text = f'Connected to: {data}'
+        self.setFlashValues()
 
     def onGodoxConfig(self, data):
         self.config['godox'] = data

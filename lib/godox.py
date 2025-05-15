@@ -39,7 +39,8 @@ class Godox:
         self.toWorkerQueue = Queue()
         self.worker = GodoxWorker(self.toWorkerQueue, self.fromWorkerQueue)
         self.worker.start()
-        Thread(target = self.poll).start()
+        self.poller = Thread(target = self.poll)
+        self.poller.start()
 
     def callback(self, name, callback):
         self.callbacks[name] = callback
@@ -51,26 +52,29 @@ class Godox:
         self.sendMsg('setValues', values)
 
     def close(self):
+        self.fromWorkerQueue.put(('quit', None))
+        self.poller.join()
+        print('* joined')
+
+        print('* Godox::close')
         self.sendMsg('stop')
         if self.worker:
             self.worker.join()
             self.worker = None
-        self.fromWorkerQueue.put(('quit', None))
 
     def sendMsg(self, cmd, data = None):
         if self.worker:
             self.toWorkerQueue.put((cmd, data))
 
     def poll(self):
-        print('poll')
         while True:
             cmd, data = self.fromWorkerQueue.get()
-            print('poll', cmd, data)
+            print('* poll', cmd, data)
 
             if cmd in self.callbacks:
                 self.callbacks[cmd](data)
-            elif cmd == 'quit':
-                print('poll quit')
+            if cmd == 'quit':
+                print('* Godox::poll quit')
                 return
 
 
@@ -84,33 +88,38 @@ class GodoxWorker(Thread):
         self.inQueue = inQueue
         self.outQueue = outQueue
         self.client = None
+        self.pastValues = {}
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
-            print('out', cmd, data)
+            print('- out', cmd, data)
             self.outQueue.put((cmd, data))
 
     @staticmethod
-    def fraction2godox(s):
-        l = s.replace('1/', '').split('+')
-        if len(l) > 1:
+    def power2godox(s):
+        if s.find('/') != -1:
+            l = s.replace('1/', '').split('+')
+            if len(l) > 1:
+                try:
+                    b = float(l[1])
+                except:
+                    b = 0.0
+                b = b if b < 1.0 else b / 10.0
+                b = int(max(min(0.9, b), 0.0) * 10)
+            else:
+                b = 0
             try:
-                b = float(l[1])
+                an = int(l[0])
             except:
-                b = 0.0
-            b = b if b < 1.0 else b / 10.0
-            b = int(max(min(0.9, b), 0.0) * 10)
+                an = 1
+            a = min(range(len(GodoxWorker.fractions)), \
+                    key = lambda n : abs(GodoxWorker.fractions[n] - an))
+            res = max(a * 10 - b, 0)
         else:
-            b = 0
-        try:
-            an = int(l[0])
-        except:
-            an = 1
-        a = min(range(len(Godox.fractions)), key = lambda n : abs(Godox.fractions[n] - an))
-        res = max(a * 10 - b, 0)
+            res = int(round((10.0 - float(s)) * 10))
         print(' =>', s, '=', res)
         return res
-
+            
     async def scan(self):
         print('scanning...')
         devices = await BleakScanner.discover()
@@ -118,13 +127,13 @@ class GodoxWorker(Thread):
         for device in devices:
             name = str(PyObjCTools.KeyValueCoding.getKey(device.details, 'name')[0])
             if name.startswith('GDBH'):
-                print('Godox found:', name)
+                print('- Godox found:', name)
                 godox = device
                 break
         uuid = None
         if godox:
             address = str(PyObjCTools.KeyValueCoding.getKey(godox.details, 'identifier')[0])
-            print('address:', address)
+            print('- Godox address:', address)
             async with BleakClient(address) as client:
                 for service in client.services:
                     pre = '**' if service.description.startswith('KDDI') else ' ' * 2
@@ -142,7 +151,7 @@ class GodoxWorker(Thread):
             self.sendMsg('config', self.config)
             return True
         else:
-            print('failed', self.config)
+            print('- GodoxWorker::scan failed', self.config)
             self.sendMsg('failed', self.config['name'] if name in self.config else None)
             return False
 
@@ -159,7 +168,7 @@ class GodoxWorker(Thread):
                     print('new client')
                 try:
                     await self.client.connect()
-                    self.sendMsg('connected')
+                    self.sendMsg('connected', self.config['name'])
                     return True
                 except:
                     pass
@@ -180,30 +189,53 @@ class GodoxWorker(Thread):
         await self.sendCommand(cmd)
 
     async def setValues(self, values):
-        pass
+        def eq(key, i, a, b):
+            if i >= len(a) or i >= len(b):
+                return False
+            if not key in a[i] or not key in b[i]:
+                return False
+            if a[i][key] != b[i][key]:
+                return False
+            return True
+        
+        for i, v in enumerate(values):
+            if not eq('power', i, self.pastValues, values) or \
+               not eq('power', i, self.pastValues, values):
+                await self.setPower(v['group'], v['mode'], v['power'])
+            if not eq('light', i, self.pastValues, values):
+                await self.setModellingLight(v['group'], v['light'])
+            if not eq('sound', i, self.pastValues, values):
+                await self.setBeep(v['group'], v['sound'])
+        self.pastValues = values
 
-    async def setModellingLight(self, godox, on = True, group = None):
+    async def setBeep(self, group, on = True):
         cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
         cmd[5] = int(on)
-        #cmd[6] = int('0' + group, 16)
+        cmd[6] = int('0' + group, 16)
+        await self.sendCommand(self.checksum(bytearray(cmd)))
+
+    async def setModellingLight(self, group, on = True):
+        cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
+        cmd[5] = int(on)
+        cmd[6] = int('0' + group, 16)
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def setPower(self, group, mode, power = '1/1'):
         print(group, mode, power)
         cmd = list(bytes.fromhex("F0A10700000000000100"))
         cmd[3] = int('0' + group, 16)
-        cmd[4] = int(Godox.modes[mode])
+        cmd[4] = int(GodoxWorker.modes[mode])
         if mode == 'M':
-            cmd[5] = Godox.fraction2godox(power)
+            cmd[5] = GodoxWorker.power2godox(power)
         elif mode == 'T':
             cmd[5] = 0x17
             cmd[9] = power
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
-        if await self.connect():
+        if self.client.is_connected:
             #print(self.uuid, ''.join('{:02x}'.format(x) for x in command))
-            await self.client.write_gatt_char(self.uuid, command)
+            await self.client.write_gatt_char(self.config['uuid'], command)
 
     async def stop(self):
         if self.client:
@@ -214,21 +246,21 @@ class GodoxWorker(Thread):
     async def loop(self):
         while True:
             cmd, data = self.inQueue.get()
-            print('loop', cmd, data)
+            print('- GodoxWorker::loop', cmd, '/', data)
 
             if cmd == 'connect':
-                print('connect')
+                print('GodoxWorker::connect')
                 self.config = data
                 await self.connect()
             elif cmd == 'stop':
-                print('stop')
                 await self.stop()
+                print('- GodoxWorker::quit')
                 return
             elif cmd == 'setValues':
-                print('setValues', data)
+                print('- GodoxWorker::setValues', data)
                 await self.setValues(data)
             else:
-                print('unknown command', cmd)
+                print('- unknown command', cmd)
 
     def run(self):
         loop = asyncio.new_event_loop()
