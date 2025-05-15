@@ -125,6 +125,15 @@ class GodoxWorker(Thread):
         print(' =>', s, '=', res)
         return res
             
+    @staticmethod
+    def ttl2godox(s):
+        n = float(s)
+        if n >= 0.0:
+            res = int(round(n * 10))
+        else:
+            res = 0x80 + int(round(abs(n) * 10))
+        return res
+    
     async def scan(self):
         print('scanning...')
         devices = await BleakScanner.discover()
@@ -233,7 +242,8 @@ class GodoxWorker(Thread):
             cmd[5] = GodoxWorker.power2godox(power)
         elif mode == 'T':
             cmd[5] = 0x17
-            cmd[9] = 132 # power # 0 = 0.0, 30 = 3.0, 160 = -3.0
+            cmd[9] = GodoxWorker.ttl2godox(power)
+            print('***** TTL', power, hex(cmd[9]), cmd[9])
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
