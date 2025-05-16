@@ -17,4 +17,10 @@ bleak for bluetooth communication to godox trigger
 
     pip install bleak
 
+## Install app
 
+    git clone https://github.com/pdamsten/flash-control.git
+
+## Run
+
+    cd flash-control && ./flascontrol.py
