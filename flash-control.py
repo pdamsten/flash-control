@@ -63,7 +63,6 @@ class FlashControlWindow(HTMLMainWindow):
             'icon': self.path('app-icon.icns'),
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
-        print(self.path('app_icon.icns'))
         self.setMacOsTitle(info)
 
         super().__init__(title, html, css, api)
@@ -156,6 +155,7 @@ class FlashControlWindow(HTMLMainWindow):
         gid = e.id[-1:]
         self.activateGroup(gid)
         self.setMode(gid, 'M' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'TTL')
+        self.powerHtml(gid)
 
     def setMode(self, group_id, v):
         self.config[f'flash-{group_id}']['Mode'] = v
@@ -180,8 +180,9 @@ class FlashControlWindow(HTMLMainWindow):
             f.write(html)
 
     def setPower(self, group_id, power):
-        self.config[f'flash-{group_id}']['Power'] = power
-        self.powerHtml(f'#flash-power-{self.activeGroup}', power)
+        mode = self.cv(f'flash-{group_id}/Mode', 'M')
+        self.config[f'flash-{group_id}']['Power' + mode] = power
+        self.powerHtml(self.activeGroup)
         self.power = ''
         self.setFlashValues()
 
@@ -192,16 +193,16 @@ class FlashControlWindow(HTMLMainWindow):
                 v = {}
                 gid = chr(ord('A') + i)
                 v['group'] = gid
-                v['power'] = self.cv(f'flash-{gid}/Power')
+                v['power'] = self.pwr(gid)
                 v['mode'] = '-' if self.cv(f'flash-{gid}/Disabled') else \
                     'T' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'M'
                 values.append(v)
             print(values)
             self.godox.setValues(values)
 
-    def powerHtml(self, sel, s):
-        e = self.elem(sel)
-        s = str(s)
+    def powerHtml(self, gid, power = None):
+        e = self.elem(f'#flash-power-{gid}')
+        s = str(power) if power else str(self.pwr(gid))
         if s[0] in ['+', '-']:
             e.children[0].text = s[0]
             s = s[1:]
@@ -234,11 +235,11 @@ class FlashControlWindow(HTMLMainWindow):
                     self.power += str(n)
                 if len(self.power) == 4:
                     self.setPower(self.activeGroup, self.power)
-            self.powerHtml(f'#flash-{self.activeGroup} .flash-power', self.power)
+            self.powerHtml(self.activeGroup, self.power)
         elif chr(key) == '-':
             if not manual and len(self.power) == 0:
                 self.power = '-'
-                self.powerHtml(f'#flash-{self.activeGroup} .flash-power', self.power)
+                self.powerHtml(self.activeGroup, self.power)
         elif chr(key) in ['.', ',']:
             if manual:
                  if len(self.power) == 1:
@@ -246,7 +247,7 @@ class FlashControlWindow(HTMLMainWindow):
             else:
                  if len(self.power) == 2:
                     self.power += '.'
-            self.powerHtml(f'#flash-{self.activeGroup} .flash-power', self.power)
+            self.powerHtml(self.activeGroup, self.power)
         elif key >= ord('a') and key <= ord('l'):
             self.activateGroup(chr(key).upper())
         elif key == ord(' '):
@@ -282,6 +283,12 @@ class FlashControlWindow(HTMLMainWindow):
     def onGodoxConfig(self, data):
         self.config['godox'] = data
 
+    def pwr(self, gid):
+        fid = f'flash-{gid}/'
+        mode = self.cv(fid + 'Mode', 'M')
+        default = '10' if mode == 'M' else '+0.0'
+        return self.cv(fid + 'Power' + mode, default)
+
     def init(self, window):
         super().init(window)
 
@@ -312,15 +319,16 @@ class FlashControlWindow(HTMLMainWindow):
                              self.slist('user/flash_accessories.txt'), self.cv(fid + 'Accessory'))
             self.fill_select(f'#flash-{gid} .flash-gel', self.slist('user/flash_gels.txt'), 
                              self.cv(fid + 'Gel'))
-            self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
-            self.setGroupDisabled(gid, self.cv(fid + 'Disabled', False))
-
-            e = self.elem(f'#flash-power-{gid}')
-            e.events.click += self.onGroupClicked
-            self.powerHtml(f'#flash-power-{gid}', self.cv(fid + 'Power', 10))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
             self.setMode(gid, self.cv(fid + 'Mode', 'M'))
+
+            e = self.elem(f'#flash-power-{gid}')
+            e.events.click += self.onGroupClicked
+            self.powerHtml(gid)
+
+            self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
+            self.setGroupDisabled(gid, self.cv(fid + 'Disabled', False))
     
         self.elem('#shutter-button').events.click += self.onShutterClicked
         self.elem(f'#flash-sound-all').events.click += self.onSoundClicked
