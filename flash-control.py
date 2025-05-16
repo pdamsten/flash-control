@@ -275,6 +275,11 @@ class FlashControlWindow(HTMLMainWindow):
                 self.elem(f'#flash-power-{self.activeGroup}').text = \
                         self.cv(f'flash-{self.activeGroup}/Power')
 
+    def onTryAgain(self, e):
+        self.elem('#try-trigger-button').classes.append('hidden')
+        self.elem('#flash-popup .message').text = 'Connecting...'
+        self.godox.connect(self.cv('godox', {}))
+
     def onGodoxFailed(self, data):
         if data:
             msg = f'Unable to connect to Godox device: {data} and scan failed.'
@@ -282,6 +287,7 @@ class FlashControlWindow(HTMLMainWindow):
             msg = 'Godox device scan failed.'
         self.elem('#flash-button').classes.append('disabled')
         self.elem('#flash-popup .message').text = msg
+        self.elem('#try-trigger-button').classes.remove('hidden')
 
     def onGodoxConnected(self, data):
         self.elem('#flash-button').classes.remove('disabled')
@@ -344,6 +350,8 @@ class FlashControlWindow(HTMLMainWindow):
         self.setSound(self.cv('Sound', False))
         self.elem(f'#flash-light-all').events.click += self.onLightClicked
         self.setLight(self.cv('ModellingLight', False))
+
+        self.elem('#try-trigger-button').events.click += self.onTryAgain
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange

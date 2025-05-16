@@ -50,10 +50,8 @@ select, button {
   text-overflow: ellipsis;
   white-space: nowrap;
   border-radius: 0.5rem;
-  margin-top: 0.25rem;
   outline: none;
   font-family: var(--font-family);
-  margin-bottom: 5px;
   background-color: transparent;
 }
 
@@ -75,7 +73,6 @@ select {
 
 button {
   text-align: center;
-  height: 4rem;
   font-size: 1.7rem;
   font-weight: bold;
   padding: 1rem;
@@ -270,6 +267,7 @@ button:active, button:hover, select:active, select:hover, select:focus, select:f
   top: 3rem;
   right: 6rem;
   min-width: 20rem;
+  text-align: center;
 }
 
 .popup:target {
@@ -301,7 +299,14 @@ button:active, button:hover, select:active, select:hover, select:focus, select:f
 
 .message {
   font-size: 1rem;
-  text-align: center;
   width: 100%;
 }
 
+.hidden {
+  display: none;
+}
+
+.popup button {
+  font-size: 1rem;
+  padding: 0.5rem;
+}
