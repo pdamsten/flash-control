@@ -98,7 +98,8 @@ button:active, button:focus {
   background-color: black;
 }
 
-.mini-button:active img, .mini-button:hover img {
+.mini-button:active img, .mini-button:hover img, 
+#shutter-button:active img, #shutter-button:hover img {
   opacity: var(--active);
   transition: all 0.2s ease-in-out;
 }
@@ -143,6 +144,7 @@ button:active, button:focus {
   padding-inline: 1rem;
   padding-top: 0;
   padding-bottom: 0.5rem;
+  justify-items: center;
 }
 
 .icon-bar {
@@ -235,15 +237,16 @@ button:active, button:focus {
 }
 
 #shutter-button {
-  border: none;
-  overflow: visible;
+  aspect-ratio: 1;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  border: 1px solid transparent;
 }
 
 #shutter-button img {
-  width: 4rem;
-  height: auto;
-  aspect-ratio: 1;
-  margin-top: -1rem;
+  height: 5rem;
+  width: 5rem;
 }
 
 #flash-sound-all {
