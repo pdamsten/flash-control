@@ -225,17 +225,7 @@ class GodoxWorker(Thread):
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def setPower(self, group, mode, power = '1/1'):
-        # TTL
-        # F0A1 070A 0000 0000 0103 B6 +0.3
-        # 0107 +0.7
-        # 010A +1.0
-        # 0100 0.0
-        # 0183 -0.3
-        # 0187 -0.7
-        # 018A -1.0
-
-        print(group, mode, power)
-        cmd = list(bytes.fromhex("F0A10000000000000100"))
+        cmd = list(bytes.fromhex("F0A10700000000000100"))
         cmd[3] = int('0' + group, 16)
         cmd[4] = int(GodoxWorker.modes[mode])
         if mode == 'M':
@@ -243,12 +233,11 @@ class GodoxWorker(Thread):
         elif mode == 'T':
             cmd[5] = 0x17
             cmd[9] = GodoxWorker.ttl2godox(power)
-            print('***** TTL', power, hex(cmd[9]), cmd[9])
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
         if self.client and self.client.is_connected:
-            print(self.config['uuid'], ''.join('{:02x}'.format(x) for x in command))
+            #print(self.config['uuid'], ''.join('{:02x}'.format(x) for x in command))
             await self.client.write_gatt_char(self.config['uuid'], command)
 
     async def stop(self):
