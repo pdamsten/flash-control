@@ -80,8 +80,7 @@ class FlashControlWindow(HTMLMainWindow):
             e.append(f'<option value="{i}"{selected}>{item}</option>')
 
     def onShutterClicked(self, e):
-        e = self.elem(e)
-        print(e.id)
+        self.godox.test()
 
     def onSoundClicked(self, e):
         e = self.elem(e)
