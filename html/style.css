@@ -96,7 +96,7 @@ button:active, button:hover, select:active, select:hover, select:focus, select:f
   --widget-opacity: var(--active);
 }
 
-button:active img, button:hover img, select:active img, select:hover img {
+.mini-button:active img, .mini-button:hover img {
   opacity: var(--active);
   transition: all 0.2s ease-in-out;
 }
