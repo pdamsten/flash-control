@@ -3,8 +3,8 @@
   --background-color-darker: hsl(0, 0%, 5%);
   --font-size: 0.85rem;
   --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
-  --active: 97%;
-  --normal: 85%;
+  --active: 100%;
+  --normal: 80%;
   --disabled: 20%;
   --widget-opacity: var(--normal);
 }
@@ -88,9 +88,14 @@ select img {
   opacity: var(--normal);
 }
 
-button:active, button:hover, select:active, select:hover, select:focus, select:focus {
+button:hover, select:active, select:hover, select:focus {
   transition: all 0.2s ease-in-out;
   --widget-opacity: var(--active);
+}
+
+button:active, button:focus {
+  filter:invert(100%);
+  background-color: black;
 }
 
 .mini-button:active img, .mini-button:hover img {
