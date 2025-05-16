@@ -275,6 +275,7 @@ class FlashControlWindow(HTMLMainWindow):
                         self.cv(f'flash-{self.activeGroup}/Power')
 
     def onTryAgain(self, e):
+        self.elem('#flash-button').classes.append('pulse')
         self.elem('#try-trigger-button').classes.append('hidden')
         self.elem('#flash-popup .message').text = 'Connecting...'
         self.godox.connect(self.cv('godox', {}))
@@ -284,12 +285,13 @@ class FlashControlWindow(HTMLMainWindow):
             msg = f'Unable to connect to Godox device: {data} and scan failed.'
         else:
             msg = 'Godox device scan failed.'
+        self.elem('#flash-button').classes.remove('pulse')
         self.elem('#flash-button').classes.append('disabled')
         self.elem('#flash-popup .message').text = msg
         self.elem('#try-trigger-button').classes.remove('hidden')
 
     def onGodoxConnected(self, data):
-        self.elem('#flash-button').classes.remove('disabled')
+        self.elem('#flash-button').classes.remove('pulse')
         self.elem('#flash-popup .message').text = f'Connected to: {data}'
         self.setSoundAndLight()
         self.setFlashValues()

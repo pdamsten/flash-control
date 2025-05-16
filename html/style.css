@@ -315,3 +315,17 @@ button:active, button:focus {
   font-size: 1rem;
   padding: 0.5rem;
 }
+
+@keyframes pulse-opacity {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.pulse img {
+  animation: pulse-opacity 1s infinite;
+}
+
+.pulse {
+  animation: pulse-opacity 1s infinite;
+}
