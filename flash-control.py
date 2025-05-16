@@ -255,11 +255,20 @@ class FlashControlWindow(HTMLMainWindow):
                                   not self.cv(f'flash-{self.activeGroup}/Disabled'))
         elif key == ENTER:
             if len(self.power) > 0:
-                if len(self.power) == 1:
-                    self.power += '.0'
-                elif len(self.power) == 2:
-                    self.power += '0'
-                self.setPower(self.activeGroup, self.power)
+                if manual:
+                    if len(self.power) == 1:
+                        self.power += '.0'
+                    elif len(self.power) == 2:
+                        self.power += '0'
+                    self.setPower(self.activeGroup, self.power)
+                else:
+                    if len(self.power) == 1:
+                        self.power = '+0.0'
+                    elif len(self.power) == 2:
+                        self.power += '.0'
+                    elif len(self.power) == 3:
+                        self.power += '0'
+                    self.setPower(self.activeGroup, self.power)
         elif key == ESCAPE or key == BACKSPACE:
             if len(self.power) > 0:
                 self.power = ''
