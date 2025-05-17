@@ -55,9 +55,12 @@ class HTMLMainWindow():
         self.window.destroy()
         if not HTMLMainWindow.instances:
             print('All windows closed, exiting')
-            with open(self.path(CONFIG), 'w') as f:
-                json.dump(self.config, f)
+            self.writeConfig()
             sys.exit(0)
+
+    def writeConfig(self):
+        with open(self.path(CONFIG), 'w') as f:
+            json.dump(self.config, f, indent = 4, sort_keys = True)
 
     def on_resized(self, width, height):
         self.config['width'] = width

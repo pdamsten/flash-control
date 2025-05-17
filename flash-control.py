@@ -27,6 +27,7 @@ import argparse
 from lib.htmlgui import HTMLMainWindow
 from lib.godox import Godox
 from webview.dom import DOMEventHandler
+import subprocess
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
@@ -305,6 +306,11 @@ class FlashControlWindow(HTMLMainWindow):
         default = '10' if mode == 'M' else '+0.0'
         return self.cv(fid + 'Power' + mode, default)
 
+    def onShowConfig(self, e):
+        cfg = self.path('user/config.json')
+        print(cfg)
+        print(subprocess.Popen(['open', cfg]))
+
     def init(self, window):
         super().init(window)
 
@@ -353,6 +359,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setLight(self.cv('ModellingLight', False))
 
         self.elem('#try-trigger-button').events.click += self.onTryAgain
+        self.elem('#skull-button').events.click += self.onShowConfig
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange
