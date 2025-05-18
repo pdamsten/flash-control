@@ -48,6 +48,13 @@ json_conv_table = [
     ("XMP:XMP-pdplus:Flashes/{index}/ID", '#{group}'),
 ]
 
+godox_conv_table = [
+    ('{index}/power', 'flash-{group}/CurrentPower'),
+    ('{index}/mode', 'flash-{group}/Mode'),
+    ('{index}/disabled', 'flash-{group}/Disabled'),
+    ('{index}/group', '#{group}'),
+]
+
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
       <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
@@ -211,15 +218,7 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setFlashValues(self):
         if self.godox:
-            values = []
-            for i in range(self.cv('flash-groups', 6)):
-                v = {}
-                gid = chr(ord('A') + i)
-                v['group'] = gid
-                v['power'] = self.pwr(gid)
-                v['mode'] = '-' if self.cv(f'flash-{gid}/Disabled') else \
-                    'T' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'M'
-                values.append(v)
+            values = util.convertDict(self.config, godox_conv_table)
             print(values)
             self.godox.setValues(values)
 

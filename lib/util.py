@@ -97,9 +97,9 @@ def convertDict(org, table, disable_key = None):
                     return
             d = d[k]
         k = keys[-1] if isinstance(d, dict) else int(keys[-1])
-        d[k] = v[1:] if v.startswith('#') else v
+        d[k] = v[1:] if isinstance(v, str) and v.startswith('#') else v
 
-    dest = {}
+    dest = [] if table[0][0].startswith('{index}/') else {}
     data = {}
     for i, group in enumerate([chr(ch + ord('A')) for ch in range(12)]):
         data['group'] = group
