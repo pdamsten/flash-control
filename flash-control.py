@@ -32,13 +32,14 @@ import lib.util as util
 from lib.metadata import RAWWatcher
 
 json_conv_table = [
-  ('stands', "XMP:XMP-pdplus:Stand"),
-  ('tethering', "XMP:XMP-pdplus:Tethering"),
-  ('triggers', "XMP:XMP-pdplus:Trigger"),
-  ('filters', "XMP:XMP-pdplus:Filter"),
-  ('extension_tubes', "XMP:XMP-pdplus:ExtensionTube"),
-  ('remotes', "XMP:XMP-pdplus:Remote"),
-  ('flash-{group}/Role', "XMP:XMP-pdplus:Flashes/{index}/Role"),
+    ("XMP:XMP-pdplus:Stand", 'stands'),
+    ("XMP:XMP-pdplus:Tethering", 'tethering'),
+    ("XMP:XMP-pdplus:Trigger", 'triggers'),
+    ("XMP:XMP-pdplus:Filter", 'filters'),
+    ("XMP:XMP-pdplus:ExtensionTube", 'extension_tubes'),
+    ("XMP:XMP-pdplus:Remote", 'remotes'),
+    ("XMP:XMP-pdplus:Flashes/{index}/Role", 'flash-{group}/Role'),
+    ("XMP:XMP-pdplus:Flashes/{index}/ID", '#{group}'),
 ]
 
 flash_group = '''
