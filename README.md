@@ -27,6 +27,10 @@ bleak for bluetooth communication to godox trigger
 
     pip install bleak
 
+CRC-8/MAXIM-DOW calculation for godox communication
+    
+    pip install crccheck
+
 ## Install app
 
     git clone https://github.com/pdamsten/flash-control.git
