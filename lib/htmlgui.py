@@ -26,13 +26,8 @@
 import webview
 import sys
 import os
-from pathlib import Path
 import inspect
-import json
-
-def isPath(path):
-    p = Path(path)
-    return p.exists()
+import lib.util as util
 
 CONFIG = 'user/config.json'
 
@@ -59,8 +54,7 @@ class HTMLMainWindow():
             sys.exit(0)
 
     def writeConfig(self):
-        with open(self.path(CONFIG), 'w') as f:
-            json.dump(self.config, f, indent = 4, sort_keys = True)
+        util.writeJson(CONFIG, self.config)
 
     def on_resized(self, width, height):
         self.config['width'] = width
@@ -90,25 +84,6 @@ class HTMLMainWindow():
                 return None
         return self.elements[key]
     
-    def json(self, filename):
-        data = {}
-        try:
-            with open(self.path(filename), 'r') as f:
-                data = json.load(f)
-        except:
-            pass
-        return data
-
-    def slist(self, filename):
-        data = []
-        try:
-            with open(self.path(filename), 'r') as f:
-                data = f.read().strip().splitlines()
-        except Exception as e:
-            print(f"Error reading file {filename}: {str(e)}")
-            pass
-        return data
-
     def cv(self, key, default = None):
         keys = key.split('/')
         d = self.config
@@ -119,21 +94,17 @@ class HTMLMainWindow():
         if keys[-1] not in d:
             d[keys[-1]] = default
         return d[keys[-1]]
-
-    @staticmethod
-    def path(filename):
-        return HTMLMainWindow.program_path + '/' + filename
-    
+   
     def __init__(self, title, html, css = None, api = None):
         HTMLMainWindow.instances.append(self)
 
         self.api = api
         self.css = css
-        self.config = self.json(CONFIG)
+        self.config = util.json(CONFIG)
         self.elements = {}
         print (f'Config: {self.config}')
-        hpath = html if isPath(html) else None
-        html = html if not isPath(html) else None
+        hpath = html if util.isPath(html) else None
+        html = html if not util.isPath(html) else None
         self.window = webview.create_window(title, hpath, html = html, 
                 frameless = sys.platform.startswith('darwin'), js_api = api, 
                 width = self.cv('width', 1000), height = self.cv('height', 800),

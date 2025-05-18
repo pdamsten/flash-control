@@ -28,6 +28,7 @@ from lib.htmlgui import HTMLMainWindow
 from lib.godox import Godox
 from webview.dom import DOMEventHandler
 import subprocess
+import lib.util as util
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
@@ -61,7 +62,7 @@ class FlashControlWindow(HTMLMainWindow):
             'name': 'Flash Control',
             'bundle_version': 'X',
             'version': '0.1',
-            'icon': self.path('app-icon.icns'),
+            'icon': util.path('app-icon.icns'),
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
         self.setMacOsTitle(info)
@@ -317,12 +318,12 @@ class FlashControlWindow(HTMLMainWindow):
         window.dom.document.events.keypress += DOMEventHandler(self.onKeyPress,
                                                                prevent_default = True)
         
-        self.fill_select('#stands', self.slist('user/stands.txt'), self.cv('stands'))
-        self.fill_select('#remotes', self.slist('user/remotes.txt'), self.cv('remotes'))
-        self.fill_select('#triggers', self.slist('user/triggers.txt'), self.cv('triggers'))
-        self.fill_select('#tethering', self.slist('user/tethering.txt'), self.cv('tethering'))
-        self.fill_select('#filters', self.slist('user/filters.txt'), self.cv('filters'))
-        self.fill_select('#extension_tubes', self.slist('user/extension_tubes.txt'), 
+        self.fill_select('#stands', util.stringList('user/stands.txt'), self.cv('stands'))
+        self.fill_select('#remotes', util.stringList('user/remotes.txt'), self.cv('remotes'))
+        self.fill_select('#triggers', util.stringList('user/triggers.txt'), self.cv('triggers'))
+        self.fill_select('#tethering', util.stringList('user/tethering.txt'), self.cv('tethering'))
+        self.fill_select('#filters', util.stringList('user/filters.txt'), self.cv('filters'))
+        self.fill_select('#extension_tubes', util.stringList('user/extension_tubes.txt'), 
                          self.cv('extension_tubes'))
 
         for i in range(self.cv('flash-groups', 6)):
@@ -331,15 +332,16 @@ class FlashControlWindow(HTMLMainWindow):
             e = c.append(flash_group.format(group_id = gid))
             e.events.click += self.onGroupClicked
             fid = f'flash-{gid}/'
-            self.fill_select(f'#flash-{gid} .flash-name', self.slist('user/flash_names.txt'),
+            self.fill_select(f'#flash-{gid} .flash-name', util.stringList('user/flash_names.txt'),
                              self.cv(fid + 'Name'))
-            self.fill_select(f'#flash-{gid} .flash-role', self.slist('user/flash_roles.txt'),
+            self.fill_select(f'#flash-{gid} .flash-role', util.stringList('user/flash_roles.txt'),
                              self.cv(fid + 'Role'))
             self.fill_select(f'#flash-{gid} .flash-modifier', 
-                             self.slist('user/flash_modifiers.txt'), self.cv(fid + 'Modifier'))
+                             util.stringList('user/flash_modifiers.txt'), self.cv(fid + 'Modifier'))
             self.fill_select(f'#flash-{gid} .flash-accessory', 
-                             self.slist('user/flash_accessories.txt'), self.cv(fid + 'Accessory'))
-            self.fill_select(f'#flash-{gid} .flash-gel', self.slist('user/flash_gels.txt'), 
+                             util.stringList('user/flash_accessories.txt'), 
+                             self.cv(fid + 'Accessory'))
+            self.fill_select(f'#flash-{gid} .flash-gel', util.stringList('user/flash_gels.txt'), 
                              self.cv(fid + 'Gel'))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
@@ -378,7 +380,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.saveDebugHtml()
 
 def main():
-    FlashControlWindow('Flash Control', HTMLMainWindow.path('html/gui.html'))
+    FlashControlWindow('Flash Control', util.path('html/gui.html'))
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
