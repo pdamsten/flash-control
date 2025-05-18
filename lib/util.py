@@ -62,7 +62,7 @@ def stringList(filename):
         print(f"Error reading file {filename}: {str(e)}")
     return data
 
-def convertDict(org, table):
+def convertDict(org, table, disable_key = None):
     def none(s):
         return s if s else ""
     
@@ -73,6 +73,8 @@ def convertDict(org, table):
                 return None
             d = d[k]
         if keys[-1] not in d:
+            return None
+        if disable_key and disable_key in d and d[disable_key]:
             return None
         return none(d[keys[-1]])
 
@@ -107,6 +109,7 @@ def convertDict(org, table):
             org_key = org_key.format(**data)
             dest_key = dest_key.format(**data)
             v = org_key if org_key.startswith('#') else getv(org, org_key)
+            print(org_key, dest_key, v)
             if v is not None:
                 setv(dest_key, v)
     print(dest)

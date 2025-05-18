@@ -39,6 +39,11 @@ json_conv_table = [
     ("XMP:XMP-pdplus:ExtensionTube", 'extension_tubes'),
     ("XMP:XMP-pdplus:Remote", 'remotes'),
     ("XMP:XMP-pdplus:Flashes/{index}/Role", 'flash-{group}/Role'),
+    ("XMP:XMP-pdplus:Flashes/{index}/Name", 'flash-{group}/Name'),
+    ("XMP:XMP-pdplus:Flashes/{index}/Modifier", 'flash-{group}/Modifier'),
+    ("XMP:XMP-pdplus:Flashes/{index}/Accessory", 'flash-{group}/Accessory'),
+    ("XMP:XMP-pdplus:Flashes/{index}/Power", 'flash-{group}/CurrentPower'),
+    ("XMP:XMP-pdplus:Flashes/{index}/Gel", 'flash-{group}/Gel'),
     ("XMP:XMP-pdplus:Flashes/{index}/ID", '#{group}'),
 ]
 
@@ -198,6 +203,7 @@ class FlashControlWindow(HTMLMainWindow):
     def setPower(self, group_id, power):
         mode = self.cv(f'flash-{group_id}/Mode', 'M')
         self.config[f'flash-{group_id}']['Power' + mode] = power
+        self.config[f'flash-{group_id}']['CurrentPower'] = power
         self.powerHtml(self.activeGroup)
         self.power = ''
         self.setFlashValues()
@@ -317,10 +323,11 @@ class FlashControlWindow(HTMLMainWindow):
         self.config['godox'] = data
 
     def pwr(self, gid):
-        fid = f'flash-{gid}/'
-        mode = self.cv(fid + 'Mode', 'M')
+        fid = f'flash-{gid}'
+        mode = self.cv(fid + '/Mode', 'M')
         default = '10' if mode == 'M' else '+0.0'
-        return self.cv(fid + 'Power' + mode, default)
+        self.config[fid]['CurrentPower'] = self.cv(fid + '/Power' + mode, default)
+        return self.config[fid]['CurrentPower']
 
     def onShowConfig(self, e):
         cfg = self.path('user/config.json')
@@ -394,7 +401,7 @@ class FlashControlWindow(HTMLMainWindow):
         if tethering_path:
             self.metadata = RAWWatcher()
             self.metadata.start(tethering_path, tethering_pat)
-            self.metadata.setJson(util.convertDict(self.config, json_conv_table))
+            self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
 
         self.window.events.closing += self.on_closing
 
