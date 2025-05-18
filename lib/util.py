@@ -31,6 +31,7 @@ import json as lib_json
 MAIN_PATH  = os.path.dirname(os.path.abspath(inspect.stack()[-1].filename))
 
 def isPath(path):
+    path = os.path.dirname(path)
     p = Path(path)
     return p.exists()
 
@@ -61,6 +62,36 @@ def stringList(filename):
         print(f"Error reading file {filename}: {str(e)}")
     return data
 
+def convertDict(org, table):
+    def none(s):
+        return s if s else ""
+    
+    def getv(d, key):
+        keys = key.split('/')
+        for k in keys[:-1]:
+            if not k in d:
+                return None
+            d = d[k]
+        if keys[-1] not in d:
+            return None
+        return none(d[keys[-1]])
 
+    def setv(d, key):
+        keys = key.split('/')
+        for k in keys[:-1]:
+            if not k in d:
+                # if next key valid int make list
+                d[k] = {}
+            d = d[k]
+        d[keys[-1]] = v
 
-
+    dest = {}
+    data = {}
+    for i, group in enumerate([chr(ch + ord('A')) for ch in range(12)]):
+        data['group'] = group
+        data['digit'] = i
+        for org_key, dest_key in table:
+            org_key = org_key.format(**data)
+            if v := getv(org, org_key):
+                setv(dest_key, v)
+    return dest
