@@ -23,5 +23,9 @@
 #
 #**************************************************************************
 
+# EXIFTOOL = f'exiftool -config {scriptdir}/exiftool-custom-ns.config -d "%Y:%m:%d %H:%M:%S" '
+# -G0:1 -n -json -struct 
+# exiftool -r -d %s -tagsfromfile "%d/%F.json" test.jpg
+
 def set(fname, json):
     print(fname, json)
