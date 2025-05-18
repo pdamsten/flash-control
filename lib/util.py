@@ -78,10 +78,12 @@ def convertDict(org, table):
 
     def setv(d, key):
         keys = key.split('/')
-        for k in keys[:-1]:
+        for i, k in enumerate(keys[:-1]):
             if not k in d:
-                # if next key valid int make list
-                d[k] = {}
+                if keys[i + 1].isdigit():
+                    d[k] = []
+                else:
+                    d[k] = {}
             d = d[k]
         d[keys[-1]] = v
 
@@ -92,6 +94,7 @@ def convertDict(org, table):
         data['digit'] = i
         for org_key, dest_key in table:
             org_key = org_key.format(**data)
+            dest_key = dest_key.format(**data)
             if v := getv(org, org_key):
                 setv(dest_key, v)
     return dest
