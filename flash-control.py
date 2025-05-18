@@ -38,6 +38,7 @@ json_conv_table = [
     ("XMP:XMP-pdplus:Filter", 'filters'),
     ("XMP:XMP-pdplus:ExtensionTube", 'extension_tubes'),
     ("XMP:XMP-pdplus:Remote", 'remotes'),
+    ("XMP:XMP-pdplus:Exposures", "#1"),
     ("XMP:XMP-pdplus:Flashes/{index}/Role", 'flash-{group}/Role'),
     ("XMP:XMP-pdplus:Flashes/{index}/Name", 'flash-{group}/Name'),
     ("XMP:XMP-pdplus:Flashes/{index}/Modifier", 'flash-{group}/Modifier'),

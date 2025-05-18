@@ -94,7 +94,6 @@ def convertDict(org, table, disable_key = None):
                     else:
                         d[k] = {}
                 else:
-                    print(k)
                     return
             d = d[k]
         k = keys[-1] if isinstance(d, dict) else int(keys[-1])
@@ -109,7 +108,6 @@ def convertDict(org, table, disable_key = None):
             org_key = org_key.format(**data)
             dest_key = dest_key.format(**data)
             v = org_key if org_key.startswith('#') else getv(org, org_key)
-            print(org_key, dest_key, v)
             if v is not None:
                 setv(dest_key, v)
     print(dest)
