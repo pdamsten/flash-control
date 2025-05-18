@@ -389,9 +389,10 @@ class FlashControlWindow(HTMLMainWindow):
         self.godox.connect(self.cv('godox', {}))
 
         tethering_path = self.cv('TetheringPath', '')
+        tethering_pat = self.cv('TetheringPattern', '')
         if tethering_path:
             self.metadata = RAWWatcher()
-            self.metadata.start(tethering_path, self.cv('TetheringPattern', ''))
+            self.metadata.start(tethering_path, tethering_pat)
             self.metadata.setJson(util.convertDict(self.config, json_conv_table))
 
         self.window.events.closing += self.on_closing

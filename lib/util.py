@@ -76,25 +76,32 @@ def convertDict(org, table):
             return None
         return none(d[keys[-1]])
 
-    def setv(d, key):
+    def setv(key, v):
         keys = key.split('/')
+        d = dest
         for i, k in enumerate(keys[:-1]):
             if not k in d:
+                if isinstance(d, list):
+                    k = int(k)
+                    if k >= len(d):
+                        d.extend([None] * (k - len(d) + 1))
                 if keys[i + 1].isdigit():
                     d[k] = []
                 else:
                     d[k] = {}
             d = d[k]
+        k = keys[-1] if isinstance(d, dict) else int(keys[-1])
         d[keys[-1]] = v
 
     dest = {}
     data = {}
     for i, group in enumerate([chr(ch + ord('A')) for ch in range(12)]):
         data['group'] = group
-        data['digit'] = i
+        data['index'] = i
         for org_key, dest_key in table:
             org_key = org_key.format(**data)
             dest_key = dest_key.format(**data)
-            if v := getv(org, org_key):
+            if (v := getv(org, org_key)) is not None:
                 setv(dest_key, v)
+    print(dest)
     return dest
