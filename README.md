@@ -31,6 +31,10 @@ CRC-8/MAXIM-DOW calculation for godox communication
     
     pip install crccheck
 
+File change monitor for tethering metadata writing
+
+    pip install watchdog
+
 ## Install app
 
     git clone https://github.com/pdamsten/flash-control.git
