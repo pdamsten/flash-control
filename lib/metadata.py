@@ -43,7 +43,7 @@ class RAWEventHandler(PatternMatchingEventHandler):
         flash_info = os.path.splitext(event.src_path)[0] + '.json'
         xmp = os.path.splitext(event.src_path)[0] + '.xmp'
         print(flash_info, xmp)
-        util.writeJson(flash_info, self.watcher.json())
+        util.writeJson(flash_info, self.watcher.json)
         exiftool.set(xmp, flash_info)
 
 class RAWWatcher:

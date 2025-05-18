@@ -29,6 +29,17 @@ from lib.godox import Godox
 from webview.dom import DOMEventHandler
 import subprocess
 import lib.util as util
+from lib.metadata import RAWWatcher
+
+json_conv_table = [
+  ('stands', "XMP:XMP-pdplus:Stand"),
+  ('tethering', "XMP:XMP-pdplus:Tethering"),
+  ('triggers', "XMP:XMP-pdplus:Trigger"),
+  ('filters', "XMP:XMP-pdplus:Filter"),
+  ('extension_tubes', "XMP:XMP-pdplus:ExtensionTube"),
+  ('remotes', "XMP:XMP-pdplus:Remote"),
+  ('flash-{group}/Role', "XMP:XMP-pdplus:Flashes/{index}/Role"),
+]
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
@@ -58,6 +69,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.power = ''
         self.activeGroup = 'A'
         self.godox = None
+        self.metadata = None
         info = {
             'name': 'Flash Control',
             'bundle_version': 'X',
@@ -72,7 +84,9 @@ class FlashControlWindow(HTMLMainWindow):
     def on_closing(self):
         print('Flash Window closed')
         self.window.events.closing -= self.on_closing
-        self.godox.close()
+        self.godox.stop()
+        if self.metadata:
+            self.metadata.stop()
         super().on_closing()
 
     def fill_select(self, e, items, value = None):
@@ -373,6 +387,12 @@ class FlashControlWindow(HTMLMainWindow):
         self.godox.callback('connected', self.onGodoxConnected)
         self.godox.callback('config', self.onGodoxConfig)
         self.godox.connect(self.cv('godox', {}))
+
+        tethering_path = self.cv('TetheringPath', '')
+        if tethering_path:
+            self.metadata = RAWWatcher()
+            self.metadata.start(tethering_path, self.cv('TetheringPattern', ''))
+            self.metadata.setJson(util.convertDict(self.config, json_conv_table))
 
         self.window.events.closing += self.on_closing
 

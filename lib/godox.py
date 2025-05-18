@@ -56,7 +56,7 @@ class Godox:
     def test(self):
         self.sendMsg('test')
 
-    def close(self):
+    def stop(self):
         self.fromWorkerQueue.put(('quit', None))
         self.poller.join()
         print('* joined')
