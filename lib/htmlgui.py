@@ -88,7 +88,7 @@ class HTMLMainWindow():
         keys = key.split('/')
         d = self.config
         for k in keys[:-1]:
-            if not k in self.config:
+            if not k in d:
                 d[k] = {}
             d = d[k]
         if keys[-1] not in d:
