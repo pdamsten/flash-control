@@ -41,6 +41,10 @@ pypi.midi for nanoKontrol2 midi controller communication
 
     pip install pygame
 
+## nanoKontrol2 configuration
+
+nanoKontrol2 must be configured "Control Mode: CC" and "Led Mode: External" found under Control/Common.
+
 ## Install app
 
     git clone https://github.com/pdamsten/flash-control.git
