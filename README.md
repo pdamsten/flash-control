@@ -2,6 +2,8 @@
 
 Control Godox flash settings from a destop app.
 
+![gui](https://petridamsten.com/media/flash_control.png "GUI")
+
 ## Additional features
 
 - Write all the info in gui to image metadata when tethering
@@ -34,6 +36,10 @@ CRC-8/MAXIM-DOW calculation for godox communication
 File change monitor for tethering metadata writing
 
     pip install watchdog
+
+pypi.midi for nanoKontrol2 midi controller communication
+
+    pip install pygame
 
 ## Install app
 
