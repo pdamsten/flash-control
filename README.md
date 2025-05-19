@@ -43,7 +43,7 @@ pypi.midi for nanoKontrol2 midi controller communication
 
 ## nanoKontrol2 configuration
 
-nanoKontrol2 must be configured "Control Mode: CC" and "Led Mode: External" found under Control/Common.
+nanoKontrol2 must be configured "Control Mode: CC" and "Led Mode: External". Settings are found under Control/Common in Korg Kontrol Editor.
 
 ## Install app
 
