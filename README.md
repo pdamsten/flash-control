@@ -2,7 +2,7 @@
 
 Control Godox flash settings from a destop app.
 
-![gui](https://petridamsten.com/media/flash_control.png "GUI")
+![gui](https://petridamsten.com/media/flash-control.png "GUI")
 
 ## Additional features
 
