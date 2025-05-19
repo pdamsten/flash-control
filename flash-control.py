@@ -30,6 +30,8 @@ from webview.dom import DOMEventHandler
 import subprocess
 import lib.util as util
 from lib.metadata import RAWWatcher
+import platform 
+import os
 
 json_conv_table = [
     ("XMP:XMP-pdplus:Stand", 'stands'),
@@ -98,9 +100,12 @@ class FlashControlWindow(HTMLMainWindow):
     def on_closing(self):
         print('Flash Window closed')
         self.window.events.closing -= self.on_closing
+        print('Stopping godox')
         self.godox.stop()
+        print('Stopping metadata')
         if self.metadata:
             self.metadata.stop()
+        print('Stopping super')
         super().on_closing()
 
     def fill_select(self, e, items, value = None):
@@ -338,7 +343,14 @@ class FlashControlWindow(HTMLMainWindow):
 
     def onMetadataMsg(self, msg):
         self.elem('#metadata-popup .message').text = msg
-        
+
+    def bring_window_to_front(self):
+        if platform.system() == 'Darwin':
+            print(subprocess.run([
+                'osascript', '-e',
+                f'tell application "System Events" to set frontmost of the first process whose unix id is {os.getpid()} to true'
+            ]))
+
     def init(self, window):
         super().init(window)
 
@@ -413,6 +425,8 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem('#metadata-popup').classes.remove('disabled')
 
         self.window.events.closing += self.on_closing
+
+        # self.bring_window_to_front()
 
         if (args.debug):
             self.saveDebugHtml()

@@ -28,6 +28,7 @@ import sys
 import os
 import inspect
 import lib.util as util
+import time
 
 CONFIG = 'user/config.json'
 
@@ -105,6 +106,7 @@ class HTMLMainWindow():
         print (f'Config: {self.config}')
         hpath = html if util.isPath(html) else None
         html = html if not util.isPath(html) else None
+        time.sleep(0.1)
         self.window = webview.create_window(title, hpath, html = html, 
                 frameless = sys.platform.startswith('darwin'), js_api = api, 
                 width = self.cv('width', 1000), height = self.cv('height', 800),
