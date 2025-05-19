@@ -150,6 +150,8 @@ class FlashControlWindow(HTMLMainWindow):
             self.activateGroup(pid[-1:])
         else:
             self.config[elem.id] = value
+        if self.metadata:
+            self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
 
     def onGroupClicked(self, e):
         e = self.elem(e)
@@ -218,9 +220,9 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setFlashValues(self):
         if self.godox:
-            values = util.convertDict(self.config, godox_conv_table)
-            print(values)
-            self.godox.setValues(values)
+            self.godox.setValues(util.convertDict(self.config, godox_conv_table))
+        if self.metadata:
+            self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
 
     def powerHtml(self, gid, power = None):
         e = self.elem(f'#flash-power-{gid}')
@@ -334,6 +336,9 @@ class FlashControlWindow(HTMLMainWindow):
         print(cfg)
         print(subprocess.Popen(['open', cfg]))
 
+    def onMetadataMsg(self, msg):
+        self.elem('#metadata-popup .message').text = msg
+        
     def init(self, window):
         super().init(window)
 
@@ -398,10 +403,14 @@ class FlashControlWindow(HTMLMainWindow):
 
         tethering_path = self.cv('TetheringPath', '')
         tethering_pat = self.cv('TetheringPattern', '')
+        self.metadata = None
+
         if tethering_path:
             self.metadata = RAWWatcher()
             self.metadata.start(tethering_path, tethering_pat)
             self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
+            self.metadata.callback('msg', self.onMetadataMsg)
+            self.elem('#metadata-popup').classes.remove('disabled')
 
         self.window.events.closing += self.on_closing
 

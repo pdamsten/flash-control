@@ -42,14 +42,24 @@ class RAWEventHandler(PatternMatchingEventHandler):
     def on_created(self, event):
         flash_info = os.path.splitext(event.src_path)[0] + '.json'
         xmp = os.path.splitext(event.src_path)[0] + '.xmp'
-        print(flash_info, xmp)
         util.writeJson(flash_info, self.watcher.json)
-        exiftool.set(xmp, flash_info)
+        msg = exiftool.set(xmp, flash_info)
+        if not msg:
+            msg = f'json and xmp created for {event.src_path}'
+        self.watcher.msg(msg)
 
 class RAWWatcher:
     def __init__(self):
         self.observer = None
         self.lock = Lock()
+        self.callbacks = {}
+
+    def callback(self, name, callback):
+        self.callbacks[name] = callback
+
+    def msg(self, s):
+        if 'msg' in self.callbacks:
+            self.callbacks['msg'](s)
 
     def start(self, folder, pattern):
         self.observer = Observer()

@@ -1,3 +1,5 @@
+import subprocess
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
@@ -23,9 +25,21 @@
 #
 #**************************************************************************
 
-# EXIFTOOL = f'exiftool -config {scriptdir}/exiftool-custom-ns.config -d "%Y:%m:%d %H:%M:%S" '
-# -G0:1 -n -json -struct 
-# exiftool -r -d %s -tagsfromfile "%d/%F.json" test.jpg
+import subprocess
+import lib.util as util
 
 def set(fname, json):
-    print(fname, json)
+    cmd = [
+        "exiftool",
+        "-config", util.path('lib/exiftool-custom-ns.config'),
+        "-d", "%Y:%m:%d %H:%M:%S",
+        "-G0:1",
+        "-n",
+        "-overwrite_original_in_place",
+        f"-json={json}",
+        fname
+    ]
+    result = subprocess.run(cmd, capture_output = True, text = True)
+    if result.returncode != 0:
+        return f"Exiftool failed: {result.stderr.strip()}"
+    return None
