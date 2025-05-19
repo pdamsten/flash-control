@@ -17,7 +17,7 @@ Control Godox flash settings from a destop app.
     brew install pip3
     brew install exiftool
     
-Tested with python 3.13
+Tested with python 3.13 on macOS Sequoia 15.4
 
 ### Python packages
 
