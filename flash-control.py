@@ -33,6 +33,8 @@ import lib.util as util
 from lib.metadata import RAWWatcher
 import platform 
 import os
+import threading
+import time
 
 json_conv_table = [
     ("XMP:XMP-pdplus:Stand", 'stands'),
@@ -94,6 +96,8 @@ class FlashControlWindow(HTMLMainWindow):
         self.godox = None
         self.metadata = None
         self.nano = None
+        self.delay = None
+        self.lastSlider = 0
         info = {
             'name': 'Flash Control',
             'bundle_version': 'X',
@@ -226,6 +230,8 @@ class FlashControlWindow(HTMLMainWindow):
             f.write(html)
 
     def setPower(self, group_id, power):
+        print('setPower', group_id, power)
+        self.delay = None
         mode = self.cv(f'flash-{group_id}/Mode', 'M')
         self.config[f'flash-{group_id}']['Power' + mode] = power
         self.config[f'flash-{group_id}']['CurrentPower'] = power
@@ -244,6 +250,8 @@ class FlashControlWindow(HTMLMainWindow):
     def powerHtml(self, gid, power = None):
         e = self.elem(f'#flash-power-{gid}')
         s = str(power) if power else str(self.pwr(gid))
+        if s == '10.0':
+            s = '10'
         if s[0] in ['+', '-']:
             e.children[0].text = s[0]
             s = s[1:]
@@ -352,6 +360,32 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
         self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
+    def onNanoEvent(self, data):
+        gid = None
+        if isinstance(data[0], tuple):
+            gid = data[0][0]
+            cmd = data[0][1]
+        else:
+            cmd = data
+        v = data[1]
+
+        if cmd == 'SLIDER':
+            print('** SLIDER')
+            if self.delay:
+                self.delay.cancel()
+            pwr = round(10.0 * (v / 127.0), 1)
+            print(pwr, self.activeGroup, gid)
+            self.delay = threading.Timer(0.3, self.setPower, [gid, pwr])
+            self.delay.start()
+            
+            c = time.time()
+            if c - self.lastSlider < 0.3:
+                return
+            self.lastSlider = c
+            self.powerHtml(gid, pwr)
+            if self.activeGroup != gid:
+                self.activateGroup(gid)
+
     def pwr(self, gid):
         fid = f'flash-{gid}'
         mode = self.cv(fid + '/Mode', 'M')
@@ -439,6 +473,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano = NanoKontrol2()
         self.nano.callback('failed', self.onNanoFailed)
         self.nano.callback('connected', self.onNanoConnected)
+        self.nano.callback('event', self.onNanoEvent)
         self.nano.connect()
 
         tethering_path = self.cv('TetheringPath', '')
