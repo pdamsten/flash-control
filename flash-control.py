@@ -59,7 +59,9 @@ godox_conv_table = [
 ]
 
 nano_conv_table = [
-    ('{group}/lighton', '!flash-{group}/Disabled'),
+    ('{group}/SOLO', '!flash-{group}/Disabled'),
+    ('{group}/MUTE', '!flash-{group}/Disabled'),
+    ('{group}/RECORD', '!flash-{group}/Disabled'),
 ]
 
 flash_group = '''
