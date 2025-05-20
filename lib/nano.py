@@ -135,6 +135,8 @@ class NanoKontrol2Worker(Thread):
         self.outQueue = outQueue
         self.midi_in = None
         self.midi_out = None
+        self.output_id = -1
+        self.input_id = -1
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
@@ -143,6 +145,9 @@ class NanoKontrol2Worker(Thread):
 
     def setValues(self, values):
         print('nano values:', values)
+        pygame.midi.init()
+        self.midi_out = pygame.midi.Output(self.output_id)
+
         a = []
         t = 0
         for ch in range(ord('A'), ord('H') + 1):
@@ -156,23 +161,35 @@ class NanoKontrol2Worker(Thread):
                 a.append([[CC, self.invertedKeys[ch][btn], v], t]) 
                 t += 10
         print(a)
+
         self.midi_out.write(a) 
+
+        self.midi_out.close()
+        del self.midi_out
+        self.midi_out = None
+        pygame.midi.quit()
 
     def connect(self):
         pygame.midi.init()
 
-        output_id = None
-        input_id = None
         for i in range(pygame.midi.get_count()):
             info = pygame.midi.get_device_info(i)
             (_, name, input_dev, output_dev, _) = info
             name = name.decode()
             print(f"{i}: {name} (input={bool(input_dev)}, output={bool(output_dev)})")
             if "nanoKONTROL2" in name and bool(input_dev):
-                input_id = i
+                self.input_id = i
             if "nanoKONTROL2" in name and bool(output_dev):
-                output_id = i
+                self.output_id = i
 
+        pygame.midi.quit()
+
+        if self.output_id != -1 and self.input_id != -1:
+            self.sendMsg('connected')
+        else:
+            self.sendMsg('failed')
+
+        """
         data = [True, True]
         if input_id is not None:
             print(f"Using nanoKONTROL2 input on device {input_id}")
@@ -192,8 +209,12 @@ class NanoKontrol2Worker(Thread):
             self.sendMsg('failed', data)
         else:
             self.sendMsg('connected')
+        """
 
     def turnAllLightsOff(self):
+        pygame.midi.init()
+        self.midi_out = pygame.midi.Output(self.output_id)
+
         a = []
 
         def off(d, t):
@@ -207,6 +228,11 @@ class NanoKontrol2Worker(Thread):
         off(self.invertedKeys, 0)
         self.midi_out.write(a) 
 
+        self.midi_out.close()
+        del self.midi_out
+        self.midi_out = None
+        pygame.midi.quit()
+
     def stop(self):
         if self.midi_out:
             self.midi_out.close()
@@ -214,7 +240,8 @@ class NanoKontrol2Worker(Thread):
         if self.midi_in:
             self.midi_in.close()
             del self.midi_in
-        pygame.midi.quit()
+        if pygame.midi.get_init():
+            pygame.midi.quit()
 
     def loop(self):
         while True:
