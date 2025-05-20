@@ -8,13 +8,12 @@
 </head>
 <body>
   <div class="icon-bar">
-    <a href="#metadata-popup" id="metadata-button" class="mini-button">
+    <a href="#metadata-popup" id="metadata-button" class="mini-button disabled">
       <img src="svg/metadata.svg">
     </a>
-    <div id="metadata-popup" class="popup disabled">
+    <div id="metadata-popup" class="popup">
       <span class="message">Empty</span><br/><br/>
     </div>
-    <a href="#" class="close-popup"></a>
 
     <a href="#flash-popup" id="flash-button" class="mini-button pulse">
       <img src="svg/flash.svg">
@@ -23,9 +22,17 @@
       <span class="message">Connecting...</span><br/><br/>
       <button id="try-trigger-button" class="hidden">Try Again...</button>
     </div>
+
+    <a href="#nano-popup" id="nano-button" class="mini-button pulse">
+      <img src="svg/nano.svg">
+    </a>
+    <div id="nano-popup" class="popup">
+      <span class="message">Connecting...</span><br/><br/>
+      <button id="try-nano-button" class="hidden">Try Again...</button>
+    </div>
+
     <a href="#" class="close-popup"></a>
 
-    <button id="nano-button" class="mini-button disabled"><img src="svg/nano.svg"></button>
     <button id="skull-button" class="mini-button"><img src="svg/skull.svg"></button>
   </div>
   <div class="top-bar">

@@ -26,6 +26,7 @@
 import argparse
 from lib.htmlgui import HTMLMainWindow
 from lib.godox import Godox
+from lib.nano import NanoKontrol2
 from webview.dom import DOMEventHandler
 import subprocess
 import lib.util as util
@@ -57,6 +58,10 @@ godox_conv_table = [
     ('{index}/group', '#{group}'),
 ]
 
+nano_conv_table = [
+    ('{group}/lighton', '!flash-{group}/Disabled'),
+]
+
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
       <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
@@ -86,6 +91,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.activeGroup = 'A'
         self.godox = None
         self.metadata = None
+        self.nano = None
         info = {
             'name': 'Flash Control',
             'bundle_version': 'X',
@@ -102,6 +108,8 @@ class FlashControlWindow(HTMLMainWindow):
         self.window.events.closing -= self.on_closing
         print('Stopping godox')
         self.godox.stop()
+        print('Stopping nano')
+        self.nano.stop()
         print('Stopping metadata')
         if self.metadata:
             self.metadata.stop()
@@ -228,6 +236,8 @@ class FlashControlWindow(HTMLMainWindow):
             self.godox.setValues(util.convertDict(self.config, godox_conv_table))
         if self.metadata:
             self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
+        if self.nano:
+            self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
     def powerHtml(self, gid, power = None):
         e = self.elem(f'#flash-power-{gid}')
@@ -324,10 +334,21 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#flash-button').classes.remove('pulse')
         self.elem('#flash-popup .message').text = f'Connected to: {data}'
         self.setSoundAndLight()
-        self.setFlashValues()
+        self.godox.setValues(util.convertDict(self.config, godox_conv_table))
 
     def onGodoxConfig(self, data):
         self.config['godox'] = data
+
+    def onNanoFailed(self, data):
+        self.elem('#nano-button').classes.remove('pulse')
+        self.elem('#nano-button').classes.append('disabled')
+        self.elem('#nano-popup .message').text = f'Unable to connect to nanoKontrol2 device.'
+        self.elem('#try-nano-button').classes.remove('hidden')
+
+    def onNanoConnected(self, data):
+        self.elem('#nano-button').classes.remove('pulse')
+        self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
+        self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
     def pwr(self, gid):
         fid = f'flash-{gid}'
@@ -412,6 +433,11 @@ class FlashControlWindow(HTMLMainWindow):
         self.godox.callback('connected', self.onGodoxConnected)
         self.godox.callback('config', self.onGodoxConfig)
         self.godox.connect(self.cv('godox', {}))
+
+        self.nano = NanoKontrol2()
+        self.nano.callback('failed', self.onNanoFailed)
+        self.nano.callback('connected', self.onNanoConnected)
+        self.nano.connect()
 
         tethering_path = self.cv('TetheringPath', '')
         tethering_pat = self.cv('TetheringPattern', '')
