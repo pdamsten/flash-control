@@ -34,7 +34,7 @@ from lib.metadata import RAWWatcher
 import platform 
 import os
 import threading
-import time
+from lib.numberoverlay import NumberOverlay
 
 json_conv_table = [
     ("XMP:XMP-pdplus:Stand", 'stands'),
@@ -106,6 +106,7 @@ class FlashControlWindow(HTMLMainWindow):
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
         self.setMacOsTitle(info)
+        self.overlay = NumberOverlay.alloc().init()
 
         super().__init__(title, html, css, api)
 
@@ -232,6 +233,7 @@ class FlashControlWindow(HTMLMainWindow):
     def setPower(self, group_id, power):
         print('setPower', group_id, power)
         self.delay = None
+        self.overlay.hide()
         mode = self.cv(f'flash-{group_id}/Mode', 'M')
         self.config[f'flash-{group_id}']['Power' + mode] = power
         self.config[f'flash-{group_id}']['CurrentPower'] = power
@@ -370,19 +372,12 @@ class FlashControlWindow(HTMLMainWindow):
         v = data[1]
 
         if cmd == 'SLIDER':
-            print('** SLIDER')
             if self.delay:
                 self.delay.cancel()
             pwr = round(10.0 * (v / 127.0), 1)
-            print(pwr, self.activeGroup, gid)
+            self.overlay.setValue_(pwr)
             self.delay = threading.Timer(0.3, self.setPower, [gid, pwr])
             self.delay.start()
-            
-            c = time.time()
-            if c - self.lastSlider < 0.3:
-                return
-            self.lastSlider = c
-            self.powerHtml(gid, pwr)
             if self.activeGroup != gid:
                 self.activateGroup(gid)
 
