@@ -84,7 +84,7 @@ def convertDict(org, table, disable_key = None):
         for i, k in enumerate(keys[:-1]):
             k = k if isinstance(d, dict) else int(k)
             if not k in d if isinstance(d, dict) else k >= len(d):
-                if not v.startswith('#'):
+                if not (isinstance(v, str) and v.startswith('#')):
                     if isinstance(d, list):
                         k = int(k)
                         if k >= len(d):
@@ -107,7 +107,12 @@ def convertDict(org, table, disable_key = None):
         for dest_key, org_key in table:
             org_key = org_key.format(**data)
             dest_key = dest_key.format(**data)
+            invert = False
+            if org_key.startswith('!'):
+                org_key = org_key[1:]
+                invert = True
             v = org_key if org_key.startswith('#') else getv(org, org_key)
+            v = v if v is None or not invert else not v
             if v is not None:
                 setv(dest_key, v)
     print(dest)
