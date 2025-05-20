@@ -27,6 +27,7 @@ import pygame.midi
 from threading import Thread
 from queue import Queue
 
+CC = 176
 KEYS = {
     58: 'TRACK_PREV',
     59: 'TRACK_NEXT',
@@ -142,8 +143,21 @@ class NanoKontrol2Worker(Thread):
 
     def setValues(self, values):
         print('nano values:', values)
-        pass
-    
+        a = []
+        t = 0
+        for ch in range(ord('A'), ord('H') + 1):
+            ch = chr(ch)
+            for btn in ['SOLO', 'MUTE', 'RECORD']:
+                v = 0
+                if ch in values:
+                    v = values[ch][btn] if btn in values[ch] else 0
+                    v = 127 if v else 0
+                print(ch, btn, self.invertedKeys[ch][btn], v)
+                a.append([[CC, self.invertedKeys[ch][btn], v], t]) 
+                t += 10
+        print(a)
+        self.midi_out.write(a) 
+
     def connect(self):
         pygame.midi.init()
 
@@ -179,11 +193,27 @@ class NanoKontrol2Worker(Thread):
         else:
             self.sendMsg('connected')
 
+    def turnAllLightsOff(self):
+        a = []
+
+        def off(d, t):
+            for k, v in d.items():
+                t += 10
+                if isinstance(v, dict):
+                    t = off(v, t)
+                else:
+                    a.append([[CC, v, 0], t]) 
+            return t
+        off(self.invertedKeys, 0)
+        self.midi_out.write(a) 
+
     def stop(self):
         if self.midi_out:
             self.midi_out.close()
+            del self.midi_out
         if self.midi_in:
             self.midi_in.close()
+            del self.midi_in
         pygame.midi.quit()
 
     def loop(self):
@@ -194,6 +224,7 @@ class NanoKontrol2Worker(Thread):
             if cmd == 'connect':
                 print('NanoKontrol2Worker::connect')
                 self.connect()
+                self.turnAllLightsOff()
             elif cmd == 'stop':
                 self.stop()
                 print('- NanoKontrol2Worker::stop')
@@ -205,6 +236,15 @@ class NanoKontrol2Worker(Thread):
                 print('- unknown command', cmd)
 
     def run(self):
+        self.invertedKeys = {}
+        for k, v in KEYS.items():
+            if isinstance(v, str):
+                self.invertedKeys[v] = k
+            else:
+                if v[0] not in self.invertedKeys:
+                    self.invertedKeys[v[0]] = {}
+                self.invertedKeys[v[0]][v[1]] = k
+
         self.loop()
 
 if __name__ == '__main__':
