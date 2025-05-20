@@ -28,6 +28,8 @@ from threading import Thread
 from queue import Queue
 
 CC = 176
+KEYDOWN = 127
+KEYUP = 0
 KEYS = {
     58: 'TRACK_PREV',
     59: 'TRACK_NEXT',
@@ -119,7 +121,6 @@ class NanoKontrol2:
     def poll(self):
         while True:
             cmd, data = self.fromWorkerQueue.get()
-            print('* poll', cmd, data)
 
             if cmd in self.callbacks:
                 self.callbacks[cmd](data)
@@ -140,7 +141,6 @@ class NanoKontrol2Worker(Thread):
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
-            print('- out', cmd, data)
             self.outQueue.put((cmd, data))
 
     def setValues(self, values):
@@ -218,7 +218,7 @@ class NanoKontrol2Worker(Thread):
         a = []
 
         def off(d, t):
-            for k, v in d.items():
+            for _, v in d.items():
                 t += 10
                 if isinstance(v, dict):
                     t = off(v, t)
@@ -245,8 +245,20 @@ class NanoKontrol2Worker(Thread):
 
     def loop(self):
         while True:
-            cmd, data = self.inQueue.get()
-            print('- NanoKontrol2Worker::loop', cmd, '/', data)
+            try:
+                cmd = 'pass'
+                cmd, data = self.inQueue.get(block = False, timeout = 0.1)
+                print('- NanoKontrol2Worker::loop', cmd, '/', data)
+            except:
+                if self.input_id >= 0:
+                    if not pygame.midi.get_init():
+                        pygame.midi.init()
+                        self.midi_in = pygame.midi.Input(self.input_id)
+                    if self.midi_in.poll():
+                        events = self.midi_in.read(10)
+                        for event in events:
+                            data, _ = event
+                            self.sendMsg('event', (KEYS[data[1]], data[2]))
 
             if cmd == 'connect':
                 print('NanoKontrol2Worker::connect')
@@ -259,6 +271,8 @@ class NanoKontrol2Worker(Thread):
             elif cmd == 'setValues':
                 print('- NanoKontrol2Worker::setValues', data)
                 self.setValues(data)
+            elif cmd == 'pass':
+                pass
             else:
                 print('- unknown command', cmd)
 
