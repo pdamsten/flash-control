@@ -383,7 +383,6 @@ class FlashControlWindow(HTMLMainWindow):
                 v = '10'
         else:
             v = str(round(6.0 * (v / 127.0) - 3.0, 1))
-        print(v)
         return v
 
     def onNanoSlider(self, d):
@@ -397,13 +396,15 @@ class FlashControlWindow(HTMLMainWindow):
             gid = data[0][0]
             cmd = data[0][1]
         else:
-            cmd = data
+            cmd = data[0]
         v = data[1]
 
         if cmd == 'SLIDER' or cmd == 'KNOB':
             if self.activeGroup != gid:
                 self.activateGroup(gid)
             self.setPower(gid, self.nano2Power(gid, v))
+        elif cmd == 'RECORD' and v == 0:
+            self.onShutterClicked(None)
 
     def pwr(self, gid):
         fid = f'flash-{gid}'
