@@ -237,7 +237,7 @@ class FlashControlWindow(HTMLMainWindow):
     def saveDebugHtml(self):
         js = "document.documentElement.outerHTML"
         html = self.window.evaluate_js(js)
-        with open(self.path('html/debug.html'), 'w') as f:
+        with open(util.path('html/debug.html'), 'w') as f:
             f.write(html)
 
     def setPower(self, group_id, power):
@@ -413,7 +413,7 @@ class FlashControlWindow(HTMLMainWindow):
         return self.config[fid]['CurrentPower']
 
     def onShowConfig(self, e):
-        cfg = self.path('user/config.json')
+        cfg = util.path('user/config.json')
         print(cfg)
         print(subprocess.Popen(['open', cfg]))
 
