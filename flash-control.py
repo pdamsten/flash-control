@@ -95,6 +95,7 @@ class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None, api = None):
         self.power = ''
         self.activeGroup = 'A'
+        self.activeMode = 'M'
         self.godox = None
         self.metadata = None
         self.nano = None
@@ -226,6 +227,7 @@ class FlashControlWindow(HTMLMainWindow):
     def setMode(self, group_id, v):
         self.config[f'flash-{group_id}']['Mode'] = v
         self.elem(f'#flash-mode-{group_id}').text = self.config[f'flash-{group_id}']['Mode']
+        self.activeMode = v
         self.setFlashValues()
 
     def activateGroup(self, group_id):
@@ -233,6 +235,7 @@ class FlashControlWindow(HTMLMainWindow):
         e = self.elem(f'#flash-{group_id}')
         if e:
             self.activeGroup = group_id
+            self.activeMode = self.cv(f'flash-{group_id}/Mode', 'M')
             for ch in range(ord('A'), ord('L') + 1):
                 et = self.elem(f'#flash-{chr(ch)}')
                 if et:
@@ -379,9 +382,12 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
     def nano2Power(self, v):
-        v = str(round(8.0 * (v / 127.0), 1) + 2.0)
-        if v == '10.0':
-            v = '10'
+        if self.activeMode == 'M':
+            v = str(round(8.0 * (v / 127.0), 1) + 2.0)
+            if v == '10.0':
+                v = '10'
+        else:
+            v = str(round(6.0 * (v / 127.0), 1) - 3.0)
         return v
 
     def onNanoSlider(self, v):
