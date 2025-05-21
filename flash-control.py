@@ -206,11 +206,7 @@ class FlashControlWindow(HTMLMainWindow):
             if disabled:
                 e.classes.append('disabled')
             else:
-                tmp = True
-                if e.id.startswith('flash-mode-'):
-                    tmp = False
-                if tmp:
-                    e.classes.remove('disabled')
+                e.classes.remove('disabled')
         if not disabled:
             self.activateGroup(group_id)
         self.setFlashValues()
@@ -391,7 +387,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.overlay.setValue_(v)
 
     def onNanoEvent(self, data):
-        gid = None
+        gid = '-'
         if isinstance(data[0], tuple):
             gid = data[0][0]
             cmd = data[0][1]
@@ -403,8 +399,11 @@ class FlashControlWindow(HTMLMainWindow):
             if self.activeGroup != gid:
                 self.activateGroup(gid)
             self.setPower(gid, self.nano2Power(gid, v))
-        elif cmd == 'RECORD' and v == 0:
+        elif cmd == 'RECORD' and gid == '-' and v == 0:
             self.onShutterClicked(None)
+        elif (cmd == 'RECORD' or cmd == 'SOLO' or cmd == 'MUTE') and v == 0:
+            self.activateGroup(gid)
+            self.setGroupDisabled(gid, not self.cv(f'flash-{gid}/Disabled'))
 
     def pwr(self, gid):
         fid = f'flash-{gid}'
