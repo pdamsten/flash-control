@@ -97,8 +97,8 @@ class NanoKontrol2:
     def callback(self, name, callback):
         self.callbacks[name] = callback
 
-    def connect(self):
-        self.sendMsg('connect')
+    def connect(self, directCallback = None):
+        self.sendMsg('connect', directCallback)
 
     def setValues(self, values):
         self.sendMsg('setValues', values)
@@ -138,6 +138,7 @@ class NanoKontrol2Worker(Thread):
         self.midi_out = None
         self.output_id = -1
         self.input_id = -1
+        self.directCallback = None
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
@@ -258,10 +259,15 @@ class NanoKontrol2Worker(Thread):
                         events = self.midi_in.read(10)
                         for event in events:
                             data, _ = event
+                            if self.directCallback and \
+                                (KEYS[data[1]][1] == 'SLIDER' or KEYS[data[1]][1] == 'KNOB'):
+                                self.directCallback(data[2])
+                            # Don't send events too often?
                             self.sendMsg('event', (KEYS[data[1]], data[2]))
 
             if cmd == 'connect':
                 print('NanoKontrol2Worker::connect')
+                self.directCallback = data
                 self.connect()
                 self.turnAllLightsOff()
             elif cmd == 'stop':

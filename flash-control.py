@@ -378,6 +378,17 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
         self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
+    def nano2Power(self, v):
+        v = str(round(8.0 * (v / 127.0), 1) + 2.0)
+        if v == '10.0':
+            v = '10'
+        return v
+
+    def onNanoSlider(self, v):
+        if self.overlay:
+            v = self.nano2Power(v)
+            self.overlay.setValue_(v)
+
     def onNanoEvent(self, data):
         gid = None
         if isinstance(data[0], tuple):
@@ -390,10 +401,8 @@ class FlashControlWindow(HTMLMainWindow):
         if cmd == 'SLIDER':
             if self.delay:
                 self.delay.cancel()
-            pwr = round(10.0 * (v / 127.0), 1)
-            if self.overlay:
-                self.overlay.setValue_(pwr)
-            self.delay = threading.Timer(0.3, self.setPower, [gid, pwr])
+            pwr = self.nano2Power(v)
+            self.delay = threading.Timer(0.75, self.setPower, [gid, pwr])
             self.delay.start()
             if self.activeGroup != gid:
                 self.activateGroup(gid)
@@ -486,7 +495,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano.callback('failed', self.onNanoFailed)
         self.nano.callback('connected', self.onNanoConnected)
         self.nano.callback('event', self.onNanoEvent)
-        self.nano.connect()
+        self.nano.connect(self.onNanoSlider)
 
         tethering_path = self.cv('TetheringPath', '')
         tethering_pat = self.cv('TetheringPattern', '')
