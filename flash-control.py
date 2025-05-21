@@ -34,7 +34,9 @@ from lib.metadata import RAWWatcher
 import platform 
 import os
 import threading
-from lib.numberoverlay import NumberOverlay
+import sys
+if sys.platform.startswith('darwin'):
+    from lib.numberoverlay import NumberOverlay
 
 json_conv_table = [
     ("XMP:XMP-pdplus:Stand", 'stands'),
@@ -106,7 +108,10 @@ class FlashControlWindow(HTMLMainWindow):
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
         self.setMacOsTitle(info)
-        self.overlay = NumberOverlay.alloc().init()
+        if sys.platform.startswith('darwin'):
+            self.overlay = NumberOverlay.alloc().init()
+        else:
+            self.overlay = None
 
         super().__init__(title, html, css, api)
 
@@ -233,7 +238,8 @@ class FlashControlWindow(HTMLMainWindow):
     def setPower(self, group_id, power):
         print('setPower', group_id, power)
         self.delay = None
-        self.overlay.hide()
+        if self.overlay:
+            self.overlay.hide()
         mode = self.cv(f'flash-{group_id}/Mode', 'M')
         self.config[f'flash-{group_id}']['Power' + mode] = power
         self.config[f'flash-{group_id}']['CurrentPower'] = power
@@ -375,7 +381,8 @@ class FlashControlWindow(HTMLMainWindow):
             if self.delay:
                 self.delay.cancel()
             pwr = round(10.0 * (v / 127.0), 1)
-            self.overlay.setValue_(pwr)
+            if self.overlay:
+                self.overlay.setValue_(pwr)
             self.delay = threading.Timer(0.3, self.setPower, [gid, pwr])
             self.delay.start()
             if self.activeGroup != gid:

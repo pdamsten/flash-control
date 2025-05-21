@@ -54,7 +54,7 @@ class NumberOverlay(NSObject):
         self.window.setAlphaValue_(1.0)
 
         self.label = NSTextField.alloc().initWithFrame_(NSMakeRect(0, 0, 400, 400))
-        self.label.setStringValue_("0")
+        self.label.setStringValue_("-")
         self.label.setFont_(NSFont.boldSystemFontOfSize_(200))
         self.label.setBezeled_(False)
         self.label.setDrawsBackground_(False)
