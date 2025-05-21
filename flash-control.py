@@ -398,7 +398,7 @@ class FlashControlWindow(HTMLMainWindow):
             cmd = data
         v = data[1]
 
-        if cmd == 'SLIDER':
+        if cmd == 'SLIDER' or cmd == 'KNOB':
             if self.delay:
                 self.delay.cancel()
             pwr = self.nano2Power(v)
