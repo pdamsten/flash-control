@@ -128,6 +128,16 @@ class FlashControlWindow(HTMLMainWindow):
         print('Stopping super')
         super().on_closing()
 
+    def on_resized(self, width, height):
+        if self.overlay:
+            self.overlay.center_((self.config['x'], self.config['y'], width, height))
+        super().on_moved(width, height)
+
+    def on_moved(self, x, y):
+        if self.overlay:
+            self.overlay.center_((x, y, self.config['width'], self.config['height']))
+        super().on_moved(x, y)
+
     def fill_select(self, e, items, value = None):
         e = self.elem(e)
         for i, item in enumerate(items):
@@ -492,6 +502,9 @@ class FlashControlWindow(HTMLMainWindow):
         self.window.events.closing += self.on_closing
 
         # self.bring_window_to_front()
+        if self.overlay:
+            self.overlay.center_((self.config['x'], self.config['y'], 
+                                  self.config['width'], self.config['height']))
 
         if (args.debug):
             self.saveDebugHtml()

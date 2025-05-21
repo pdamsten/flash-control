@@ -27,11 +27,14 @@ from Cocoa import (
     NSWindow, NSBackingStoreBuffered,
     NSMakeRect, NSBorderlessWindowMask,
     NSWindowCollectionBehaviorCanJoinAllSpaces,
-    NSFloatingWindowLevel, NSTextField, NSColor, NSFont
+    NSFloatingWindowLevel, NSTextField, NSColor, NSFont, NSCenterTextAlignment, NSScreen
 )
 from Foundation import NSObject
 import objc
 from PyObjCTools import AppHelper
+
+W = 700
+H = 400
 
 class NumberOverlay(NSObject):
     def init(self):
@@ -39,7 +42,7 @@ class NumberOverlay(NSObject):
         if self is None:
             return None
 
-        rect = NSMakeRect(200, 500, 400, 400)
+        rect = NSMakeRect(0, 0, W, H)
         self.window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
             rect,
             NSBorderlessWindowMask,
@@ -52,18 +55,31 @@ class NumberOverlay(NSObject):
         self.window.setCollectionBehavior_(NSWindowCollectionBehaviorCanJoinAllSpaces)
         self.window.setIgnoresMouseEvents_(True)
         self.window.setAlphaValue_(1.0)
+        self.setBorderRadius_((self.window, 50))
 
-        self.label = NSTextField.alloc().initWithFrame_(NSMakeRect(0, 0, 400, 400))
+        self.label = NSTextField.alloc().initWithFrame_(NSMakeRect(0, 0, W, H + 15))
         self.label.setStringValue_("-")
-        self.label.setFont_(NSFont.boldSystemFontOfSize_(200))
+        self.label.setAlignment_(NSCenterTextAlignment)
+        self.label.setFont_(NSFont.boldSystemFontOfSize_(350))
         self.label.setBezeled_(False)
         self.label.setDrawsBackground_(False)
         self.label.setEditable_(False)
         self.label.setSelectable_(False)
-        self.label.setAlignment_(2)  # Center
+        self.label.setAlignment_(NSCenterTextAlignment)
         self.label.setTextColor_(NSColor.whiteColor())
         self.window.contentView().addSubview_(self.label)
         return self
+
+    def setBorderRadius_(self, params):
+        window, radius = params
+        content_view = window.contentView()
+        content_view.setWantsLayer_(True)
+
+        layer = content_view.layer()
+        layer.setCornerRadius_(radius)
+        layer.setMasksToBounds_(True)
+        color = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.5).CGColor()
+        layer.setBackgroundColor_(color)
 
     def show(self):
         def _show():
@@ -80,3 +96,12 @@ class NumberOverlay(NSObject):
             self.label.setStringValue_(str(txt))
         self.show()
         AppHelper.callAfter(_tick, txt)
+
+    def center_(self, rect):
+        def _center(rect):
+            sh = NSScreen.mainScreen().frame().size.height
+            frame = NSMakeRect(rect[0] + (rect[2] / 2) - (W / 2), 
+                               sh - H - (rect[1] + (rect[3] / 2) - (H / 2)), 
+                               W, H)
+            self.window.setFrame_display_(frame, True)
+        AppHelper.callAfter(_center, rect)
