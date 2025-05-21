@@ -25,6 +25,7 @@
 
 import pygame.midi
 from threading import Thread
+from threading import Timer
 from queue import Queue
 
 CC = 176
@@ -139,6 +140,7 @@ class NanoKontrol2Worker(Thread):
         self.output_id = -1
         self.input_id = -1
         self.directCallback = None
+        self.delay = None
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
@@ -244,6 +246,9 @@ class NanoKontrol2Worker(Thread):
         if pygame.midi.get_init():
             pygame.midi.quit()
 
+    def sendValue(self, e, d):
+        self.sendMsg('event', (e, d))
+
     def loop(self):
         while True:
             try:
@@ -259,11 +264,15 @@ class NanoKontrol2Worker(Thread):
                         events = self.midi_in.read(10)
                         for event in events:
                             data, _ = event
-                            if self.directCallback and \
-                                (KEYS[data[1]][1] == 'SLIDER' or KEYS[data[1]][1] == 'KNOB'):
-                                self.directCallback(data[2])
-                            # Don't send events too often?
-                            self.sendMsg('event', (KEYS[data[1]], data[2]))
+                            if (KEYS[data[1]][1] == 'SLIDER' or KEYS[data[1]][1] == 'KNOB'):
+                                if self.directCallback:
+                                    self.directCallback((KEYS[data[1]][0], data[2]))
+                                if self.delay:
+                                    self.delay.cancel()
+                                self.delay = Timer(0.5, self.sendValue, [KEYS[data[1]], data[2]])
+                                self.delay.start()
+                            else:
+                                self.sendMsg('event', (KEYS[data[1]], data[2]))
 
             if cmd == 'connect':
                 print('NanoKontrol2Worker::connect')
