@@ -35,8 +35,8 @@ def isPath(path):
     p = Path(path)
     return p.exists()
 
-def path(filename):
-    if isPath(filename):
+def path(filename = ''):
+    if os.path.isabs(filename):
         return filename
     return MAIN_PATH + '/' + filename
 
