@@ -23,12 +23,14 @@
 #
 #**************************************************************************
 
-import webview
 import sys
 import os
 import inspect
-import lib.util as util
 import time
+
+import webview
+
+import lib.util as util
 
 CONFIG = 'user/config.json'
 
@@ -64,7 +66,27 @@ class HTMLMainWindow():
     def on_moved(self, x, y):
         self.config['x'] = x
         self.config['y'] = y
-    
+
+    def setEnabled(self, elem, enabled):
+        self.setClass(elem, 'disabled', not enabled)
+
+    def setClass(self, elem, cname, value):
+        if isinstance(elem, str):
+            elem = self.elem(elem)
+        elem.classes.append(cname) if value else elem.classes.remove(cname)
+
+    def innerHTML(self, elemid, htmlstring):
+        print(f'innerHTML({elemid}, {htmlstring})')
+        htmlstring = htmlstring.replace('\n', '\\n').replace('"', '\\"')
+        js = f'document.getElementById("{elemid}").innerHTML = "{htmlstring}";'
+        self.window.evaluate_js(js)
+
+    def scrollToBottom(self, elemid):
+        self.window.evaluate_js(f"""
+                var e = document.getElementById('{elemid}');
+                e.scrollTo({{top: e.scrollHeight, behavior: "smooth"}});
+        """)
+
     def elem(self, search):
         if isinstance(search, dict):
             if 'id' in search['target']['attributes']:
@@ -96,7 +118,7 @@ class HTMLMainWindow():
             d[keys[-1]] = default
         return d[keys[-1]]
    
-    def __init__(self, title, html, css = None, api = None):
+    def __init__(self, title, html, css = None, api = None, size = (1000, 800)):
         HTMLMainWindow.instances.append(self)
 
         self.api = api
@@ -109,7 +131,7 @@ class HTMLMainWindow():
         time.sleep(0.1)
         self.window = webview.create_window(title, hpath, html = html, 
                 frameless = sys.platform.startswith('darwin'), js_api = api, 
-                width = self.cv('width', 1000), height = self.cv('height', 800),
+                width = self.cv('width', size[0]), height = self.cv('height', size[1]),
                 x = self.cv('x'), y = self.cv('y'))
         self.window.events.closing += self.on_closing
         self.window.events.resized += self.on_resized
