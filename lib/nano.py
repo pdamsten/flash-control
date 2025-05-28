@@ -215,26 +215,27 @@ class NanoKontrol2Worker(Thread):
         """
 
     def turnAllLightsOff(self):
-        pygame.midi.init()
-        self.midi_out = pygame.midi.Output(self.output_id)
+        if self.output_id >= 0:
+            pygame.midi.init()
+            self.midi_out = pygame.midi.Output(self.output_id)
 
-        a = []
+            a = []
 
-        def off(d, t):
-            for _, v in d.items():
-                t += 10
-                if isinstance(v, dict):
-                    t = off(v, t)
-                else:
-                    a.append([[CC, v, 0], t]) 
-            return t
-        off(self.invertedKeys, 0)
-        self.midi_out.write(a) 
+            def off(d, t):
+                for _, v in d.items():
+                    t += 10
+                    if isinstance(v, dict):
+                        t = off(v, t)
+                    else:
+                        a.append([[CC, v, 0], t]) 
+                return t
+            off(self.invertedKeys, 0)
+            self.midi_out.write(a) 
 
-        self.midi_out.close()
-        del self.midi_out
-        self.midi_out = None
-        pygame.midi.quit()
+            self.midi_out.close()
+            del self.midi_out
+            self.midi_out = None
+            pygame.midi.quit()
 
     def stop(self):
         if self.midi_out:
