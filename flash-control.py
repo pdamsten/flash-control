@@ -102,6 +102,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano = None
         self.lastSlider = 0
         self.delay = None
+        self.overlayPwr = None
 
         info = {
             'name': 'Flash Control',
@@ -251,16 +252,17 @@ class FlashControlWindow(HTMLMainWindow):
     def setPowerFast(self, gid, pwr):
         if self.delay:
             self.delay.cancel()
-        pwr = self.normalizePower(gid, pwr)
+        self.overlayPwr = self.normalizePower(gid, pwr)
         self.delay = Timer(0.5, self.setPower, [gid, pwr])
         self.delay.start()
         if self.overlay:
-            self.overlay.setValue_(pwr)
+            self.overlay.setValue_(self.overlayPwr)
 
     def setPower(self, group_id, power):
         print('setPower', group_id, power)
         if self.overlay:
             self.overlay.hide()
+            self.overlayPwr = None
         power = self.normalizePower(group_id, power)
         mode = self.cv(f'flash-{group_id}/Mode', 'M')
         self.config[f'flash-{group_id}']['Power' + mode] = power
@@ -483,7 +485,10 @@ class FlashControlWindow(HTMLMainWindow):
                 n = min(round(e['wheelDelta'] / 5000.0, 1), -0.1)
             else:
                 n = max(round(e['wheelDelta'] / 5000.0, 1), 0.1)
-            n = float(self.pwr(gid)) + n
+            if not self.overlayPwr:
+                self.overlayPwr = self.pwr(gid)
+            print(float(self.overlayPwr), n, float(self.overlayPwr) + n)
+            n = float(self.overlayPwr) + n
             self.setPowerFast(gid, n)
 
     def bring_window_to_front(self):

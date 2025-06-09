@@ -33,7 +33,7 @@ from Foundation import NSObject
 import objc
 from PyObjCTools import AppHelper
 
-W = 700
+W = 900
 H = 400
 
 class NumberOverlay(NSObject):
