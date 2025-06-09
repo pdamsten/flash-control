@@ -148,6 +148,8 @@ class NanoKontrol2Worker(Thread):
 
     def setValues(self, values):
         print('nano values:', values)
+        if self.output_id < 0:
+            return
         pygame.midi.init()
         self.midi_out = pygame.midi.Output(self.output_id)
 
