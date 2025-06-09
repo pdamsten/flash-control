@@ -104,6 +104,9 @@ class NanoKontrol2:
     def setValues(self, values):
         self.sendMsg('setValues', values)
 
+    def setBeepAndLight(self, beep = True, light = True):
+        self.sendMsg('setBeepAndLight', (beep, light))
+
     def stop(self):
         self.fromWorkerQueue.put(('quit', None))
         self.poller.join()
@@ -231,7 +234,8 @@ class NanoKontrol2Worker(Thread):
                     else:
                         a.append([[CC, v, 0], t]) 
                 return t
-            off(self.invertedKeys, 0)
+            t = off(self.invertedKeys, 0) + 10
+            a.append([[CC, self.invertedKeys['STOP'], 127], t]) 
             self.midi_out.write(a) 
 
             self.midi_out.close()
@@ -251,6 +255,21 @@ class NanoKontrol2Worker(Thread):
 
     def sendValue(self, e, d):
         self.sendMsg('event', (e, d))
+
+    def setBeepAndLight(self, beep = True, light = True):
+        if self.output_id >= 0:
+            pygame.midi.init()
+            self.midi_out = pygame.midi.Output(self.output_id)
+
+            a = []
+            a.append([[CC, self.invertedKeys['PREV'], 127 if beep else 0], 0]) 
+            a.append([[CC, self.invertedKeys['RECORD'], 127 if light else 0], 0]) 
+
+            self.midi_out.write(a) 
+            self.midi_out.close()
+            del self.midi_out
+            self.midi_out = None
+            pygame.midi.quit()
 
     def loop(self):
         while True:
@@ -289,6 +308,9 @@ class NanoKontrol2Worker(Thread):
             elif cmd == 'setValues':
                 print('- NanoKontrol2Worker::setValues', data)
                 self.setValues(data)
+            elif cmd == 'setBeepAndLight':
+                print('- NanoKontrol2Worker::setBeepAndLight', data)
+                self.setBeepAndLight(data[0], data[1])
             elif cmd == 'pass':
                 pass
             else:

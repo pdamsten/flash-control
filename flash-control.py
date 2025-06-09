@@ -166,6 +166,8 @@ class FlashControlWindow(HTMLMainWindow):
     def setSoundAndLight(self):
         if self.godox:
             self.godox.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
+        if self.nano:
+            self.nano.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
     
     def onSelectChange(self, e):
         elem = self.elem(e)
@@ -392,16 +394,20 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             cmd = data[0]
         v = data[1]
-
+        print('onNanoEvent', gid, cmd, v)
         if cmd == 'SLIDER' or cmd == 'KNOB':
             if self.activeGroup != gid:
                 self.activateGroup(gid)
             self.setPower(gid, self.nano2Power(gid, v))
-        elif cmd == 'RECORD' and gid == '-' and v == 0:
-            self.onShutterClicked(None)
-        elif (cmd == 'RECORD' or cmd == 'SOLO' or cmd == 'MUTE') and v == 0:
+        elif (cmd == 'RECORD' or cmd == 'SOLO' or cmd == 'MUTE') and gid != '-' and v == 0:
             self.activateGroup(gid)
             self.setGroupDisabled(gid, not self.cv(f'flash-{gid}/Disabled'))
+        elif cmd == 'STOP' and gid == '-' and v == 0:
+            self.onShutterClicked(None)
+        elif cmd == 'RECORD' and gid == '-' and v == 0:
+            self.setLight(not self.cv('ModellingLight'))
+        elif cmd == 'PREV' and gid == '-' and v == 0:
+            self.setSound(not self.cv('Sound'))
 
     def pwr(self, gid):
         fid = f'flash-{gid}'
