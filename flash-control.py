@@ -33,7 +33,6 @@ import lib.util as util
 from lib.metadata import RAWWatcher
 import platform 
 import os
-import threading
 import sys
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
