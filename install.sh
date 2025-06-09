@@ -2,7 +2,7 @@
 
 # Depedencies installation
 
-#python -m pip install -r dependencies-macos.txt
+python -m pip install -r dependencies-macos.txt
 
 # Update the workflow file to use the new command string
 

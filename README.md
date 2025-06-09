@@ -21,25 +21,10 @@ Tested with python 3.13 on macOS Sequoia 15.4
 
 ### Python packages
 
-pywebview for html based gui
+Run install script in main folder to install dependencies and fis app bundle.
 
-    pip install pywebview
+    ./install.sh
 
-bleak for bluetooth communication to godox trigger
-
-    pip install bleak
-
-CRC-8/MAXIM-DOW calculation for godox communication
-    
-    pip install crccheck
-
-File change monitor for tethering metadata writing
-
-    pip install watchdog
-
-pypi.midi for nanoKontrol2 midi controller communication
-
-    pip install pygame
 
 ## nanoKontrol2 configuration
 
