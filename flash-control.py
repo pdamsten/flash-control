@@ -201,9 +201,12 @@ class FlashControlWindow(HTMLMainWindow):
         self.setFlashValues()
 
     def onModeClicked(self, e):
-        e = self.elem(e)
-        gid = e.id[-1:]
-        self.activateGroup(gid)
+        if e:
+            e = self.elem(e)
+            gid = e.id[-1:]
+            self.activateGroup(gid)
+        else:
+            gid = self.activeGroup
         self.setMode(gid, 'M' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'TTL')
         self.powerHtml(gid)
 
@@ -322,6 +325,12 @@ class FlashControlWindow(HTMLMainWindow):
                 self.power = ''
                 self.elem(f'#flash-power-{self.activeGroup}').text = \
                         self.cv(f'flash-{self.activeGroup}/Power')
+        elif key == ord('m'):
+            self.setSound(not self.cv('Sound'))
+        elif key == ord('z'):
+            self.setLight(not self.cv('ModellingLight'))
+        elif key == ord('t'):
+            self.onModeClicked(None)
 
     def onTryAgain(self, e):
         self.setPulsing('#flash-button', True)

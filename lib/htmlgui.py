@@ -77,7 +77,7 @@ class HTMLMainWindow():
         self.setClass(elem, 'disabled', not enabled)
 
     def setActive(self, elem, active):
-        self.setClass(elem, 'active', not active)
+        self.setClass(elem, 'active', active)
 
     def setNotification(self, elem, notification):
         self.setClass(elem, 'notification', notification)
