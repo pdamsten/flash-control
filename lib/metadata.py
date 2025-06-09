@@ -45,7 +45,9 @@ class RAWEventHandler(PatternMatchingEventHandler):
         util.writeJson(flash_info, self.watcher.json)
         msg = exiftool.set(xmp, flash_info)
         if not msg:
-            msg = f'json and xmp created for {event.src_path}'
+            msg = (f'Metadata added: {os.path.basename(event.src_path)}', 0)
+        else:
+            msg = (f'Metadata FAILED: {os.path.basename(event.src_path)}', 1)
         self.watcher.msg(msg)
 
 class RAWWatcher:

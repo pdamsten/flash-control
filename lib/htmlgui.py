@@ -68,7 +68,7 @@ class HTMLMainWindow():
         self.config['y'] = y
 
     def setPulsing(self, elem, pulsing):
-        self.setClass(elem, 'pulsing', pulsing)
+        self.setClass(elem, 'pulse', pulsing)
 
     def setVisible(self, elem, visible):
         self.setClass(elem, 'hidden', not visible)
@@ -78,6 +78,9 @@ class HTMLMainWindow():
 
     def setActive(self, elem, active):
         self.setClass(elem, 'active', not active)
+
+    def setNotification(self, elem, notification):
+        self.setClass(elem, 'notification', notification)
 
     def setClass(self, elem, cname, value):
         if isinstance(elem, str):

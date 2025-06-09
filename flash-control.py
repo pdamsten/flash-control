@@ -337,6 +337,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setPulsing('#flash-button', False)
         self.setEnabled('#flash-button', False)
         self.elem('#flash-popup .message').text = msg
+        self.setNotification('#flash-button', True)
         self.setVisible('#try-trigger-button', True)
 
     def onGodoxConnected(self, data):
@@ -352,6 +353,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setPulsing('#nano-button', False)
         self.setEnabled('#nano-button', False)
         self.setVisible('#try-nano-button', True)
+        self.setNotification('#nano-button', True)
         self.elem('#nano-popup .message').text = f'Unable to connect to nanoKontrol2 device.'
 
     def onNanoConnected(self, data):
@@ -405,7 +407,36 @@ class FlashControlWindow(HTMLMainWindow):
         print(subprocess.Popen(['open', cfg]))
 
     def onMetadataMsg(self, msg):
-        self.elem('#metadata-popup .message').text = msg
+        self.elem('#metadata-popup .message').append = f'<span>{msg[0]}</span><br'
+        if msg[1] > 0:
+            self.setNotification('#meta-button', True)
+
+    def onShowFlashPopup(self, e):
+        self.setVisible('#flash-popup', True)
+        self.setVisible('#flash-close', True)
+        self.setNotification('#flash-button', False)
+
+    def onCloseFlashPopup(self, e):
+        self.setVisible('#flash-popup', False)
+        self.setVisible('#flash-close', False)
+
+    def onShowMetaPopup(self, e):
+        self.setVisible('#meta-popup', True)
+        self.setVisible('#meta-close', True)
+        self.setNotification('#meta-button', False)
+
+    def onCloseMetaPopup(self, e):
+        self.setVisible('#meta-popup', False)
+        self.setVisible('#meta-close', False)
+
+    def onShowNanoPopup(self, e):
+        self.setVisible('#nano-popup', True)
+        self.setVisible('#nano-close', True)
+        self.setNotification('#nano-button', False)
+
+    def onCloseNanoPopup(self, e):
+        self.setVisible('#nano-popup', False)
+        self.setVisible('#nano-close', False)
 
     def bring_window_to_front(self):
         if platform.system() == 'Darwin':
@@ -464,6 +495,13 @@ class FlashControlWindow(HTMLMainWindow):
 
         self.elem('#try-trigger-button').events.click += self.onTryAgain
         self.elem('#skull-button').events.click += self.onShowConfig
+
+        self.elem('#flash-button').events.click += self.onShowFlashPopup
+        self.elem('#meta-button').events.click += self.onShowMetaPopup
+        self.elem('#nano-button').events.click += self.onShowNanoPopup
+        self.elem('#flash-close').events.click += self.onCloseFlashPopup
+        self.elem('#meta-close').events.click += self.onCloseMetaPopup
+        self.elem('#nano-close').events.click += self.onCloseNanoPopup
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange

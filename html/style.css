@@ -267,42 +267,24 @@ button:active, button:focus {
   padding: 1rem;
   border-radius: 1rem;
   background: --var(--background-color);
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity .5s, visibility 0s linear .5s;
   z-index: 11;
   position-area: start end;
   top: 3rem;
   right: 6rem;
   min-width: 20rem;
   text-align: center;
-}
-
-.popup:target {
-  visibility: visible;
-  opacity: 1;
-  -webkit-transition-delay: 0s;
-  transition-delay: 0s;
+  border: 1px solid hsla(0, 0%, 100%, var(--widget-opacity));
 }
 
 .close-popup {
-  background: rgba(0,0,0,.2);
+  background: rgba(0,0,0,.3);
   cursor: default;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .5s, visibility 0s linear .5s;
   z-index: 10;
-}
-
-.popup:target + .close-popup{  
-  opacity: 1;
-  visibility: visible;
-  transition-delay: 0s;
 }
 
 .message {
@@ -332,3 +314,18 @@ button:active, button:focus {
 .pulse {
   animation: pulse-opacity 1s infinite;
 }
+
+.notification::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid #000;
+  background-color: #c30e0e;
+  border-radius: 100%;
+}
+.notification {
+  position: relative;
+ }
