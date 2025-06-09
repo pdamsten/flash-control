@@ -59,7 +59,7 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>"/opt/homebrew/bin/python3" "/Users/damu/bin/flash-control/voting_gui.py"
+					<string>"/opt/homebrew/bin/python3" "/Users/damu/bin/flash-control/flash-control.py"
 </string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>

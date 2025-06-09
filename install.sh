@@ -2,12 +2,12 @@
 
 # Depedencies installation
 
-python -m pip install -r dependencies-macos.txt
+#python -m pip install -r dependencies-macos.txt
 
 # Update the workflow file to use the new command string
 
 PYTHON=$(which python3)
-APP="$(pwd)/voting_gui.py"
+APP="$(pwd)/flash-control.py"
 CMD="\"$PYTHON\" \"$APP\""
 WFLOW="$(pwd)/Flash Control.app/Contents/document.wflow"
 
