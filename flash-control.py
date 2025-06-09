@@ -24,16 +24,19 @@
 #**************************************************************************
 
 import argparse
-from lib.htmlgui import HTMLMainWindow
-from lib.godox import Godox
-from lib.nano import NanoKontrol2
-from webview.dom import DOMEventHandler
-import subprocess
-import lib.util as util
-from lib.metadata import RAWWatcher
 import platform 
 import os
 import sys
+from threading import Timer
+from webview.dom import DOMEventHandler
+import subprocess
+
+from lib.htmlgui import HTMLMainWindow
+from lib.godox import Godox
+from lib.nano import NanoKontrol2
+import lib.util as util
+from lib.metadata import RAWWatcher
+
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
 
@@ -98,6 +101,8 @@ class FlashControlWindow(HTMLMainWindow):
         self.metadata = None
         self.nano = None
         self.lastSlider = 0
+        self.delay = None
+
         info = {
             'name': 'Flash Control',
             'bundle_version': 'X',
@@ -242,7 +247,16 @@ class FlashControlWindow(HTMLMainWindow):
         if power == '10.0':
             power = '10'
         return power
-    
+
+    def setPowerFast(self, gid, pwr):
+        if self.delay:
+            self.delay.cancel()
+        pwr = self.normalizePower(gid, pwr)
+        self.delay = Timer(0.5, self.setPower, [gid, pwr])
+        self.delay.start()
+        if self.overlay:
+            self.overlay.setValue_(pwr)
+
     def setPower(self, group_id, power):
         print('setPower', group_id, power)
         if self.overlay:
@@ -385,17 +399,14 @@ class FlashControlWindow(HTMLMainWindow):
 
     def nano2Power(self, gid, v):
         if self.cv(f'flash-{gid}/Mode', 'M') == 'M':
-            v = str(round(8.0 * (v / 127.0) + 2.0, 1))
-            if v == '10.0':
-                v = '10'
+            v = 8.0 * (v / 127.0) + 2.0
         else:
-            v = str(round(6.0 * (v / 127.0) - 3.0, 1))
+            v = 6.0 * (v / 127.0) - 3.0
         return v
 
     def onNanoSlider(self, d):
-        if self.overlay:
-            v = self.nano2Power(d[0], d[1])
-            self.overlay.setValue_(v)
+        v = self.nano2Power(d[0], d[1])
+        self.setPowerFast(d[0], v)
 
     def onNanoEvent(self, data):
         gid = '-'
@@ -473,7 +484,7 @@ class FlashControlWindow(HTMLMainWindow):
             else:
                 n = max(round(e['wheelDelta'] / 5000.0, 1), 0.1)
             n = float(self.pwr(gid)) + n
-            self.setPower(gid, n)
+            self.setPowerFast(gid, n)
 
     def bring_window_to_front(self):
         if platform.system() == 'Darwin':
