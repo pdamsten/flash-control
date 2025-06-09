@@ -67,13 +67,23 @@ class HTMLMainWindow():
         self.config['x'] = x
         self.config['y'] = y
 
+    def setPulsing(self, elem, pulsing):
+        self.setClass(elem, 'pulsing', pulsing)
+
+    def setVisible(self, elem, visible):
+        self.setClass(elem, 'hidden', not visible)
+
     def setEnabled(self, elem, enabled):
         self.setClass(elem, 'disabled', not enabled)
+
+    def setActive(self, elem, active):
+        self.setClass(elem, 'active', not active)
 
     def setClass(self, elem, cname, value):
         if isinstance(elem, str):
             elem = self.elem(elem)
-        elem.classes.append(cname) if value else elem.classes.remove(cname)
+        if elem:
+            elem.classes.append(cname) if value else elem.classes.remove(cname)
 
     def innerHTML(self, elemid, htmlstring):
         print(f'innerHTML({elemid}, {htmlstring})')

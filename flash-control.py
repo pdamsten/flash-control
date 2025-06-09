@@ -155,18 +155,12 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setSound(self, v):
         self.config['Sound'] = v
-        if v:
-            self.elem(f'#flash-sound-all').classes.remove('disabled')
-        else:
-            self.elem(f'#flash-sound-all').classes.append('disabled')
+        self.setEnabled(f'#flash-sound-all', v)
         self.setSoundAndLight()
 
     def setLight(self, v):
         self.config['ModellingLight'] = v
-        if v:
-            self.elem(f'#flash-light-all').classes.remove('disabled')
-        else:
-            self.elem(f'#flash-light-all').classes.append('disabled')
+        self.setEnabled(f'#flash-light-all', v)
         self.setSoundAndLight()
 
     def setSoundAndLight(self):
@@ -201,11 +195,7 @@ class FlashControlWindow(HTMLMainWindow):
         
         self.config[f'flash-{group_id}']['Disabled'] = disabled
         for s in a:
-            e = self.elem(f'#{s}{group_id}')
-            if disabled:
-                e.classes.append('disabled')
-            else:
-                e.classes.remove('disabled')
+            self.setEnabled(f'#{s}{group_id}', not disabled)
         if not disabled:
             self.activateGroup(group_id)
         self.setFlashValues()
@@ -228,10 +218,8 @@ class FlashControlWindow(HTMLMainWindow):
         if e:
             self.activeGroup = group_id
             for ch in range(ord('A'), ord('L') + 1):
-                et = self.elem(f'#flash-{chr(ch)}')
-                if et:
-                    et.classes.remove('active')
-            e.classes.append('active')
+                self.setActive(f'#flash-{chr(ch)}', False)
+            self.setActive(e, True)
 
     def saveDebugHtml(self):
         js = "document.documentElement.outerHTML"
@@ -336,8 +324,8 @@ class FlashControlWindow(HTMLMainWindow):
                         self.cv(f'flash-{self.activeGroup}/Power')
 
     def onTryAgain(self, e):
-        self.elem('#flash-button').classes.append('pulse')
-        self.elem('#try-trigger-button').classes.append('hidden')
+        self.setPulsing('#flash-button', True)
+        self.setVisible('#try-trigger-button', False)
         self.elem('#flash-popup .message').text = 'Connecting...'
         self.godox.connect(self.cv('godox', {}))
 
@@ -346,13 +334,13 @@ class FlashControlWindow(HTMLMainWindow):
             msg = f'Unable to connect to Godox device: {data} and scan failed.'
         else:
             msg = 'Godox device scan failed.'
-        self.elem('#flash-button').classes.remove('pulse')
-        self.elem('#flash-button').classes.append('disabled')
+        self.setPulsing('#flash-button', False)
+        self.setEnabled('#flash-button', False)
         self.elem('#flash-popup .message').text = msg
-        self.elem('#try-trigger-button').classes.remove('hidden')
+        self.setVisible('#try-trigger-button', True)
 
     def onGodoxConnected(self, data):
-        self.elem('#flash-button').classes.remove('pulse')
+        self.setPulsing('#flash-button', False)
         self.elem('#flash-popup .message').text = f'Connected to: {data}'
         self.setSoundAndLight()
         self.godox.setValues(util.convertDict(self.config, godox_conv_table))
@@ -361,13 +349,13 @@ class FlashControlWindow(HTMLMainWindow):
         self.config['godox'] = data
 
     def onNanoFailed(self, data):
-        self.elem('#nano-button').classes.remove('pulse')
-        self.elem('#nano-button').classes.append('disabled')
+        self.setPulsing('#nano-button', False)
+        self.setEnabled('#nano-button', False)
+        self.setVisible('#try-nano-button', True)
         self.elem('#nano-popup .message').text = f'Unable to connect to nanoKontrol2 device.'
-        self.elem('#try-nano-button').classes.remove('hidden')
 
     def onNanoConnected(self, data):
-        self.elem('#nano-button').classes.remove('pulse')
+        self.setPulsing('#nano-button', False)
         self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
         self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
@@ -503,7 +491,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.metadata.start(tethering_path, tethering_pat)
             self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
             self.metadata.callback('msg', self.onMetadataMsg)
-            self.elem('#metadata-popup').classes.remove('disabled')
+            self.setEnabled('#metadata-popup', True)
 
         self.window.events.closing += self.on_closing
 
