@@ -219,7 +219,7 @@ class NanoKontrol2Worker(Thread):
             self.sendMsg('connected')
         """
 
-    def turnAllLightsOff(self):
+    def resetLights(self):
         if self.output_id >= 0:
             pygame.midi.init()
             self.midi_out = pygame.midi.Output(self.output_id)
@@ -300,7 +300,7 @@ class NanoKontrol2Worker(Thread):
                 print('NanoKontrol2Worker::connect')
                 self.directCallback = data
                 self.connect()
-                self.turnAllLightsOff()
+                self.resetLights()
             elif cmd == 'stop':
                 self.stop()
                 print('- NanoKontrol2Worker::stop')
