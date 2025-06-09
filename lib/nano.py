@@ -25,7 +25,6 @@
 
 import pygame.midi
 from threading import Thread
-from threading import Timer
 from queue import Queue
 
 CC = 176
@@ -145,7 +144,6 @@ class NanoKontrol2Worker(Thread):
         self.output_id = -1
 
         self.directCallback = None
-        self.delay = None
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
@@ -248,10 +246,6 @@ class NanoKontrol2Worker(Thread):
                             if (KEYS[data[1]][1] == 'SLIDER' or KEYS[data[1]][1] == 'KNOB'):
                                 if self.directCallback:
                                     self.directCallback((KEYS[data[1]][0], data[2]))
-                                if self.delay:
-                                    self.delay.cancel()
-                                self.delay = Timer(0.5, self.sendValue, [KEYS[data[1]], data[2]])
-                                self.delay.start()
                             else:
                                 self.sendMsg('event', (KEYS[data[1]], data[2]))
 
