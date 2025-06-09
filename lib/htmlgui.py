@@ -100,6 +100,12 @@ class HTMLMainWindow():
                 e.scrollTo({{top: e.scrollHeight, behavior: "smooth"}});
         """)
 
+    def elementFromPoint(self, x, y):
+        return self.window.evaluate_js(f"""
+            e = document.elementFromPoint({x}, {y});
+            e;
+        """)
+
     def elem(self, search):
         if isinstance(search, dict):
             if 'id' in search['target']['attributes']:

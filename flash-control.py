@@ -232,14 +232,26 @@ class FlashControlWindow(HTMLMainWindow):
         with open(util.path('html/debug.html'), 'w') as f:
             f.write(html)
 
+    def normalizePower(self, gid, power):
+        mode = self.cv(f'flash-{gid}/Mode', 'M')
+        power = float(power)
+        power = max(2.0, min(10.0, power)) if mode == 'M' else max(-3.0, min(3.0, power))
+        power = str(round(power, 1))
+        if mode == 'TTL' and power[0] != '-':
+            power = '+' + power
+        if power == '10.0':
+            power = '10'
+        return power
+    
     def setPower(self, group_id, power):
         print('setPower', group_id, power)
         if self.overlay:
             self.overlay.hide()
+        power = self.normalizePower(group_id, power)
         mode = self.cv(f'flash-{group_id}/Mode', 'M')
         self.config[f'flash-{group_id}']['Power' + mode] = power
         self.config[f'flash-{group_id}']['CurrentPower'] = power
-        self.powerHtml(self.activeGroup)
+        self.powerHtml(group_id)
         self.power = ''
         self.setFlashValues()
 
@@ -254,8 +266,7 @@ class FlashControlWindow(HTMLMainWindow):
     def powerHtml(self, gid, power = None):
         e = self.elem(f'#flash-power-{gid}')
         s = str(power) if power else str(self.pwr(gid))
-        if s == '10.0':
-            s = '10'
+        s = self.normalizePower(gid, s)
         if s[0] in ['+', '-']:
             e.children[0].text = s[0]
             s = s[1:]
@@ -453,6 +464,17 @@ class FlashControlWindow(HTMLMainWindow):
         self.setVisible('#nano-popup', False)
         self.setVisible('#nano-close', False)
 
+    def onWheel(self, e):
+        elem = self.elementFromPoint(e['clientX'], e['clientY'])
+        if elem and 'id' in elem and elem['id'].startswith('flash-power-number'):
+            gid = elem['id'][-1:]
+            if e['wheelDelta'] < 0:
+                n = min(round(e['wheelDelta'] / 5000.0, 1), -0.1)
+            else:
+                n = max(round(e['wheelDelta'] / 5000.0, 1), 0.1)
+            n = float(self.pwr(gid)) + n
+            self.setPower(gid, n)
+
     def bring_window_to_front(self):
         if platform.system() == 'Darwin':
             print(subprocess.run([
@@ -465,6 +487,7 @@ class FlashControlWindow(HTMLMainWindow):
 
         window.dom.document.events.keypress += DOMEventHandler(self.onKeyPress,
                                                                prevent_default = True)
+        window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
         
         self.fill_select('#stands', util.stringList('user/stands.txt'), self.cv('stands'))
         self.fill_select('#remotes', util.stringList('user/remotes.txt'), self.cv('remotes'))
