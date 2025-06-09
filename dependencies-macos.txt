@@ -1,0 +1,6 @@
+pywebview
+bleak
+crccheck
+watchdog
+pygame
+pyobjc

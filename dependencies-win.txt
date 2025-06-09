@@ -1,0 +1,7 @@
+pywebview
+bleak
+crccheck
+watchdog
+pygame
+QtPy
+PyQt6-WebEngine
