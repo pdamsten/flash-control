@@ -138,10 +138,12 @@ class NanoKontrol2Worker(Thread):
         super().__init__()
         self.inQueue = inQueue
         self.outQueue = outQueue
+
         self.midi_in = None
-        self.midi_out = None
-        self.output_id = -1
         self.input_id = -1
+
+        self.output_id = -1
+
         self.directCallback = None
         self.delay = None
     
@@ -150,12 +152,6 @@ class NanoKontrol2Worker(Thread):
             self.outQueue.put((cmd, data))
 
     def setValues(self, values):
-        print('nano values:', values)
-        if self.output_id < 0:
-            return
-        pygame.midi.init()
-        self.midi_out = pygame.midi.Output(self.output_id)
-
         a = []
         t = 0
         for ch in range(ord('A'), ord('H') + 1):
@@ -168,14 +164,7 @@ class NanoKontrol2Worker(Thread):
                 print(ch, btn, self.invertedKeys[ch][btn], v)
                 a.append([[CC, self.invertedKeys[ch][btn], v], t]) 
                 t += 10
-        print(a)
-
-        self.midi_out.write(a) 
-
-        self.midi_out.close()
-        del self.midi_out
-        self.midi_out = None
-        pygame.midi.quit()
+        self.setLights(a) 
 
     def connect(self):
         pygame.midi.init()
@@ -197,56 +186,34 @@ class NanoKontrol2Worker(Thread):
         else:
             self.sendMsg('failed')
 
-        """
-        data = [True, True]
-        if input_id is not None:
-            print(f"Using nanoKONTROL2 input on device {input_id}")
-            self.midi_in = pygame.midi.Input(input_id)
-        else:
-            print("nanoKONTROL2 input not found.")
-            data[0] = False
-
-        if output_id is not None:
-            print(f"Using nanoKONTROL2 output on device {output_id}")
-            self.midi_out = pygame.midi.Output(output_id)
-        else:
-            print("nanoKONTROL2 output not found.")
-            data[1] = False
-
-        if data != [True, True]:
-            self.sendMsg('failed', data)
-        else:
-            self.sendMsg('connected')
-        """
-
-    def resetLights(self):
+    def setLights(self, a):
         if self.output_id >= 0:
             pygame.midi.init()
-            self.midi_out = pygame.midi.Output(self.output_id)
+            midi_out = pygame.midi.Output(self.output_id)
 
-            a = []
+            midi_out.write(a) 
 
-            def off(d, t):
-                for _, v in d.items():
-                    t += 10
-                    if isinstance(v, dict):
-                        t = off(v, t)
-                    else:
-                        a.append([[CC, v, 0], t]) 
-                return t
-            t = off(self.invertedKeys, 0) + 10
-            a.append([[CC, self.invertedKeys['STOP'], 127], t]) 
-            self.midi_out.write(a) 
-
-            self.midi_out.close()
-            del self.midi_out
-            self.midi_out = None
+            midi_out.close()
+            del midi_out
+            midi_out = None
             pygame.midi.quit()
 
+    def resetLights(self):
+        a = []
+        def off(d, t):
+            for _, v in d.items():
+                t += 10
+                if isinstance(v, dict):
+                    t = off(v, t)
+                else:
+                    a.append([[CC, v, 0], t]) 
+            return t
+        t = off(self.invertedKeys, 0) + 10
+        a.append([[CC, self.invertedKeys['STOP'], 127], t]) 
+
+        self.setLights(a)
+
     def stop(self):
-        if self.midi_out:
-            self.midi_out.close()
-            del self.midi_out
         if self.midi_in:
             self.midi_in.close()
             del self.midi_in
@@ -257,19 +224,11 @@ class NanoKontrol2Worker(Thread):
         self.sendMsg('event', (e, d))
 
     def setBeepAndLight(self, beep = True, light = True):
-        if self.output_id >= 0:
-            pygame.midi.init()
-            self.midi_out = pygame.midi.Output(self.output_id)
+        a = []
+        a.append([[CC, self.invertedKeys['PREV'], 127 if beep else 0], 0]) 
+        a.append([[CC, self.invertedKeys['RECORD'], 127 if light else 0], 0]) 
 
-            a = []
-            a.append([[CC, self.invertedKeys['PREV'], 127 if beep else 0], 0]) 
-            a.append([[CC, self.invertedKeys['RECORD'], 127 if light else 0], 0]) 
-
-            self.midi_out.write(a) 
-            self.midi_out.close()
-            del self.midi_out
-            self.midi_out = None
-            pygame.midi.quit()
+        self.setLights(a) 
 
     def loop(self):
         while True:
