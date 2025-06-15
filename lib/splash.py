@@ -61,13 +61,13 @@ class Splash(NSObject):
         self.window.setLevel_(NSFloatingWindowLevel)
         self.window.setCollectionBehavior_(NSWindowCollectionBehaviorCanJoinAllSpaces)
         self.window.setIgnoresMouseEvents_(True)
-        self.window.setAlphaValue_(0.5)
+        self.window.setAlphaValue_(1.0)
         self.setBorderRadius_((self.window, 50))
 
         self.image_view = NSImageView.alloc().initWithFrame_(NSMakeRect(0, 0, 
                                                                         self.width, self.height))
         self.image_view.setImage_(image)
-        self.window.contentView().addSubview_(self.image_view)
+        self.window.setContentView_(self.image_view)
         self.window.orderFrontRegardless()
         self.window.center()
         return self
@@ -99,7 +99,8 @@ if __name__ == "__main__":
 
     app = NSApplication.sharedApplication()
 
-    overlay = Splash.alloc().init_('../splash.png')
+    splash = Splash.alloc().init_('../splash.png')
+    app.run()
     time.sleep(10)
-    overlay.hide()
+    splash.hide()
     time.sleep(1)
