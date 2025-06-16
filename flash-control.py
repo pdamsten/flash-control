@@ -39,6 +39,7 @@ from lib.metadata import RAWWatcher
 
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
+    from lib.splash import Splash
 
 json_conv_table = [
     ("XMP:XMP-pdplus:Stand", 'stands'),
@@ -114,8 +115,11 @@ class FlashControlWindow(HTMLMainWindow):
         self.setMacOsTitle(info)
         if sys.platform.startswith('darwin'):
             self.overlay = NumberOverlay.alloc().init()
+            self.splash = Splash.alloc().init_(util.path('splash.png'))
+            self.splash.show()
         else:
             self.overlay = None
+            self.splash = None
 
         super().__init__(title, html, css, api)
 
@@ -591,11 +595,20 @@ class FlashControlWindow(HTMLMainWindow):
         if self.overlay:
             self.overlay.center_((self.config['x'], self.config['y'], 
                                   self.config['width'], self.config['height']))
+        if self.splash:
+            self.splash.hide_(1)
+            self.splash = None
 
         if (args.debug):
             self.saveDebugHtml()
 
 def main():
+    from AppKit import ( NSApplication)
+    app = NSApplication.sharedApplication()
+    splash = Splash.alloc().init_('./splash.png')
+    splash.show()
+    app.run()
+
     FlashControlWindow('Flash Control', util.path('html/gui.html'))
     
 if __name__ == '__main__':
