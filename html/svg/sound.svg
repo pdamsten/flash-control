@@ -1,72 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   width="512"
-   height="512"
-   viewBox="0 0 135.46666 135.46667"
-   version="1.1"
-   id="svg1"
-   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
-   sodipodi:docname="sound.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#484848"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     inkscape:zoom="2.0837246"
-     inkscape:cx="299.70371"
-     inkscape:cy="263.95042"
-     inkscape:current-layer="layer1" />
-  <defs
-     id="defs1" />
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
-    <g
-       id="g2">
-      <g
-         transform="matrix(3.9508583,0,0,3.9632531,4.8120425,-888.52967)"
-         style="font-variation-settings:normal;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:2.67455;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000"
-         id="g322993">
-        <path
-           style="font-variation-settings:normal;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.67455;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
-           d="m 26.315681,241.65749 h 2.524495"
-           id="path322987"
-           inkscape:connector-curvature="0" />
-        <path
-           style="font-variation-settings:normal;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.67455;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
-           d="m 24.868488,234.94396 2.440345,-2.26925"
-           id="path322989"
-           inkscape:connector-curvature="0" />
-        <path
-           style="font-variation-settings:normal;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:2.67455;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1"
-           d="m 25.068102,247.73174 2.440344,2.15824"
-           id="path322991"
-           inkscape:connector-curvature="0" />
-      </g>
-      <g
-         id="g1">
-        <path
-           id="rect1"
-           style="fill:none;fill-opacity:0.409894;stroke:#ffffff;stroke-width:10.5833;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke markers fill"
-           d="M 13.713424,43.949032 H 39.743533 V 91.517634 H 13.713424 Z" />
-        <path
-           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:0.409894;stroke:#ffffff;stroke-width:10.5833;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;paint-order:stroke markers fill;stop-color:#000000;stop-opacity:1"
-           d="M 39.743533,43.949032 82.851938,8.3804313 V 127.08624 L 39.743533,91.517634 Z"
-           id="path1"
-           sodipodi:nodetypes="ccccc" />
-      </g>
-    </g>
+<svg width="512" height="512" version="1.1" viewBox="0 0 135.47 135.47" xmlns="http://www.w3.org/2000/svg">
+ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+  <path d="m5.2916 43.949h26.03v47.569h-26.03z" stroke-width="10.583" style="paint-order:stroke markers fill"/>
+  <path d="m31.322 43.949 43.108-27.447v102.46l-43.108-27.447z" stop-color="#000000" stroke-width="10.583" style="-inkscape-stroke:none;font-variation-settings:normal;paint-order:stroke markers fill"/>
+  <g transform="translate(.41586)">
+   <path d="m87.72 51.875a21.287 21.287 0 0 1 7.0863 15.858 21.287 21.287 0 0 1-7.0863 15.858" stop-color="#000000" stroke-width="10.343" style="font-variation-settings:normal;paint-order:stroke markers fill"/>
+   <path d="m99.71 39.68a37.703 37.703 0 0 1 12.513 28.053 37.703 37.703 0 0 1-12.513 28.053" stop-color="#000000" stroke-width="10.583" style="font-variation-settings:normal;paint-order:stroke markers fill"/>
+   <path d="m111.78 27.396a54.24 54.24 0 0 1 17.979 40.338 54.24 54.24 0 0 1-17.979 40.338" stop-color="#000000" stroke-width="10.583" style="font-variation-settings:normal;paint-order:stroke markers fill"/>
   </g>
+ </g>
 </svg>
