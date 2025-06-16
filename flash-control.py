@@ -603,12 +603,6 @@ class FlashControlWindow(HTMLMainWindow):
             self.saveDebugHtml()
 
 def main():
-    from AppKit import ( NSApplication)
-    app = NSApplication.sharedApplication()
-    splash = Splash.alloc().init_('./splash.png')
-    splash.show()
-    app.run()
-
     FlashControlWindow('Flash Control', util.path('html/gui.html'))
     
 if __name__ == '__main__':
