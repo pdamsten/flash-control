@@ -93,10 +93,13 @@ class Splash(NSObject):
             self.window.orderFrontRegardless()
         AppHelper.callAfter(_show)
 
-    def hide(self):
+    def hide_(self, delay = None):
         def _hide():
             self.window.orderOut_(None)
-        AppHelper.callAfter(_hide)
+        if delay:
+            AppHelper.callLater(delay, _hide)
+        else:
+            AppHelper.callAfter(_hide)
 
 
 if __name__ == "__main__":
