@@ -27,7 +27,8 @@ from Cocoa import (
     NSWindow, NSBackingStoreBuffered,
     NSMakeRect, NSBorderlessWindowMask,
     NSWindowCollectionBehaviorCanJoinAllSpaces,
-    NSFloatingWindowLevel, NSImageView, NSColor, NSScreen, NSImage
+    NSFloatingWindowLevel, NSImageView, NSColor, NSScreen, NSImage, NSBitmapImageRep,
+    NSImageScaleProportionallyUpOrDown
 )
 from Foundation import NSObject
 import objc
@@ -45,8 +46,7 @@ class Splash(NSObject):
             print("Failed to load image.")
             return None
 
-        self.width = image.size().width
-        self.height = image.size().height
+        self.width, self.height = self.getPixelSize_(image)
 
         print(self.width, self.height)
         rect = NSMakeRect(0, 0, self.width, self.height)
@@ -57,20 +57,29 @@ class Splash(NSObject):
             False
         )
         self.window.setOpaque_(False)
-        self.window.setBackgroundColor_(NSColor.blackColor())
+        self.window.setBackgroundColor_(NSColor.clearColor())
         self.window.setLevel_(NSFloatingWindowLevel)
         self.window.setCollectionBehavior_(NSWindowCollectionBehaviorCanJoinAllSpaces)
         self.window.setIgnoresMouseEvents_(True)
         self.window.setAlphaValue_(1.0)
         self.setBorderRadius_((self.window, 50))
 
-        self.image_view = NSImageView.alloc().initWithFrame_(NSMakeRect(0, 0, 
-                                                                        self.width, self.height))
+        self.image_view = NSImageView.alloc().initWithFrame_(rect)
         self.image_view.setImage_(image)
-        self.window.setContentView_(self.image_view)
+        self.image_view.setImageScaling_(NSImageScaleProportionallyUpOrDown)
+        self.window.contentView().addSubview_(self.image_view)
         self.window.orderFrontRegardless()
         self.window.center()
         return self
+
+    def getPixelSize_(self, nsimage):
+        representations = nsimage.representations()
+        for rep in representations:
+            if isinstance(rep, NSBitmapImageRep):
+                width = rep.pixelsWide()
+                height = rep.pixelsHigh()
+                return width, height
+        return None, None 
 
     def setBorderRadius_(self, params):
         window, radius = params
@@ -93,14 +102,15 @@ class Splash(NSObject):
 
 
 if __name__ == "__main__":
+    def quit_app():
+        NSApplication.sharedApplication().terminate_(None)
+
     from AppKit import (
         NSApplication
     )
 
     app = NSApplication.sharedApplication()
-
     splash = Splash.alloc().init_('../splash.png')
+    splash.show()
+    AppHelper.callLater(4, quit_app)
     app.run()
-    time.sleep(10)
-    splash.hide()
-    time.sleep(1)
