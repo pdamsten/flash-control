@@ -27,13 +27,12 @@ from Cocoa import (
     NSWindow, NSBackingStoreBuffered,
     NSMakeRect, NSBorderlessWindowMask,
     NSWindowCollectionBehaviorCanJoinAllSpaces,
-    NSFloatingWindowLevel, NSImageView, NSColor, NSScreen, NSImage, NSBitmapImageRep,
+    NSFloatingWindowLevel, NSImageView, NSColor, NSImage, NSBitmapImageRep,
     NSImageScaleProportionallyUpOrDown
 )
 from Foundation import NSObject
 import objc
 from PyObjCTools import AppHelper
-import time
 
 class Splash(NSObject):
     def init_(self, img):
@@ -48,7 +47,6 @@ class Splash(NSObject):
 
         self.width, self.height = self.getPixelSize_(image)
 
-        print(self.width, self.height)
         rect = NSMakeRect(0, 0, self.width, self.height)
         self.window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
             rect,
