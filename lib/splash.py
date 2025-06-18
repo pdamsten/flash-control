@@ -23,96 +23,134 @@
 #
 #**************************************************************************
 
-from Cocoa import (
-    NSWindow, NSBackingStoreBuffered,
-    NSMakeRect, NSBorderlessWindowMask,
-    NSWindowCollectionBehaviorCanJoinAllSpaces,
-    NSFloatingWindowLevel, NSImageView, NSColor, NSImage, NSBitmapImageRep,
-    NSImageScaleProportionallyUpOrDown
-)
-from AppKit import (
-    NSApplication
-)
-from Foundation import NSObject
-import objc
-from PyObjCTools import AppHelper
-
 import subprocess
 import argparse
 import threading
 import sys
 
-class Splash(NSObject):
-    def init_(self, img):
-        self = objc.super(Splash, self).init()
-        if self is None:
-            return None
+if sys.platform.startswith('darwin'):
+    from Cocoa import (
+        NSWindow, NSBackingStoreBuffered,
+        NSMakeRect, NSBorderlessWindowMask,
+        NSWindowCollectionBehaviorCanJoinAllSpaces,
+        NSFloatingWindowLevel, NSImageView, NSColor, NSImage, NSBitmapImageRep,
+        NSImageScaleProportionallyUpOrDown
+    )
+    from AppKit import NSApplication
+    from Foundation import NSObject
+    import objc
+    from PyObjCTools import AppHelper
+else:
+    import tkinter as tk
+    from PIL import Image, ImageTk
 
-        image = NSImage.alloc().initWithContentsOfFile_(img)
-        if image is None:
-            print("Failed to load image.")
-            return None
+if sys.platform.startswith('darwin'):
+    class SplashMacos(NSObject):
+        def init_(self, img):
+            self = objc.super(SplashMacos, self).init()
+            if self is None:
+                return None
 
-        self.width, self.height = self.getPixelSize_(image)
+            image = NSImage.alloc().initWithContentsOfFile_(img)
+            if image is None:
+                print("Failed to load image.")
+                return None
 
-        rect = NSMakeRect(0, 0, self.width, self.height)
-        self.window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
-            rect,
-            NSBorderlessWindowMask,
-            NSBackingStoreBuffered,
-            False
-        )
-        self.window.setOpaque_(False)
-        self.window.setBackgroundColor_(NSColor.clearColor())
-        self.window.setLevel_(NSFloatingWindowLevel)
-        self.window.setCollectionBehavior_(NSWindowCollectionBehaviorCanJoinAllSpaces)
-        self.window.setIgnoresMouseEvents_(True)
-        self.window.setAlphaValue_(1.0)
-        self.setBorderRadius_((self.window, 50))
+            self.width, self.height = self.getPixelSize_(image)
 
-        self.image_view = NSImageView.alloc().initWithFrame_(rect)
-        self.image_view.setImage_(image)
-        self.image_view.setImageScaling_(NSImageScaleProportionallyUpOrDown)
-        self.window.contentView().addSubview_(self.image_view)
-        self.window.orderFrontRegardless()
-        self.window.center()
-        return self
+            rect = NSMakeRect(0, 0, self.width, self.height)
+            self.window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
+                rect,
+                NSBorderlessWindowMask,
+                NSBackingStoreBuffered,
+                False
+            )
+            self.window.setOpaque_(False)
+            self.window.setBackgroundColor_(NSColor.clearColor())
+            self.window.setLevel_(NSFloatingWindowLevel)
+            self.window.setCollectionBehavior_(NSWindowCollectionBehaviorCanJoinAllSpaces)
+            self.window.setIgnoresMouseEvents_(True)
+            self.window.setAlphaValue_(1.0)
+            self.setBorderRadius_((self.window, 50))
 
-    def getPixelSize_(self, nsimage):
-        representations = nsimage.representations()
-        for rep in representations:
-            if isinstance(rep, NSBitmapImageRep):
-                width = rep.pixelsWide()
-                height = rep.pixelsHigh()
-                return width, height
-        return None, None 
-
-    def setBorderRadius_(self, params):
-        window, radius = params
-        content_view = window.contentView()
-        content_view.setWantsLayer_(True)
-
-        layer = content_view.layer()
-        layer.setCornerRadius_(radius)
-        layer.setMasksToBounds_(True)
-
-    def show(self):
-        def _show():
+            self.image_view = NSImageView.alloc().initWithFrame_(rect)
+            self.image_view.setImage_(image)
+            self.image_view.setImageScaling_(NSImageScaleProportionallyUpOrDown)
+            self.window.contentView().addSubview_(self.image_view)
             self.window.orderFrontRegardless()
-        AppHelper.callAfter(_show)
+            self.window.center()
+            return self
 
-    def hide_(self, delay = None):
-        def _hide():
-            self.window.orderOut_(None)
-        if delay:
-            AppHelper.callLater(delay, _hide)
-        else:
-            AppHelper.callAfter(_hide)
+        def getPixelSize_(self, nsimage):
+            representations = nsimage.representations()
+            for rep in representations:
+                if isinstance(rep, NSBitmapImageRep):
+                    width = rep.pixelsWide()
+                    height = rep.pixelsHigh()
+                    return width, height
+            return None, None 
+
+        def setBorderRadius_(self, params):
+            window, radius = params
+            content_view = window.contentView()
+            content_view.setWantsLayer_(True)
+
+            layer = content_view.layer()
+            layer.setCornerRadius_(radius)
+            layer.setMasksToBounds_(True)
+
+        def show(self):
+            def _show():
+                self.window.orderFrontRegardless()
+            AppHelper.callAfter(_show)
+
+        def hide_(self, delay = None):
+            def _hide():
+                self.window.orderOut_(None)
+            if delay:
+                AppHelper.callLater(delay, _hide)
+            else:
+                AppHelper.callAfter(_hide)
+
+else:
+
+    class SplashTkinter:
+        def __init__(self, img):
+            self.root = tk.Tk()
+            self.root.overrideredirect(True)
+            self.root.attributes('-topmost', True)
+            self.root.configure(bg = 'black')
+            self.image = Image.open(img)
+            self.width, self.height = self.image.size
+            self.screen_width = self.root.winfo_screenwidth()
+            self.screen_height = self.root.winfo_screenheight()
+            x = (self.screen_width // 2) - (self.width // 2)
+            y = (self.screen_height // 2) - (self.height // 2)
+            self.root.geometry(f"{self.width}x{self.height}+{x}+{y}")
+            self.photo = ImageTk.PhotoImage(self.image)
+            self.label = tk.Label(self.root, image = self.photo, borderwidth = 0, 
+                                highlightthickness = 0)
+            self.label.pack()
+            self.root.lift()
+            self.root.update()
+
+        def show(self):
+            self.root.deiconify()
+            self.root.update()
+
+        def hide_(self, delay = None):
+            if delay:
+                self.root.after(int(delay * 1000), self.root.withdraw)
+            else:
+                self.root.withdraw()
 
 _proc = None
 
 def quit_app():
-    NSApplication.sharedApplication().terminate_(None)
+    if sys.platform.startswith('darwin'):
+        NSApplication.sharedApplication().terminate_(None)
+    else:
+        tk._default_root.quit()
 
 def listen():
     for line in sys.stdin:
@@ -122,11 +160,17 @@ def listen():
 def main():
     threading.Thread(target = listen, daemon = True).start()
 
-    app = NSApplication.sharedApplication()
-    splash = Splash.alloc().init_(args.image)
-    splash.show()
-    AppHelper.callLater(args.max, quit_app)
-    app.run()
+    if sys.platform.startswith('darwin'):
+        app = NSApplication.sharedApplication()
+        splash = SplashMacos.alloc().init_(args.image)
+        splash.show()
+        AppHelper.callLater(args.max, quit_app)
+        app.run()
+    else:
+        splash = SplashTkinter(args.image)
+        splash.show()
+        splash.root.after(int(args.max * 1000), splash.root.quit)
+        splash.root.mainloop()
 
 def start(img, maxtime):
     global _proc
