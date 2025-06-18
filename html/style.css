@@ -1,6 +1,7 @@
 :root {
   --background-color: hsl(0, 0%, 12%);
   --background-color-darker: hsl(0, 0%, 5%);
+  --background-color-topbottom: hsl(0, 0%, 5%, 80%);
   --font-size: 0.85rem;
   --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
   --active: 100%;
@@ -17,7 +18,6 @@
   font: inherit;
   margin: 0;
   padding: 0;
-  background-color: var(--background-color);
   color: hsla(0, 0%, 100%, var(--widget-opacity));
   border-color: hsla(0, 0%, 100%, var(--widget-opacity));
 }
@@ -25,21 +25,10 @@
 body, html {
   padding: 0;
   margin: 0;
-  min-height: 100%;
-  height: 100%;
   font-size: var(--font-size);
   font-family: var(--font-family);
-}
-
-body {
-  margin: 0;
-  display: grid;
-  height: 100vh;
-  width: 100vw;
-  grid-template-columns: 1fr;
-  grid-template-rows: min-content min-content 1fr min-content;
-  gap: 0.5rem;
-  overflow: hidden;
+  background-color: var(--background-color-darker);
+  position: relative;
 }
 
 select, button {
@@ -130,21 +119,33 @@ button:active, button:focus {
   padding: 0;
 } 
 
-.top-bar, .bottom-bar {
+.top-bar {
+  position: sticky;
+  top: 0;
+}
+
+.top-bar, .bottom-bar  {
+  background-color: var(--background-color-topbottom);
+  backdrop-filter: blur(8px);
+}
+
+.info-bar, .bottom-bar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 1rem;
   width: 100%;
-  background-color: var(--background-color);
   padding-inline: 1rem;
 }
 
 .bottom-bar {
   grid-template-columns: min-content 1fr min-content;
   padding-inline: 1rem;
-  padding-top: 0;
-  padding-bottom: 0.5rem;
+  padding-block: 0.5rem;
   justify-items: center;
+  position: fixed;
+  bottom: 0;
+  height: 6rem;
+  background-color: var(--background-color-topbottom);
 }
 
 .icon-bar {
@@ -167,7 +168,7 @@ button:active, button:focus {
   align-items: center;
   grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
   grid-template-rows: repeat(auto-fit, 1fr);
-  overflow-y: auto;
+  padding-bottom: 7rem;
 }
 
 .flash-container {

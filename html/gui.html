@@ -7,42 +7,44 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="icon-bar">
-    <a href="#meta-popup" id="meta-button" class="mini-button disabled">
-      <img src="svg/metadata.svg">
-    </a>
-    <div id="meta-popup" class="popup hidden">
-      <span class="message">Empty</span><br/><br/>
-    </div>
-    <a href="#" id="meta-close" class="close-popup hidden"></a>
-
-    <a href="#flash-popup" id="flash-button" class="mini-button pulse">
-      <img src="svg/flash.svg">
-    </a>
-    <div id="flash-popup" class="popup hidden">
-      <span class="message">Connecting...</span><br/><br/>
-      <button id="try-trigger-button" class="hidden">Try Again...</button>
-    </div>
-    <a href="#" id="flash-close" class="close-popup hidden"></a>
-
-    <a href="#nano-popup" id="nano-button" class="mini-button pulse">
-      <img src="svg/nano.svg">
-    </a>
-    <div id="nano-popup" class="popup hidden">
-      <span class="message">Connecting...</span><br/><br/>
-      <button id="try-nano-button" class="hidden">Try Again...</button>
-    </div>
-    <a href="#" id="nano-close" class="close-popup hidden"></a>
-
-    <a href="#" id="skull-button" class="mini-button"><img src="svg/skull.svg"></a>
-  </div>
   <div class="top-bar">
-    <select id="stands"></select>
-    <select id="remotes"></select>
-    <select id="triggers"></select>
-    <select id="tethering"></select>
-    <select id="filters"></select>
-    <select id="extension_tubes"></select>
+    <div class="icon-bar">
+      <a href="#meta-popup" id="meta-button" class="mini-button disabled">
+        <img src="svg/metadata.svg">
+      </a>
+      <div id="meta-popup" class="popup hidden">
+        <span class="message">Empty</span><br/><br/>
+      </div>
+      <a href="#" id="meta-close" class="close-popup hidden"></a>
+
+      <a href="#flash-popup" id="flash-button" class="mini-button pulse">
+        <img src="svg/flash.svg">
+      </a>
+      <div id="flash-popup" class="popup hidden">
+        <span class="message">Connecting...</span><br/><br/>
+        <button id="try-trigger-button" class="hidden">Try Again...</button>
+      </div>
+      <a href="#" id="flash-close" class="close-popup hidden"></a>
+
+      <a href="#nano-popup" id="nano-button" class="mini-button pulse">
+        <img src="svg/nano.svg">
+      </a>
+      <div id="nano-popup" class="popup hidden">
+        <span class="message">Connecting...</span><br/><br/>
+        <button id="try-nano-button" class="hidden">Try Again...</button>
+      </div>
+      <a href="#" id="nano-close" class="close-popup hidden"></a>
+
+      <a href="#" id="skull-button" class="mini-button"><img src="svg/skull.svg"></a>
+    </div>
+    <div class="info-bar">
+      <select id="stands"></select>
+      <select id="remotes"></select>
+      <select id="triggers"></select>
+      <select id="tethering"></select>
+      <select id="filters"></select>
+      <select id="extension_tubes"></select>
+    </div>
   </div>
   <div id="scroll-container">
   </div>
