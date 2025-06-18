@@ -150,8 +150,8 @@ class HTMLMainWindow():
         time.sleep(0.1)
         self.window = webview.create_window(title, hpath, html = html, 
                 frameless = sys.platform.startswith('darwin'), js_api = api, 
-                width = self.cv('width', size[0]), height = self.cv('height', size[1]),
-                x = self.cv('x'), y = self.cv('y'))
+                width = int(self.cv('width', size[0])), height = int(self.cv('height', size[1])),
+                x = int(self.cv('x')), y = int(self.cv('y')))
         self.window.events.closing += self.on_closing
         self.window.events.resized += self.on_resized
         self.window.events.moved += self.on_moved
