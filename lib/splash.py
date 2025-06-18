@@ -30,9 +30,17 @@ from Cocoa import (
     NSFloatingWindowLevel, NSImageView, NSColor, NSImage, NSBitmapImageRep,
     NSImageScaleProportionallyUpOrDown
 )
+from AppKit import (
+    NSApplication
+)
 from Foundation import NSObject
 import objc
 from PyObjCTools import AppHelper
+
+import subprocess
+import argparse
+import threading
+import sys
 
 class Splash(NSObject):
     def init_(self, img):
@@ -101,17 +109,41 @@ class Splash(NSObject):
         else:
             AppHelper.callAfter(_hide)
 
+_proc = None
 
-if __name__ == "__main__":
-    def quit_app():
-        NSApplication.sharedApplication().terminate_(None)
+def quit_app():
+    NSApplication.sharedApplication().terminate_(None)
 
-    from AppKit import (
-        NSApplication
-    )
+def listen():
+    for line in sys.stdin:
+        if line.strip() == "quit":
+            quit_app()
+
+def main():
+    threading.Thread(target = listen, daemon = True).start()
 
     app = NSApplication.sharedApplication()
-    splash = Splash.alloc().init_('../splash.png')
+    splash = Splash.alloc().init_(args.image)
     splash.show()
-    AppHelper.callLater(4, quit_app)
+    AppHelper.callLater(args.max, quit_app)
     app.run()
+
+def start(img, maxtime):
+    global _proc
+    _proc = subprocess.Popen(["python3", __file__, '--image', img, '--max', str(maxtime)], 
+                             stdin = subprocess.PIPE)
+
+def stop():
+    global _proc
+    if _proc:
+        _proc.stdin.write(b"quit\n")
+        _proc.stdin.flush()
+        _proc = None
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description = "Show a splash image.")
+    parser.add_argument("--image", required = True, help = "Path to the splash image.")
+    parser.add_argument("--max", type = float, default = 15.0, 
+                        help = "Maximum time to show the splash (seconds).")
+    args = parser.parse_args()
+    main()
