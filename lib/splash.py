@@ -145,12 +145,15 @@ else:
                 self.root.withdraw()
 
 _proc = None
+_splash = None
 
 def quit_app():
+    global _splash
+
     if sys.platform.startswith('darwin'):
         NSApplication.sharedApplication().terminate_(None)
     else:
-        tk._default_root.quit()
+        _splash.root.after(0, _splash.root.quit)
 
 def listen():
     for line in sys.stdin:
@@ -158,23 +161,25 @@ def listen():
             quit_app()
 
 def main():
+    global _splash
+
     threading.Thread(target = listen, daemon = True).start()
 
     if sys.platform.startswith('darwin'):
         app = NSApplication.sharedApplication()
-        splash = SplashMacos.alloc().init_(args.image)
-        splash.show()
+        _splash = SplashMacos.alloc().init_(args.image)
+        _splash.show()
         AppHelper.callLater(args.max, quit_app)
         app.run()
     else:
-        splash = SplashTkinter(args.image)
-        splash.show()
-        splash.root.after(int(args.max * 1000), splash.root.quit)
-        splash.root.mainloop()
+        _splash = SplashTkinter(args.image)
+        _splash.show()
+        _splash.root.after(int(args.max * 1000), _splash.root.quit)
+        _splash.root.mainloop()
 
 def start(img, maxtime):
     global _proc
-    _proc = subprocess.Popen(["python3", __file__, '--image', img, '--max', str(maxtime)], 
+    _proc = subprocess.Popen(["python", __file__, '--image', img, '--max', str(maxtime)], 
                              stdin = subprocess.PIPE)
 
 def stop():
