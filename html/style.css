@@ -1,7 +1,12 @@
 :root {
-  --background-color: hsl(0, 0%, 12%);
+  --background-color: hsl(0, 0%, 10%);
   --background-color-darker: hsl(0, 0%, 5%);
   --background-color-topbottom: hsl(0, 0%, 5%, 80%);
+  --select-bg: hsl(0, 0%, 10%, 100%);
+  --select-bg-hover: hsl(0, 0%, 16%, 100%);
+  --select-border: hsl(0, 0%, 20%, 100%);
+  --select-border-hover: hsl(0, 0%, 32%, 100%);
+  --bg-button: hsl(0, 0%, 12%, 100%);
   --font-size: 0.85rem;
   --font-family: 'Helvetica Neue', -apple-system, system-ui, sans-serif;
   --active: 100%;
@@ -45,19 +50,26 @@ select, button {
 }
 
 select {
-  --widget-opacity: var(--normal);
+  border-radius: 1rem;
   background-position: right 0.75em center;
   background-repeat: no-repeat;
-  background-size: 8px 8px, 8px 8px;
+  background-size: 8px 11px;
   background-image: -webkit-cross-fade(
     linear-gradient(0deg, transparent, transparent),
     url(svg/icon-down.svg),
     var(--widget-opacity)
   );
-  padding-left: 0.5rem;
+  background-color: var(--select-bg);
+  border-color: var(--select-border);
+  padding-left: 1rem;
   padding-right: 1.5rem;
   height: 2rem;
   font-size: var(--font-size);
+}
+
+select:active, select:hover, select:focus {
+  background-color: var(--select-bg-hover);
+  border-color: var(--select-border-hover);
 }
 
 button {
@@ -77,7 +89,7 @@ select img {
   opacity: var(--normal);
 }
 
-button:hover, select:active, select:hover, select:focus {
+button:hover {
   transition: all 0.2s ease-in-out;
   --widget-opacity: var(--active);
 }
@@ -119,9 +131,10 @@ button:active, button:focus {
   padding: 0;
 } 
 
-.top-bar {
+.icon-bar {
   position: sticky;
   top: 0;
+  padding-bottom: 0.5rem;
 }
 
 .top-bar, .bottom-bar  {
