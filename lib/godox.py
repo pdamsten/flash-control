@@ -136,7 +136,12 @@ class GodoxWorker(Thread):
     
     async def scan(self):
         print('scanning...')
-        devices = await BleakScanner.discover()
+        name = None
+        try:
+            devices = await BleakScanner.discover()
+        except Exception as e:
+            print('Exception during scan:', str(e))
+            devices = []
         godox = None
         for device in devices:
             name = str(PyObjCTools.KeyValueCoding.getKey(device.details, 'name')[0])
@@ -166,7 +171,7 @@ class GodoxWorker(Thread):
             return True
         else:
             print('- GodoxWorker::scan failed', self.config)
-            self.sendMsg('failed', self.config['name'] if name in self.config else None)
+            self.sendMsg('failed', self.config['name'] if name and name in self.config else None)
             return False
 
     async def connect(self):
