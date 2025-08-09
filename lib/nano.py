@@ -23,6 +23,9 @@
 #
 #**************************************************************************
 
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import pygame.midi
 from threading import Thread
 from queue import Queue
