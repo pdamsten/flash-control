@@ -161,6 +161,10 @@ button:active, button:focus {
   background-color: var(--background-color-topbottom);
 }
 
+.bb-narrow {
+  height: 3.5rem;
+}
+
 .icon-bar {
   display: flex;
   gap: 0.9rem;
@@ -344,4 +348,18 @@ button:active, button:focus {
 }
 .notification {
   position: relative;
+ }
+
+ .dlg-buttons {
+  display: flex;
+  justify-items: end;
+  grid-column: 3;
+  gap: 0.5rem;
+ }
+
+.dlg-button {
+  padding: 0.4rem;
+  font-size: 1rem;
+  min-width: 9rem;
+  max-height: 2.3rem;
  }

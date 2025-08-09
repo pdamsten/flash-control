@@ -123,12 +123,14 @@ class FlashControlWindow(HTMLMainWindow):
     def on_closing(self):
         print('Flash Window closed')
         self.window.events.closing -= self.on_closing
-        print('Stopping godox')
-        self.godox.stop()
-        print('Stopping nano')
-        self.nano.stop()
-        print('Stopping metadata')
+        if self.godox:
+            print('Stopping godox')
+            self.godox.stop()
+        if self.nano:
+            print('Stopping nano')
+            self.nano.stop()
         if self.metadata:
+            print('Stopping metadata')
             self.metadata.stop()
         print('Stopping super')
         super().on_closing()
@@ -478,6 +480,13 @@ class FlashControlWindow(HTMLMainWindow):
         self.setVisible('#nano-popup', False)
         self.setVisible('#nano-close', False)
 
+    def onOkPressed(self, e):
+        # TODO save metadata
+        self.window.destroy()
+
+    def onCancelPressed(self, e):
+        self.window.destroy()
+
     def onWheel(self, e):
         elem = self.elementFromPoint(e['clientX'], e['clientY'])
         if elem and 'id' in elem and elem['id'].startswith('flash-power-number'):
@@ -558,36 +567,49 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#meta-close').events.click += self.onCloseMetaPopup
         self.elem('#nano-close').events.click += self.onCloseNanoPopup
 
+        self.elem('#ok-button').events.click += self.onOkPressed
+        self.elem('#cancel-button').events.click += self.onCancelPressed
+
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange
 
         self.activateGroup('A')
 
-        self.godox = Godox()
-        self.godox.callback('failed', self.onGodoxFailed)
-        self.godox.callback('connected', self.onGodoxConnected)
-        self.godox.callback('config', self.onGodoxConfig)
-        self.godox.connect(self.cv('godox', {}))
+        if not args.edit:
+            self.setVisible('#flash-button', True)
+            self.setVisible('#meta-button', True)
+            self.setVisible('#nano-button', True)
+            self.setVisible('#flash-sound-all', True)
+            self.setVisible('#shutter-button', True)
+            self.setVisible('#flash-light-all', True)
 
-        self.nano = NanoKontrol2()
-        self.nano.callback('failed', self.onNanoFailed)
-        self.nano.callback('connected', self.onNanoConnected)
-        self.nano.callback('event', self.onNanoEvent)
-        self.nano.connect(self.onNanoSlider)
+            self.godox = Godox()
+            self.godox.callback('failed', self.onGodoxFailed)
+            self.godox.callback('connected', self.onGodoxConnected)
+            self.godox.callback('config', self.onGodoxConfig)
+            self.godox.connect(self.cv('godox', {}))
 
-        tethering_path = self.cv('TetheringPath', '')
-        tethering_pat = self.cv('TetheringPattern', '')
-        self.metadata = None
+            self.nano = NanoKontrol2()
+            self.nano.callback('failed', self.onNanoFailed)
+            self.nano.callback('connected', self.onNanoConnected)
+            self.nano.callback('event', self.onNanoEvent)
+            self.nano.connect(self.onNanoSlider)
 
-        if tethering_path:
-            self.metadata = RAWWatcher()
-            self.metadata.start(tethering_path, tethering_pat)
-            self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
-            self.metadata.callback('msg', self.onMetadataMsg)
-            self.setEnabled('#metadata-popup', True)
+            tethering_path = self.cv('TetheringPath', '')
+            tethering_pat = self.cv('TetheringPattern', '')
+            if tethering_path:
+                self.metadata = RAWWatcher()
+                self.metadata.start(tethering_path, tethering_pat)
+                self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
+                self.metadata.callback('msg', self.onMetadataMsg)
+                self.setEnabled('#metadata-popup', True)
+
+        else:
+            self.setVisible('#ok-button', True)
+            self.setVisible('#cancel-button', True)
+            self.setClass('.bottom-bar', 'bb-narrow', True)
 
         self.window.events.closing += self.on_closing
-
         # self.bring_window_to_front()
         if self.overlay:
             self.overlay.center_((self.config['x'], self.config['y'], 
