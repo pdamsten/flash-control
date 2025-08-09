@@ -140,8 +140,8 @@ class GodoxWorker(Thread):
         try:
             devices = await BleakScanner.discover()
         except Exception as e:
-            print('Exception during scan:', str(e))
-            devices = []
+            self.sendMsg('failed', str(e))
+            return False
         godox = None
         for device in devices:
             name = str(PyObjCTools.KeyValueCoding.getKey(device.details, 'name')[0])
