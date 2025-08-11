@@ -30,6 +30,23 @@ import lib.exiftool as exiftool
 import lib.util as util
 from threading import Lock
 
+STAND =          "XMP:XMP-pdplus:Stand"
+TETHERING =      "XMP:XMP-pdplus:Tethering"
+TRIGGER =        "XMP:XMP-pdplus:Trigger"
+FILTER =         "XMP:XMP-pdplus:Filter"
+EXTENSION_TUBE = "XMP:XMP-pdplus:ExtensionTube"
+REMOTE =         "XMP:XMP-pdplus:Remote"
+EXPOSURE =       "XMP:XMP-pdplus:Exposures"
+FLASHES =        "XMP:XMP-pdplus:Flashes"
+ID =             "ID"
+ROLE =           "Role"
+NAME =           "Name"
+MODIFIER =       "Modifier"
+ACCESSORY =      "Accessory"
+POWER =          "Power"
+GEL =            "Gel"
+MODE =           "Mode"
+
 class RAWEventHandler(PatternMatchingEventHandler):
     def __init__(self, watcher, pattern):
         super(RAWEventHandler, self).__init__(    

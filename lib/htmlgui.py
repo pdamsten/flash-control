@@ -27,6 +27,7 @@ import sys
 import os
 import inspect
 import time
+import json
 
 import webview
 
@@ -125,17 +126,31 @@ class HTMLMainWindow():
             else:
                 return None
         return self.elements[key]
-    
-    def cv(self, key, default = None):
+
+    def value(self, d, key, default = None):
+        #print('*1', key, default)
+        data = d
         keys = key.split('/')
-        d = self.config
-        for k in keys[:-1]:
+        for i, k in enumerate(keys[:-1]):
+            if k.isdigit():
+                k = int(k)
+            #print('*2', k, default)
             if not k in d:
-                d[k] = {}
+                if isinstance(k, int):
+                    if len(d) <= k:
+                        d.extend([None] * (k + 1 - len(d)))
+                if keys[i+1].isdigit():
+                    d[k] = []
+                else:
+                    d[k] = {}
             d = d[k]
         if keys[-1] not in d:
             d[keys[-1]] = default
+        #print('*3', data, keys[-1])
         return d[keys[-1]]
+
+    def cv(self, key, default = None):
+        return self.value(self.config, key, default)
    
     def __init__(self, title, html, css = None, api = None, size = (1000, 800)):
         HTMLMainWindow.instances.append(self)
@@ -144,14 +159,14 @@ class HTMLMainWindow():
         self.css = css
         self.config = util.json(CONFIG)
         self.elements = {}
-        print (f'Config: {self.config}')
+        print (f'Config: {json.dumps(self.config, sort_keys = True, indent = 4)}')
         hpath = html if util.isPath(html) else None
         html = html if not util.isPath(html) else None
         time.sleep(0.1)
         self.window = webview.create_window(title, hpath, html = html, 
                 frameless = sys.platform.startswith('darwin'), js_api = api, 
                 width = int(self.cv('width', size[0])), height = int(self.cv('height', size[1])),
-                x = int(self.cv('x')), y = int(self.cv('y')))
+                x = int(self.cv('x', 0)), y = int(self.cv('y', 0)))
         self.window.events.closing += self.on_closing
         self.window.events.resized += self.on_resized
         self.window.events.moved += self.on_moved

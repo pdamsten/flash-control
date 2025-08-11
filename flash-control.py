@@ -36,27 +36,11 @@ from lib.godox import Godox
 from lib.nano import NanoKontrol2
 import lib.util as util
 from lib.metadata import RAWWatcher
+import lib.metadata as meta
 import lib.splash as splash
 
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
-
-json_conv_table = [
-    ("XMP:XMP-pdplus:Stand", 'stands'),
-    ("XMP:XMP-pdplus:Tethering", 'tethering'),
-    ("XMP:XMP-pdplus:Trigger", 'triggers'),
-    ("XMP:XMP-pdplus:Filter", 'filters'),
-    ("XMP:XMP-pdplus:ExtensionTube", 'extension_tubes'),
-    ("XMP:XMP-pdplus:Remote", 'remotes'),
-    ("XMP:XMP-pdplus:Exposures", "#1"),
-    ("XMP:XMP-pdplus:Flashes/{index}/Role", 'flash-{group}/Role'),
-    ("XMP:XMP-pdplus:Flashes/{index}/Name", 'flash-{group}/Name'),
-    ("XMP:XMP-pdplus:Flashes/{index}/Modifier", 'flash-{group}/Modifier'),
-    ("XMP:XMP-pdplus:Flashes/{index}/Accessory", 'flash-{group}/Accessory'),
-    ("XMP:XMP-pdplus:Flashes/{index}/Power", 'flash-{group}/CurrentPower'),
-    ("XMP:XMP-pdplus:Flashes/{index}/Gel", 'flash-{group}/Gel'),
-    ("XMP:XMP-pdplus:Flashes/{index}/ID", '#{group}'),
-]
 
 godox_conv_table = [
     ('{index}/power', 'flash-{group}/CurrentPower'),
@@ -178,18 +162,25 @@ class FlashControlWindow(HTMLMainWindow):
         if self.nano:
             self.nano.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
     
+    def forExiftool(data):
+        #TODO
+        return data
+    
     def onSelectChange(self, e):
         elem = self.elem(e)
+        key = getattr(meta, elem.attributes['data-key'].upper())
         pid = elem.parent.parent.id
         n = e['target']['selectedIndex'] 
         value = None if n == 0 else e['target']['childNodes'][n]['text']
         if pid.startswith('flash-'):
-            self.config[pid][elem.attributes['data-key']] = value
-            self.activateGroup(pid[-1:])
+            index = ord(pid[-1:]) - ord('A')
+            key = key.format(index = index)
+            self.config['shooting_info'][meta.FLASHES][index][key] = value
+            self.activateGroup(index)
         else:
-            self.config[elem.id] = value
+            self.config['shooting_info'][key] = value
         if self.metadata:
-            self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
+            self.metadata.setJson(self.forExiftool(self.config['shooting_info']))
 
     def onGroupClicked(self, e):
         e = self.elem(e)
@@ -222,8 +213,9 @@ class FlashControlWindow(HTMLMainWindow):
         self.powerHtml(gid)
 
     def setMode(self, group_id, v):
-        self.config[f'flash-{group_id}']['Mode'] = v
-        self.elem(f'#flash-mode-{group_id}').text = self.config[f'flash-{group_id}']['Mode']
+        i = ord(group_id) - ord('A')
+        self.config['shooting_info'][meta.FLASHES][i][meta.MODE] = v
+        self.elem(f'#flash-mode-{group_id}').text = v
         self.setFlashValues()
 
     def activateGroup(self, group_id):
@@ -278,7 +270,7 @@ class FlashControlWindow(HTMLMainWindow):
         if self.godox:
             self.godox.setValues(util.convertDict(self.config, godox_conv_table))
         if self.metadata:
-            self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
+            self.metadata.setJson(self.forExiftool(self.config['shooting_info']))
         if self.nano:
             self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
@@ -297,7 +289,7 @@ class FlashControlWindow(HTMLMainWindow):
         # This eats spaces and returns which prevents opening select from keyboard
         # on macos tab is not selecting buttons. Custom tab key control?
         key = e['which'] if isinstance(e, dict) else e
-        print('Key pressed', key, chr(key))
+        #print('Key pressed', key, chr(key))
         manual = (self.cv(f'flash-{self.activeGroup}/Mode') == 'M')
         if key >= ord('0') and key <= ord('9'):
             n = key - 48
@@ -508,49 +500,59 @@ class FlashControlWindow(HTMLMainWindow):
                 f'tell application "System Events" to set frontmost of the first process whose unix id is {os.getpid()} to true'
             ]))
 
-    def init(self, window):
-        super().init(window)
-
-        window.dom.document.events.keypress += DOMEventHandler(self.onKeyPress,
-                                                               prevent_default = True)
-        window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
-        
-        self.fill_select('#stands', util.stringList('user/stands.txt'), self.cv('stands'))
-        self.fill_select('#remotes', util.stringList('user/remotes.txt'), self.cv('remotes'))
-        self.fill_select('#triggers', util.stringList('user/triggers.txt'), self.cv('triggers'))
-        self.fill_select('#tethering', util.stringList('user/tethering.txt'), self.cv('tethering'))
-        self.fill_select('#filters', util.stringList('user/filters.txt'), self.cv('filters'))
+    def fill_shooting_info(self, si):
+        self.fill_select('#stands', util.stringList('user/stands.txt'), 
+                         self.value(si, meta.STAND))
+        self.fill_select('#remotes', util.stringList('user/remotes.txt'), 
+                         self.value(si, meta.REMOTE))
+        self.fill_select('#triggers', util.stringList('user/triggers.txt'), 
+                         self.value(si, meta.TRIGGER))
+        self.fill_select('#tethering', util.stringList('user/tethering.txt'), 
+                         self.value(si, meta.TETHERING))
+        self.fill_select('#filters', util.stringList('user/filters.txt'), 
+                         self.value(si, meta.FILTER))
         self.fill_select('#extension_tubes', util.stringList('user/extension_tubes.txt'), 
-                         self.cv('extension_tubes'))
+                         self.value(si, meta.EXTENSION_TUBE))
 
         for i in range(self.cv('flash-groups', 6)):
             gid = chr(ord('A') + i)
             c = self.elem('#scroll-container')
             e = c.append(flash_group.format(group_id = gid))
             e.events.click += self.onGroupClicked
-            fid = f'flash-{gid}/'
+            fid = f'{meta.FLASHES}/{i}/'
             self.fill_select(f'#flash-{gid} .flash-name', util.stringList('user/flash_names.txt'),
-                             self.cv(fid + 'Name'))
+                             self.value(si, fid + meta.NAME))
             self.fill_select(f'#flash-{gid} .flash-role', util.stringList('user/flash_roles.txt'),
-                             self.cv(fid + 'Role'))
+                             self.value(si, fid + meta.ROLE))
             self.fill_select(f'#flash-{gid} .flash-modifier', 
-                             util.stringList('user/flash_modifiers.txt'), self.cv(fid + 'Modifier'))
+                             util.stringList('user/flash_modifiers.txt'), 
+                             self.value(si, fid + meta.MODIFIER))
             self.fill_select(f'#flash-{gid} .flash-accessory', 
                              util.stringList('user/flash_accessories.txt'), 
-                             self.cv(fid + 'Accessory'))
+                             self.value(si, fid + meta.ACCESSORY))
             self.fill_select(f'#flash-{gid} .flash-gel', util.stringList('user/flash_gels.txt'), 
-                             self.cv(fid + 'Gel'))
+                             self.value(si, fid + meta.GEL))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
-            self.setMode(gid, self.cv(fid + 'Mode', 'M'))
+            self.setMode(gid, self.value(si, fid + meta.MODE, 'M'))
 
             e = self.elem(f'#flash-power-{gid}')
             e.events.click += self.onGroupClicked
             self.powerHtml(gid)
 
             self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
-            self.setGroupDisabled(gid, self.cv(fid + 'Disabled', False))
-    
+            self.setGroupDisabled(gid, self.value(si, fid + 'Mode', '-') == '-')
+
+
+    def init(self, window):
+        super().init(window)
+
+        window.dom.document.events.keypress += DOMEventHandler(self.onKeyPress,
+                                                               prevent_default = True)
+        window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
+            
+        self.fill_shooting_info(self.cv('shooting_info', {}))
+        
         self.elem('#shutter-button').events.click += self.onShutterClicked
         self.elem(f'#flash-sound-all').events.click += self.onSoundClicked
         self.setSound(self.cv('Sound', False))
@@ -600,7 +602,7 @@ class FlashControlWindow(HTMLMainWindow):
             if tethering_path:
                 self.metadata = RAWWatcher()
                 self.metadata.start(tethering_path, tethering_pat)
-                self.metadata.setJson(util.convertDict(self.config, json_conv_table, 'Disabled'))
+                self.metadata.setJson(self.forExiftool(self.config['shooting_info']))
                 self.metadata.callback('msg', self.onMetadataMsg)
                 self.setEnabled('#metadata-popup', True)
 
