@@ -188,15 +188,17 @@ class FlashControlWindow(HTMLMainWindow):
     def onGroupButtonClicked(self, e):
         e = self.elem(e)
         gid = e.id[-1:]
-        self.setGroupDisabled(gid, 
-                self.cv(f'shooting-info/{meta.FLASHES}/{self.findex(gid)}/{meta.MODE}', 'M') != '-')
+        dis = self.cv(f'shooting-info/{meta.FLASHES}/{self.findex(gid)}/{meta.MODE}', 'M') == '-'
+        self.setGroupDisabled(gid, not dis)
 
     def setGroupDisabled(self, group_id, disabled):
         a = ['flash-group-', 'flash-power-', 'flash-mode-', 
              'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory', 'flash-gel-']
 
-        mode = '-' if disabled else self.cv(f'save/{group_id}/mode')       
+        mode = '-' if disabled else self.cv(f'save/{group_id}/mode', 'M') 
         self.config['shooting-info'][meta.FLASHES][self.findex(group_id)][meta.MODE] = mode
+        if not disabled:
+            self.config['save'][group_id]['mode'] = mode
         for s in a:
             self.setEnabled(f'#{s}{group_id}', not disabled)
         if not disabled:
@@ -330,7 +332,8 @@ class FlashControlWindow(HTMLMainWindow):
         elif key >= ord('a') and key <= ord('l'):
             self.activateGroup(chr(key).upper())
         elif key == ord(' '):
-            self.setGroupDisabled(self.activeGroup, self.cv(mode_key) != '-')
+            dis = self.cv(mode_key) == '-'
+            self.setGroupDisabled(self.activeGroup, not dis)
         elif key == ENTER:
             if len(self.power) > 0:
                 if manual:
@@ -423,8 +426,8 @@ class FlashControlWindow(HTMLMainWindow):
             self.setPower(gid, self.nano2Power(gid, v))
         elif (cmd == 'RECORD' or cmd == 'SOLO' or cmd == 'MUTE') and gid != '-' and v == 0:
             self.activateGroup(gid)
-            self.setGroupDisabled(gid, 
-                self.cv(f'shooting-info/{meta.FLASHES}/{self.findex(gid)}/{meta.MODE}', 'M') != '-')
+            d = self.cv(f'shooting-info/{meta.FLASHES}/{self.findex(gid)}/{meta.MODE}', 'M') == '-'
+            self.setGroupDisabled(gid, not d)
         elif cmd == 'STOP' and gid == '-' and v == 0:
             self.onShutterClicked(None)
         elif cmd == 'RECORD' and gid == '-' and v == 0:
@@ -547,14 +550,15 @@ class FlashControlWindow(HTMLMainWindow):
                              self.value(si, fid + meta.GEL))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
-            self.setMode(gid, self.value(si, fid + meta.MODE, self.cv(f'save/{gid}/mode', 'M')))
+            mode = self.value(si, fid + meta.MODE, 'M')
+            self.setMode(gid, self.cv(f'save/{gid}/mode', 'M') if mode == '-' else mode)
 
             e = self.elem(f'#flash-power-{gid}')
             e.events.click += self.onGroupClicked
             self.powerHtml(gid)
 
             self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
-            self.setGroupDisabled(gid, self.value(si, fid + 'Mode', '-') == '-')
+            self.setGroupDisabled(gid, mode == '-')
 
 
     def init(self, window):
