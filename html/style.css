@@ -352,6 +352,7 @@ button:active, button:focus {
 
  .dlg-buttons {
   display: flex;
+  align-items: center;
   justify-items: end;
   grid-column: 3;
   gap: 0.5rem;
