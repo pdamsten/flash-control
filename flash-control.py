@@ -174,12 +174,12 @@ class FlashControlWindow(HTMLMainWindow):
         value = None if n == 0 else e['target']['childNodes'][n]['text']
         if pid.startswith('flash-'):
             index = pid[-1:]
-            self.config['shooting_info'][meta.FLASHES][self.findex(index)][key] = value
+            self.config['shooting-info'][meta.FLASHES][self.findex(index)][key] = value
             self.activateGroup(index)
         else:
-            self.config['shooting_info'][key] = value
+            self.config['shooting-info'][key] = value
         if self.metadata:
-            self.metadata.setJson(self.forExiftool(self.config['shooting_info']))
+            self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
 
     def onGroupClicked(self, e):
         e = self.elem(e)
@@ -215,7 +215,7 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setMode(self, group_id, v):
         i = ord(group_id) - ord('A')
-        self.config['shooting_info'][meta.FLASHES][i][meta.MODE] = v
+        self.config['shooting-info'][meta.FLASHES][i][meta.MODE] = v
         self.config['save'][group_id]['mode'] = v
         self.elem(f'#flash-mode-{group_id}').text = v
         self.setFlashValues()
@@ -272,7 +272,7 @@ class FlashControlWindow(HTMLMainWindow):
         if self.godox:
             self.godox.setValues(util.convertDict(self.config, godox_conv_table))
         if self.metadata:
-            self.metadata.setJson(self.forExiftool(self.config['shooting_info']))
+            self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
         if self.nano:
             self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
@@ -507,7 +507,7 @@ class FlashControlWindow(HTMLMainWindow):
         return ord(gid.upper()) - ord('A')
 
     def onFramesChange(self, e):
-        self.config['shooting_info'][meta.EXPOSURES] = e.value
+        self.config['shooting-info'][meta.EXPOSURES] = e.value
 
     def fill_shooting_info(self, si):
         self.fill_select('#stands', util.stringList('user/stands.txt'), 
@@ -563,7 +563,7 @@ class FlashControlWindow(HTMLMainWindow):
                                                                prevent_default = True)
         window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
             
-        self.fill_shooting_info(self.cv('shooting_info', {}))
+        self.fill_shooting_info(self.cv('shooting-info', {}))
         
         self.elem('#shutter-button').events.click += self.onShutterClicked
         self.elem(f'#flash-sound-all').events.click += self.onSoundClicked
@@ -614,7 +614,7 @@ class FlashControlWindow(HTMLMainWindow):
             if tethering_path:
                 self.metadata = RAWWatcher()
                 self.metadata.start(tethering_path, tethering_pat)
-                self.metadata.setJson(self.forExiftool(self.config['shooting_info']))
+                self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
                 self.metadata.callback('msg', self.onMetadataMsg)
                 self.setEnabled('#metadata-popup', True)
 
