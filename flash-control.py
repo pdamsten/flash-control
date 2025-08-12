@@ -515,6 +515,7 @@ class FlashControlWindow(HTMLMainWindow):
         return ord(gid.upper()) - ord('A')
 
     def onFramesChange(self, e):
+        e = self.elem(e)
         self.config['shooting-info'][meta.EXPOSURES] = e.value
 
     def fill_shooting_info(self, si):
