@@ -163,7 +163,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.nano.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
     
     def forExiftool(data):
-        #TODO
+        data[meta.FLASHES] = [x for x in data[meta.FLASHES] if x[meta.MODE] != '-']
         return data
     
     def onSelectChange(self, e):
