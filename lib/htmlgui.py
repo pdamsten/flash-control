@@ -129,24 +129,23 @@ class HTMLMainWindow():
 
     def value(self, d, key, default = None):
         #print('*1', key, default)
-        data = d
         keys = key.split('/')
         for i, k in enumerate(keys[:-1]):
+            #print('*2', k, d, default)
             if k.isdigit():
                 k = int(k)
-            #print('*2', k, default)
-            if not k in d:
-                if isinstance(k, int):
-                    if len(d) <= k:
-                        d.extend([None] * (k + 1 - len(d)))
-                if keys[i+1].isdigit():
-                    d[k] = []
-                else:
-                    d[k] = {}
+                if len(d) <= k:
+                    d.extend([{}] * (k + 1 - len(d)))
+            else:
+                if not k in d:
+                    if keys[i+1].isdigit():
+                        d[k] = []
+                    else:
+                        d[k] = {}
             d = d[k]
         if keys[-1] not in d:
             d[keys[-1]] = default
-        #print('*3', data, keys[-1])
+        #print('*3', d[keys[-1]], keys[-1])
         return d[keys[-1]]
 
     def cv(self, key, default = None):
