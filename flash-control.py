@@ -527,11 +527,11 @@ class FlashControlWindow(HTMLMainWindow):
         e.events.change += self.onFramesChange
 
         for i in range(self.cv('flash-groups', 6)):
-            gid = chr(ord('A') + i)
+            fid = f'{meta.FLASHES}/{i}/'
+            gid = self.value(si, fid + meta.ID, chr(ord('A') + i))
             c = self.elem('#scroll-container')
             e = c.append(flash_group.format(group_id = gid))
             e.events.click += self.onGroupClicked
-            fid = f'{meta.FLASHES}/{i}/'
             self.fill_select(f'#flash-{gid} .flash-name', util.stringList('user/flash_names.txt'),
                              self.value(si, fid + meta.NAME))
             self.fill_select(f'#flash-{gid} .flash-role', util.stringList('user/flash_roles.txt'),
