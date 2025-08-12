@@ -105,6 +105,10 @@ class FlashControlWindow(HTMLMainWindow):
         super().__init__(title, html, css, api)
 
     def on_closing(self):
+        self.close()
+        super().on_closing()
+
+    def close(self):
         print('Flash Window closed')
         self.window.events.closing -= self.on_closing
         if self.godox:
@@ -117,7 +121,7 @@ class FlashControlWindow(HTMLMainWindow):
             print('Stopping metadata')
             self.metadata.stop()
         print('Stopping super')
-        super().on_closing()
+        super().close()
 
     def on_resized(self, width, height):
         if self.overlay:
@@ -481,10 +485,10 @@ class FlashControlWindow(HTMLMainWindow):
 
     def onOkPressed(self, e):
         # TODO save metadata
-        self.window.destroy()
+        self.close()
 
     def onCancelPressed(self, e):
-        self.window.destroy()
+        self.close()
 
     def onWheel(self, e):
         elem = self.elementFromPoint(e['clientX'], e['clientY'])

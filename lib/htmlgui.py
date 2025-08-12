@@ -48,6 +48,9 @@ class HTMLMainWindow():
     program_path = os.path.dirname(os.path.abspath(inspect.stack()[-1].filename))
 
     def on_closing(self):
+        self.close()
+
+    def close(self):
         print('Window closed')
         self.window.events.closing -= self.on_closing
         HTMLMainWindow.instances.remove(self)
