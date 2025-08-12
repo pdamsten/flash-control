@@ -79,23 +79,24 @@ BACKSPACE = 8
 ESCAPE = 27
 
 class KeyHandler:
-    def on_keypress(self, key):
-        print(f"Key pressed: {key}")
+    def onKeyPress(self, key):
+        self.window.onKeyPress(key)
 
     def start(self, window):
+        self .window = window
+
         js_code = """
         document.addEventListener('keypress', function(event) {
-            const tag = event.target.tagName.toLowerCase();
-            const editable = event.target.isContentEditable;
-
-            // If not typing in an input, prevent default (stops beep)
-            if (tag !== 'input' && tag !== 'textarea' && !editable) {
-                event.preventDefault();
-                window.pywebview.api.on_keypress(event.key);
+            if (!event.target.isContentEditable) {
+                const tag = event.target.tagName.toLowerCase();
+                if (!['input', 'select', 'button'].includes(tag)) {
+                    event.preventDefault();
+                    window.pywebview.api.onKeyPress(event.keyCode);
+                }
             }
-        }, true); // capture phase so it runs before target
+        }, true);
         """
-        window.evaluate_js(js_code)
+        window.window.evaluate_js(js_code)
 
 class FlashControlWindow(HTMLMainWindow):
     def __init__(self, title, html, css = None):
@@ -314,11 +315,8 @@ class FlashControlWindow(HTMLMainWindow):
             e.children[0].text = ''
         e.children[1].text = s
 
-    def onKeyPress(self, e):
-        # This eats spaces and returns which prevents opening select from keyboard
-        # on macos tab is not selecting buttons. Custom tab key control?
-        key = e['which'] if isinstance(e, dict) else e
-        #print('Key pressed', key, chr(key))
+    def onKeyPress(self, key):
+        print('Key pressed', key, chr(key))
         mode_key = f'shooting-info/{meta.FLASHES}/{self.findex(self.activeGroup)}/{meta.MODE}'
         manual = (self.cv(mode_key, 'M') == 'M')
         if key >= ord('0') and key <= ord('9'):
@@ -588,7 +586,7 @@ class FlashControlWindow(HTMLMainWindow):
     def init(self, window):
         super().init(window)
 
-        self.keyhandler.start(window)
+        self.keyhandler.start(self)
         window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
             
         self.fill_shooting_info(self.cv('shooting-info', {}))
