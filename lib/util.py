@@ -42,7 +42,7 @@ def path(filename = ''):
 
 def writeJson(fname, json_data):
     with open(path(fname), 'w') as f:
-        lib_json.dump(json_data, f, indent = 4, sort_keys = True)
+        lib_json.dump(json_data, f, indent = 4)
 
 def json(filename):
     data = {}
