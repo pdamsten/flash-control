@@ -57,11 +57,11 @@ nano_conv_table = [
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
-      <button id="flash-group-{group_id}" class="flash-group">{group_id}</button>
+      <button id="flash-group-{group_id}" tabindex="0" class="flash-group">{group_id}</button>
       <div id="flash-power-{group_id}" class="flash-power">
             <span id="flash-power-prefix{group_id}" class="flash-prefix">-</span><span id="flash-power-number{group_id}" class="flash-power-nbr">3.0</span>
       </div>
-      <button id="flash-mode-{group_id}" class="flash-mode">M</button>
+      <button id="flash-mode-{group_id}" tabindex="0" class="flash-mode">M</button>
       <div class="flash-info-a">
         <select id="flash-name-{group_id}" class="flash-name" data-key="Name"></select>
         <select id="flash-role-{group_id}" class="flash-role" data-key="Role"></select>
