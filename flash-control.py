@@ -500,6 +500,9 @@ class FlashControlWindow(HTMLMainWindow):
                 f'tell application "System Events" to set frontmost of the first process whose unix id is {os.getpid()} to true'
             ]))
 
+    def onFramesChange(self, e):
+        self.config[meta.EXPOSURES] = e.value
+
     def fill_shooting_info(self, si):
         self.fill_select('#stands', util.stringList('user/stands.txt'), 
                          self.value(si, meta.STAND))
@@ -513,6 +516,9 @@ class FlashControlWindow(HTMLMainWindow):
                          self.value(si, meta.FILTER))
         self.fill_select('#extension_tubes', util.stringList('user/extension_tubes.txt'), 
                          self.value(si, meta.EXTENSION_TUBE))
+        e = self.elem(f'#frames-edit')
+        e.value = self.value(si, meta.EXPOSURES, 1)
+        e.events.change += self.onFramesChange
 
         for i in range(self.cv('flash-groups', 6)):
             gid = chr(ord('A') + i)
