@@ -363,3 +363,23 @@ button:active, button:focus {
   min-width: 9rem;
   max-height: 2.3rem;
  }
+
+ #frames {
+  font-size: 1rem;
+  font-weight: bold;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#frames-edit {
+  appearance: none;
+  border-width: 1px;
+  border-style: solid;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: transparent;
+  min-height: 2.3rem;
+  max-width: 7ch;
+  text-align: center;
+}

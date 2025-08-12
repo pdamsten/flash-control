@@ -609,7 +609,7 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             self.setVisible('#ok-button', True)
             self.setVisible('#cancel-button', True)
-            self.setClass('.bottom-bar', 'bb-narrow', True)
+            self.setVisible('#frames', True)
 
         self.window.events.closing += self.on_closing
         # self.bring_window_to_front()
