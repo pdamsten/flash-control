@@ -173,9 +173,8 @@ class FlashControlWindow(HTMLMainWindow):
         n = e['target']['selectedIndex'] 
         value = None if n == 0 else e['target']['childNodes'][n]['text']
         if pid.startswith('flash-'):
-            index = ord(pid[-1:]) - ord('A')
-            key = key.format(index = index)
-            self.config['shooting_info'][meta.FLASHES][index][key] = value
+            index = pid[-1:]
+            self.config['shooting_info'][meta.FLASHES][self.findex(index)][key] = value
             self.activateGroup(index)
         else:
             self.config['shooting_info'][key] = value
@@ -189,13 +188,14 @@ class FlashControlWindow(HTMLMainWindow):
     def onGroupButtonClicked(self, e):
         e = self.elem(e)
         gid = e.id[-1:]
-        self.setGroupDisabled(gid, not self.cv(f'flash-{gid}/Disabled'))
+        self.setGroupDisabled(gid, self.cv(f'shooting-info/{self.findex(gid)}/{meta.MODE}') != '-')
 
     def setGroupDisabled(self, group_id, disabled):
         a = ['flash-group-', 'flash-power-', 'flash-mode-', 
              'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory', 'flash-gel-']
-        
-        self.config[f'flash-{group_id}']['Disabled'] = disabled
+
+        mode = '-' if disabled else self.cv(f'save/{group_id}/mode')       
+        self.config['shooting-info'][self.findex(group_id)]['Mode'] = mode
         for s in a:
             self.setEnabled(f'#{s}{group_id}', not disabled)
         if not disabled:
@@ -209,12 +209,14 @@ class FlashControlWindow(HTMLMainWindow):
             self.activateGroup(gid)
         else:
             gid = self.activeGroup
-        self.setMode(gid, 'M' if self.cv(f'flash-{gid}/Mode') == 'TTL' else 'TTL')
+        self.setMode(gid, 'M' if self.cv(f'shooting-info/{self.findex(gid)}/{meta.MODE}') == 'TTL' \
+                     else 'TTL')
         self.powerHtml(gid)
 
     def setMode(self, group_id, v):
         i = ord(group_id) - ord('A')
         self.config['shooting_info'][meta.FLASHES][i][meta.MODE] = v
+        self.config['save'][group_id]['mode'] = v
         self.elem(f'#flash-mode-{group_id}').text = v
         self.setFlashValues()
 
@@ -234,7 +236,7 @@ class FlashControlWindow(HTMLMainWindow):
             f.write(html)
 
     def normalizePower(self, gid, power):
-        mode = self.cv(f'flash-{gid}/Mode', 'M')
+        mode = self.cv(f'shooting-info/{self.findex(gid)}/{meta.MODE}', 'M')
         power = float(power)
         power = max(2.0, min(10.0, power)) if mode == 'M' else max(-3.0, min(3.0, power))
         power = str(round(power, 1))
@@ -259,9 +261,9 @@ class FlashControlWindow(HTMLMainWindow):
             self.overlay.hide()
             self.overlayPwr = None
         power = self.normalizePower(group_id, power)
-        mode = self.cv(f'flash-{group_id}/Mode', 'M')
-        self.config[f'flash-{group_id}']['Power' + mode] = power
-        self.config[f'flash-{group_id}']['CurrentPower'] = power
+        mode = self.cv(f'shooting-info/{self.findex(group_id)}/{meta.MODE}', 'M')
+        self.config['shooting-info'][self.findex(group_id)]['Power'] = power
+        self.config['save'][group_id]['Power' + mode] = power
         self.powerHtml(group_id)
         self.power = ''
         self.setFlashValues()
@@ -290,7 +292,7 @@ class FlashControlWindow(HTMLMainWindow):
         # on macos tab is not selecting buttons. Custom tab key control?
         key = e['which'] if isinstance(e, dict) else e
         #print('Key pressed', key, chr(key))
-        manual = (self.cv(f'flash-{self.activeGroup}/Mode') == 'M')
+        manual = (self.cv(f'shooting-info/{self.findex(self.activeGroup)}/{meta.MODE}') == 'M')
         if key >= ord('0') and key <= ord('9'):
             n = key - 48
             if manual:
@@ -327,7 +329,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.activateGroup(chr(key).upper())
         elif key == ord(' '):
             self.setGroupDisabled(self.activeGroup, 
-                                  not self.cv(f'flash-{self.activeGroup}/Disabled'))
+                    self.cv(f'shooting-info/{self.findex(self.activeGroup)}/{meta.MODE}') != '-')
         elif key == ENTER:
             if len(self.power) > 0:
                 if manual:
@@ -348,7 +350,7 @@ class FlashControlWindow(HTMLMainWindow):
             if len(self.power) > 0:
                 self.power = ''
                 self.elem(f'#flash-power-{self.activeGroup}').text = \
-                        self.cv(f'flash-{self.activeGroup}/Power')
+                        self.cv(f'shooting-info/{self.findex(self.activeGroup)}/{meta.POWER}')
         elif key == ord('m'):
             self.setSound(not self.cv('Sound'))
         elif key == ord('z'):
@@ -395,7 +397,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano.setValues(util.convertDict(self.config, nano_conv_table))
 
     def nano2Power(self, gid, v):
-        if self.cv(f'flash-{gid}/Mode', 'M') == 'M':
+        if self.cv(f'shooting-info/{self.findex(gid)}/{meta.MODE}', 'M') == 'M':
             v = 8.0 * (v / 127.0) + 2.0
         else:
             v = 6.0 * (v / 127.0) - 3.0
@@ -420,7 +422,8 @@ class FlashControlWindow(HTMLMainWindow):
             self.setPower(gid, self.nano2Power(gid, v))
         elif (cmd == 'RECORD' or cmd == 'SOLO' or cmd == 'MUTE') and gid != '-' and v == 0:
             self.activateGroup(gid)
-            self.setGroupDisabled(gid, not self.cv(f'flash-{gid}/Disabled'))
+            self.setGroupDisabled(gid, 
+                                  self.cv(f'shooting-info/{self.findex(gid)}/{meta.MODE}') != '-')
         elif cmd == 'STOP' and gid == '-' and v == 0:
             self.onShutterClicked(None)
         elif cmd == 'RECORD' and gid == '-' and v == 0:
@@ -429,11 +432,11 @@ class FlashControlWindow(HTMLMainWindow):
             self.setSound(not self.cv('Sound'))
 
     def pwr(self, gid):
-        fid = f'flash-{gid}'
-        mode = self.cv(fid + '/Mode', 'M')
+        mode = self.cv(f'shooting-info/{self.findex(gid)}/{meta.MODE}', 'M')
         default = '10' if mode == 'M' else '+0.0'
-        self.config[fid]['CurrentPower'] = self.cv(fid + '/Power' + mode, default)
-        return self.config[fid]['CurrentPower']
+        pwr = self.cv(f'save/{gid}/Power{mode}', default)
+        self.config['shooting-info'][self.findex(gid)]['Power'] = pwr
+        return pwr
 
     def onShowConfig(self, e):
         cfg = util.path('user/config.json')
@@ -500,8 +503,11 @@ class FlashControlWindow(HTMLMainWindow):
                 f'tell application "System Events" to set frontmost of the first process whose unix id is {os.getpid()} to true'
             ]))
 
+    def findex(self, gid):
+        return ord(gid.upper()) - ord('A')
+
     def onFramesChange(self, e):
-        self.config[meta.EXPOSURES] = e.value
+        self.config['shooting_info'][meta.EXPOSURES] = e.value
 
     def fill_shooting_info(self, si):
         self.fill_select('#stands', util.stringList('user/stands.txt'), 
@@ -540,7 +546,7 @@ class FlashControlWindow(HTMLMainWindow):
                              self.value(si, fid + meta.GEL))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
-            self.setMode(gid, self.value(si, fid + meta.MODE, 'M'))
+            self.setMode(gid, self.value(si, fid + meta.MODE, self.cv(f'save/{gid}/mode')))
 
             e = self.elem(f'#flash-power-{gid}')
             e.events.click += self.onGroupClicked
