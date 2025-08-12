@@ -78,8 +78,27 @@ ENTER = 13
 BACKSPACE = 8
 ESCAPE = 27
 
+class KeyHandler:
+    def on_keypress(self, key):
+        print(f"Key pressed: {key}")
+
+    def start(self, window):
+        js_code = """
+        document.addEventListener('keypress', function(event) {
+            const tag = event.target.tagName.toLowerCase();
+            const editable = event.target.isContentEditable;
+
+            // If not typing in an input, prevent default (stops beep)
+            if (tag !== 'input' && tag !== 'textarea' && !editable) {
+                event.preventDefault();
+                window.pywebview.api.on_keypress(event.key);
+            }
+        }, true); // capture phase so it runs before target
+        """
+        window.evaluate_js(js_code)
+
 class FlashControlWindow(HTMLMainWindow):
-    def __init__(self, title, html, css = None, api = None):
+    def __init__(self, title, html, css = None):
         self.power = ''
         self.activeGroup = 'A'
         self.godox = None
@@ -88,6 +107,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.lastSlider = 0
         self.delay = None
         self.overlayPwr = None
+        self.keyhandler = KeyHandler()
 
         info = {
             'name': 'Flash Control',
@@ -102,7 +122,7 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             self.overlay = None
 
-        super().__init__(title, html, css, api)
+        super().__init__(title, html, css, self.keyhandler)
 
     def on_closing(self):
         self.close()
@@ -565,12 +585,10 @@ class FlashControlWindow(HTMLMainWindow):
             self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
             self.setGroupDisabled(gid, mode == '-')
 
-
     def init(self, window):
         super().init(window)
 
-        window.dom.document.events.keypress += DOMEventHandler(self.onKeyPress,
-                                                               prevent_default = True)
+        self.keyhandler.start(window)
         window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
             
         self.fill_shooting_info(self.cv('shooting-info', {}))
