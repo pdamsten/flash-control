@@ -38,6 +38,7 @@ import lib.util as util
 from lib.metadata import RAWWatcher
 import lib.metadata as meta
 import lib.splash as splash
+import lib.exiftool as exiftool
 
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
@@ -84,8 +85,7 @@ class KeyHandler:
         self.window.onKeyPress(key)
 
     def start(self, window):
-        self .window = window
-
+        self.window = window
         js_code = """
         document.addEventListener('keypress', function(event) {
             if (!event.target.isContentEditable) {
@@ -108,8 +108,12 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano = None
         self.lastSlider = 0
         self.delay = None
+        self.overlay = None
         self.overlayPwr = None
         self.keyhandler = KeyHandler()
+
+        if sys.platform.startswith('darwin'):
+            self.overlay = NumberOverlay.alloc().init()
 
         info = {
             'name': 'Flash Control',
@@ -119,11 +123,6 @@ class FlashControlWindow(HTMLMainWindow):
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
         self.setMacOsTitle(info)
-        if sys.platform.startswith('darwin'):
-            self.overlay = NumberOverlay.alloc().init()
-        else:
-            self.overlay = None
-
         super().__init__(title, html, css, self.keyhandler)
 
     def on_closing(self):
@@ -596,9 +595,6 @@ class FlashControlWindow(HTMLMainWindow):
     def init(self, window):
         super().init(window)
 
-        self.keyhandler.start(self)
-        window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
-            
         self.elem('#shutter-button').events.click += self.onShutterClicked
         self.elem(f'#flash-sound-all').events.click += self.onSoundClicked
         self.setSound(self.cv('Sound', False))
@@ -653,6 +649,12 @@ class FlashControlWindow(HTMLMainWindow):
                 self.setEnabled('#metadata-popup', True)
 
         else:
+            if len(args.edit) > 1:
+                json = util.json(args.edit[1])
+            else:
+                json = exiftool.read(args.edit[0])
+            self.fill_shooting_info(json)
+
             self.setVisible('#frames-edit', True)
             self.setVisible('#frames-text', True)
             self.setVisible('#ok-button', True)
@@ -669,6 +671,9 @@ class FlashControlWindow(HTMLMainWindow):
 
         if (args.debug):
             self.saveDebugHtml()
+
+        self.keyhandler.start(self)
+        window.dom.document.events.wheel += DOMEventHandler(self.onWheel)
 
 def main():
     splash.start(util.path('splash.png'), 20)

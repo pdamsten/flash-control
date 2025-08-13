@@ -58,4 +58,10 @@ def read(fname):
     result = subprocess.run(cmd, capture_output = True, text = True)
     if result.returncode != 0:
         return None
-    return json.loads(result.stdout.strip())
+    try:
+        data = json.loads(result.stdout.strip())[0]
+        return data
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return None
+
