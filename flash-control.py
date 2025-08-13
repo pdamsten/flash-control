@@ -706,6 +706,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.setVisible('#frames-text', True)
             self.setVisible('#ok-button', True)
             self.setVisible('#cancel-button', True)
+            self.setClass('.bottom-bar', 'bb-narrow', True)
 
         self.activateFirstEnabledGroup()
 
