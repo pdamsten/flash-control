@@ -560,6 +560,21 @@ class FlashControlWindow(HTMLMainWindow):
         e = self.elem(e)
         self.config['shooting-info'][meta.EXPOSURES] = e.value
 
+    def fillFlashes(self, data):
+        flashes = {}
+
+        for i in data[meta.FLASHES]:
+            flashes[i[meta.ID]] = i
+        a = []
+        for i in range(self.cv('flash-groups', 6)):
+            gid = chr(ord('A') + i)
+            if gid not in flashes:
+                a.append({f'{meta.ID}': gid, f'{meta.MODE}': '-'})
+            else:
+                a.append(flashes[gid])
+        data[meta.FLASHES] = a
+        return data
+
     def fill_shooting_info(self, si):
         self.fill_select('#stands', util.stringList('user/stands.txt'), 
                          self.value(si, meta.STAND))
@@ -579,7 +594,7 @@ class FlashControlWindow(HTMLMainWindow):
 
         for i in range(self.cv('flash-groups', 6)):
             fid = f'{meta.FLASHES}/{i}/'
-            gid = self.value(si, fid + meta.ID, chr(ord('A') + i))
+            gid = chr(ord('A') + i)
             c = self.elem('#scroll-container')
             e = c.append(flash_group.format(group_id = gid))
             e.events.click += self.onGroupClicked
@@ -682,9 +697,10 @@ class FlashControlWindow(HTMLMainWindow):
                     self.messageBox(f'File not found: {args.edit[0]}')
                     self.close()
 
+            data = {k: v for k, v in data.items() if k.startswith(meta.PREFIX)}
+            data = self.fillFlashes(data)
+            self.config['shooting-info'] = data
             self.fill_shooting_info(data)
-            self.config['shooting-info'] = \
-                    {k: v for k, v in data.items() if k.startswith(meta.PREFIX)}
 
             self.setVisible('#frames-edit', True)
             self.setVisible('#frames-text', True)
