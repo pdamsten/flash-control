@@ -595,6 +595,8 @@ class FlashControlWindow(HTMLMainWindow):
     def init(self, window):
         super().init(window)
 
+        splash.stop()
+
         self.elem('#shutter-button').events.click += self.onShutterClicked
         self.elem(f'#flash-sound-all').events.click += self.onSoundClicked
         self.setSound(self.cv('Sound', False))
@@ -616,6 +618,7 @@ class FlashControlWindow(HTMLMainWindow):
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange
+        self.window.events.closing += self.on_closing
 
         if not args.edit:
             self.fill_shooting_info(self.cv('shooting-info', {}))
@@ -652,9 +655,16 @@ class FlashControlWindow(HTMLMainWindow):
             if len(args.edit) > 1:
                 if os.path.exists(args.edit[1]):
                     json = util.json(args.edit[1])
+                else:
+                    self.messageBox(f'File not found: {args.edit[1]}')
+                    self.close()
             else:
                 if os.path.exists(args.edit[0]):
                     json = exiftool.read(args.edit[0])
+                else:
+                    self.messageBox(f'File not found: {args.edit[0]}')
+                    self.close()
+
             self.fill_shooting_info(json)
 
             self.setVisible('#frames-edit', True)
@@ -664,12 +674,10 @@ class FlashControlWindow(HTMLMainWindow):
 
         self.activateFirstEnabledGroup()
 
-        self.window.events.closing += self.on_closing
         # self.bring_window_to_front()
         if self.overlay:
             self.overlay.center_((self.config['x'], self.config['y'], 
                                   self.config['width'], self.config['height']))
-        splash.stop()
 
         if (args.debug):
             self.saveDebugHtml()
