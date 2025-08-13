@@ -28,6 +28,7 @@ import os
 import inspect
 import time
 import json
+from threading import Semaphore
 
 import webview
 
@@ -59,6 +60,18 @@ class HTMLMainWindow():
             print('All windows closed, exiting')
             self.writeConfig()
             sys.exit(0)
+
+    def messageBox(self, msg):
+        def _message(msg):
+            self.window.gui.BrowserView.display_confirmation_dialog('Close', None, msg)
+            semaphore.release()
+            
+        if sys.platform.startswith('darwin'):
+            semaphore = Semaphore(0)
+            AppHelper.callAfter(_message, msg)
+            semaphore.acquire()
+        else:
+            self.window.gui.BrowserView.display_confirmation_dialog('Close', None, msg)
 
     def writeConfig(self):
         util.writeJson(CONFIG, self.config)
