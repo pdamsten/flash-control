@@ -27,8 +27,9 @@ import subprocess
 
 import subprocess
 import lib.util as util
+import json
 
-def set(fname, json):
+def write(fname, json):
     cmd = [
         "exiftool",
         "-config", util.path('lib/exiftool-custom-ns.config'),
@@ -43,3 +44,18 @@ def set(fname, json):
     if result.returncode != 0:
         return f"Exiftool failed: {result.stderr.strip()}"
     return None
+
+def read(fname):
+    cmd = [
+        "exiftool",
+        "-config", util.path('lib/exiftool-custom-ns.config'),
+        "-d", "%Y:%m:%d %H:%M:%S",
+        "-G0:1",
+        "-n",
+        "-json",
+        fname
+    ]
+    result = subprocess.run(cmd, capture_output = True, text = True)
+    if result.returncode != 0:
+        return None
+    return json.loads(result.stdout.strip())
