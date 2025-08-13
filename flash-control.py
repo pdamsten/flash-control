@@ -286,7 +286,7 @@ class FlashControlWindow(HTMLMainWindow):
         return res
 
     def normalizePower(self, gid, power):
-        if power.find('/') >= 0:
+        if isinstance(power, str) and power.find('/') >= 0:
             power = self.convertFromFraction(power)
         mode = self.cv(f'save/{gid}/mode', 'M')
         try:
