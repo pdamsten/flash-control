@@ -43,12 +43,6 @@ import lib.exiftool as exiftool
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
 
-nano_conv_table = [
-    ('{group}/SOLO', '!flash-{group}/Disabled'),
-    ('{group}/MUTE', '!flash-{group}/Disabled'),
-    ('{group}/RECORD', '!flash-{group}/Disabled'),
-]
-
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
       <button id="flash-group-{group_id}" tabindex="0" class="flash-group">{group_id}</button>
@@ -331,7 +325,7 @@ class FlashControlWindow(HTMLMainWindow):
         if self.metadata:
             self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
         if self.nano:
-            self.nano.setValues(util.convertDict(self.config, nano_conv_table))
+            self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
     def powerHtml(self, gid, power = None):
         e = self.elem(f'#flash-power-{gid}')
@@ -447,7 +441,7 @@ class FlashControlWindow(HTMLMainWindow):
     def onNanoConnected(self, data):
         self.setPulsing('#nano-button', False)
         self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
-        self.nano.setValues(util.convertDict(self.config, nano_conv_table))
+        self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
     def nano2Power(self, gid, v):
         if self.cv(f'save/{gid}/mode', 'M') == 'M':

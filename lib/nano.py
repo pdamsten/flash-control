@@ -29,6 +29,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame.midi
 from threading import Thread
 from queue import Queue
+import lib.metadata as meta
 
 CC = 176
 KEYDOWN = 127
@@ -156,12 +157,10 @@ class NanoKontrol2Worker(Thread):
         a = []
         t = 0
         for ch in range(ord('A'), ord('H') + 1):
-            ch = chr(ch)
             for btn in ['SOLO', 'MUTE', 'RECORD']:
                 v = 0
-                if ch in values:
-                    v = values[ch][btn] if btn in values[ch] else 0
-                    v = 127 if v else 0
+                if ch < len(values):
+                    v = 127 if values[ch][meta.MODE] == '-' else 0
                 print(ch, btn, self.invertedKeys[ch][btn], v)
                 a.append([[CC, self.invertedKeys[ch][btn], v], t]) 
                 t += 10
