@@ -64,12 +64,18 @@ class HTMLMainWindow():
         util.writeJson(CONFIG, self.config)
 
     def on_resized(self, width, height):
-        self.config['width'] = width
-        self.config['height'] = height
+        self.savePosAndSize()
 
     def on_moved(self, x, y):
-        self.config['x'] = x
-        self.config['y'] = y
+        self.savePosAndSize()
+
+    def savePosAndSize(self):
+        pos = self.window.gui.get_position(self.window.uid)
+        size = self.window.gui.get_size(self.window.uid)
+        self.config['width'] = size[0]
+        self.config['height'] = size[1]
+        self.config['x'] = pos[0]
+        self.config['y'] = pos[1]
 
     def setPulsing(self, elem, pulsing):
         self.setClass(elem, 'pulse', pulsing)
