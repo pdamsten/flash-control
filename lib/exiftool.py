@@ -28,8 +28,16 @@ import subprocess
 import subprocess
 import lib.util as util
 import json
+import tempfile
 
-def write(fname, json):
+def write(fname, data):
+    if isinstance(data, dict):
+        tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = False)
+        print(f"Temp file path: {tmp.name}")
+        tmp.write(json.dumps(data))
+        tmp.close()
+        data = tmp.name
+
     cmd = [
         "exiftool",
         "-config", util.path('lib/exiftool-custom-ns.config'),
@@ -37,7 +45,7 @@ def write(fname, json):
         "-G0:1",
         "-n",
         "-overwrite_original_in_place",
-        f"-json={json}",
+        f"-json={data}",
         fname
     ]
     result = subprocess.run(cmd, capture_output = True, text = True)
