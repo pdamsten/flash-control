@@ -111,6 +111,9 @@ class FlashControlWindow(HTMLMainWindow):
         self.overlay = None
         self.overlayPwr = None
         self.keyhandler = KeyHandler()
+        self.FRACTIONS = [2 ** n for n in range(11)]
+        self.FRACTIONS.reverse()
+
 
         if sys.platform.startswith('darwin'):
             self.overlay = NumberOverlay.alloc().init()
@@ -274,7 +277,29 @@ class FlashControlWindow(HTMLMainWindow):
         with open(util.path('html/debug.html'), 'w') as f:
             f.write(html)
 
+    def convertFromFraction(self, power):
+        if not isinstance(power, str):
+            return power
+        l = power.replace('1/', '').split('+')
+        if len(l) > 1:
+            try:
+                b = float(l[1])
+            except:
+                b = 0.0
+        else:
+            b = 0
+        try:
+            an = int(l[0])
+        except:
+            an = 1
+        a = min(enumerate(self.FRACTIONS), key = lambda x: abs(x[1] - an))[0]
+        res = max(a + b, 0)
+        print('Convert:', power, '=>', res)
+        return res
+
     def normalizePower(self, gid, power):
+        if power.find('/') >= 0:
+            power = self.convertFromFraction(power)
         mode = self.cv(f'save/{gid}/mode', 'M')
         power = float(power)
         power = max(2.0, min(10.0, power)) if mode == 'M' else max(-3.0, min(3.0, power))
@@ -581,13 +606,14 @@ class FlashControlWindow(HTMLMainWindow):
                              self.value(si, fid + meta.GEL))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
-            mode = self.value(si, fid + meta.MODE, '-')
+            default = 'M' if self.value(si, fid + meta.NAME) else '-'
+            mode = self.value(si, fid + meta.MODE, default)
             smode = self.cv(f'save/{gid}/mode', 'M')
             self.setMode(gid, smode if mode == '-' else mode)
 
             e = self.elem(f'#flash-power-{gid}')
             e.events.click += self.onGroupClicked
-            self.powerHtml(gid)
+            self.powerHtml(gid, self.value(si, fid + meta.POWER))
 
             self.elem(f'#flash-{gid} .flash-group').events.click += self.onGroupButtonClicked
             self.setGroupDisabled(gid, mode == '-')
@@ -654,18 +680,18 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             if len(args.edit) > 1:
                 if os.path.exists(args.edit[1]):
-                    json = util.json(args.edit[1])
+                    data = util.json(args.edit[1])
                 else:
                     self.messageBox(f'File not found: {args.edit[1]}')
                     self.close()
             else:
                 if os.path.exists(args.edit[0]):
-                    json = exiftool.read(args.edit[0])
+                    data = exiftool.read(args.edit[0])
                 else:
                     self.messageBox(f'File not found: {args.edit[0]}')
                     self.close()
 
-            self.fill_shooting_info(json)
+            self.fill_shooting_info(data)
 
             self.setVisible('#frames-edit', True)
             self.setVisible('#frames-text', True)
