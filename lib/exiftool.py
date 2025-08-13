@@ -52,6 +52,7 @@ def read(fname):
         "-d", "%Y:%m:%d %H:%M:%S",
         "-G0:1",
         "-n",
+        "-struct",
         "-json",
         fname
     ]
