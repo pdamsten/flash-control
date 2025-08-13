@@ -650,9 +650,11 @@ class FlashControlWindow(HTMLMainWindow):
 
         else:
             if len(args.edit) > 1:
-                json = util.json(args.edit[1])
+                if os.path.exists(args.edit[1]):
+                    json = util.json(args.edit[1])
             else:
-                json = exiftool.read(args.edit[0])
+                if os.path.exists(args.edit[0]):
+                    json = exiftool.read(args.edit[0])
             self.fill_shooting_info(json)
 
             self.setVisible('#frames-edit', True)
