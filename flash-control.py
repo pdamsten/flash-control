@@ -177,7 +177,8 @@ class FlashControlWindow(HTMLMainWindow):
         if self.nano:
             self.nano.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
     
-    def forExiftool(data):
+    def forExiftool(self, data):
+        data = {k: v for k, v in data.items() if v}
         data[meta.FLASHES] = [x for x in data[meta.FLASHES] if x[meta.MODE] != '-']
         return data
     
@@ -288,7 +289,10 @@ class FlashControlWindow(HTMLMainWindow):
         if power.find('/') >= 0:
             power = self.convertFromFraction(power)
         mode = self.cv(f'save/{gid}/mode', 'M')
-        power = float(power)
+        try:
+            power = float(power)
+        except:
+            power = 0.0
         power = max(2.0, min(10.0, power)) if mode == 'M' else max(-3.0, min(3.0, power))
         power = str(round(power, 1))
         if mode == 'TTL' and power[0] != '-':
@@ -522,7 +526,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setVisible('#nano-close', False)
 
     def onOkPressed(self, e):
-        # TODO save metadata
+        exiftool.write(args.edit[0], self.forExiftool(self.config['shooting-info']))
         self.close()
 
     def onCancelPressed(self, e):
@@ -679,6 +683,8 @@ class FlashControlWindow(HTMLMainWindow):
                     self.close()
 
             self.fill_shooting_info(data)
+            self.config['shooting-info'] = \
+                    {k: v for k, v in data.items() if k.startswith(meta.PREFIX)}
 
             self.setVisible('#frames-edit', True)
             self.setVisible('#frames-text', True)
