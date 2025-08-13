@@ -43,13 +43,6 @@ import lib.exiftool as exiftool
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
 
-godox_conv_table = [
-    ('{index}/power', 'flash-{group}/CurrentPower'),
-    ('{index}/mode', 'flash-{group}/Mode'),
-    ('{index}/disabled', 'flash-{group}/Disabled'),
-    ('{index}/group', '#{group}'),
-]
-
 nano_conv_table = [
     ('{group}/SOLO', '!flash-{group}/Disabled'),
     ('{group}/MUTE', '!flash-{group}/Disabled'),
@@ -334,7 +327,7 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setFlashValues(self):
         if self.godox:
-            self.godox.setValues(util.convertDict(self.config, godox_conv_table))
+            self.godox.setValues(self.config['shooting-info'][meta.FLASHES])
         if self.metadata:
             self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
         if self.nano:
@@ -439,7 +432,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setPulsing('#flash-button', False)
         self.elem('#flash-popup .message').text = f'Connected to: {data}'
         self.setSoundAndLight()
-        self.godox.setValues(util.convertDict(self.config, godox_conv_table))
+        self.godox.setValues(self.config['shooting-info'][meta.FLASHES])
 
     def onGodoxConfig(self, data):
         self.config['godox'] = data

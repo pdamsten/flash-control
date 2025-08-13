@@ -30,6 +30,7 @@ from crccheck.crc import Crc8Maxim
 from threading import Thread
 from queue import Queue
 import asyncio
+import lib.metadata as meta
 
 class Godox:
     def __init__(self):
@@ -218,11 +219,9 @@ class GodoxWorker(Thread):
             return True
         
         for i, v in enumerate(values):
-            if not eq('power', i, self.pastValues, values) or \
-               not eq('mode', i, self.pastValues, values) or \
-               not eq('disabled', i, self.pastValues, values):
-                m = '-' if v['disabled'] else 'M' if v['mode'] == 'M' else 'T'
-                await self.setPower(v['group'], m, v['power'])
+            if not eq(meta.POWER, i, self.pastValues, values) or \
+               not eq(meta.MODE, i, self.pastValues, values):
+                await self.setPower(v[meta.ID], v[meta.MODE][0], v[meta.POWER])
         self.pastValues = values
 
     async def setBeepAndLight(self, beep = True, light = True):
