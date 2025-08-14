@@ -24,12 +24,14 @@
 #**************************************************************************
 
 from os import environ
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-
-import pygame.midi
 from threading import Thread
 from queue import Queue
+
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+import pygame.midi
+
 import lib.metadata as meta
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
 
 CC = 176
 KEYDOWN = 127
@@ -114,7 +116,7 @@ class NanoKontrol2:
         self.fromWorkerQueue.put(('quit', None))
         self.poller.join()
 
-        #print('* NanoKontrol2::close')
+        DEBUG('stopping...')
         self.sendMsg('stop')
         if self.worker:
             self.worker.join()
@@ -131,7 +133,7 @@ class NanoKontrol2:
             if cmd in self.callbacks:
                 self.callbacks[cmd](data)
             if cmd == 'quit':
-                #print('* NanoKontrol2::poll quit')
+                DEBUG('poll quit')
                 return
 
 
@@ -171,7 +173,7 @@ class NanoKontrol2Worker(Thread):
             info = pygame.midi.get_device_info(i)
             (_, name, input_dev, output_dev, _) = info
             name = name.decode()
-            #print(f"{i}: {name} (input={bool(input_dev)}, output={bool(output_dev)})")
+            DEBUG(f"{i}: {name} (input={bool(input_dev)}, output={bool(output_dev)})")
             if "nanoKONTROL2" in name and bool(input_dev):
                 self.input_id = i
             if "nanoKONTROL2" in name and bool(output_dev):
@@ -233,7 +235,7 @@ class NanoKontrol2Worker(Thread):
             try:
                 cmd = 'pass'
                 cmd, data = self.inQueue.get(block = False, timeout = 0.1)
-                #print('- NanoKontrol2Worker::loop', cmd, '/', data)
+                DEBUG(f'Command: {cmd} / {data}')
             except:
                 if self.input_id >= 0:
                     if not pygame.midi.get_init():
@@ -250,24 +252,20 @@ class NanoKontrol2Worker(Thread):
                                 self.sendMsg('event', (KEYS[data[1]], data[2]))
 
             if cmd == 'connect':
-                #print('NanoKontrol2Worker::connect')
                 self.directCallback = data
                 self.connect()
                 self.resetLights()
             elif cmd == 'stop':
                 self.stop()
-                #print('- NanoKontrol2Worker::stop')
                 return
             elif cmd == 'setValues':
-                #print('- NanoKontrol2Worker::setValues', data)
                 self.setValues(data)
             elif cmd == 'setBeepAndLight':
-                #print('- NanoKontrol2Worker::setBeepAndLight', data)
                 self.setBeepAndLight(data[0], data[1])
             elif cmd == 'pass':
                 pass
             else:
-                print('- unknown command', cmd)
+                ERROR('Unknown command', cmd)
 
     def run(self):
         self.invertedKeys = {}

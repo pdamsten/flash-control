@@ -27,12 +27,12 @@ import sys
 import os
 import inspect
 import time
-import json
 from threading import Semaphore
 
 import webview
 
 import lib.util as util
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
 
 CONFIG = 'user/config.json'
 
@@ -41,7 +41,7 @@ try:
         import AppKit
         from PyObjCTools import AppHelper
 except ImportError:
-    print('You must have PyObjC to run this on macos')
+    EXCEPTION('You must have PyObjC to run this on macos')
     sys.exit(1)
 
 class HTMLMainWindow():
@@ -52,12 +52,12 @@ class HTMLMainWindow():
         self.close()
 
     def close(self):
-        print('Window closed')
+        DEBUG('Window closed')
         self.window.events.closing -= self.on_closing
         HTMLMainWindow.instances.remove(self)
         self.window.destroy()
         if not HTMLMainWindow.instances:
-            print('All windows closed, exiting')
+            INFO('All windows closed, exiting')
             self.writeConfig()
             sys.exit(0)
 
@@ -112,7 +112,7 @@ class HTMLMainWindow():
             elem.classes.append(cname) if value else elem.classes.remove(cname)
 
     def innerHTML(self, elemid, htmlstring):
-        print(f'innerHTML({elemid}, {htmlstring})')
+        DEBUG(f'innerHTML({elemid}, {htmlstring})')
         htmlstring = htmlstring.replace('\n', '\\n').replace('"', '\\"')
         js = f'document.getElementById("{elemid}").innerHTML = "{htmlstring}";'
         self.window.evaluate_js(js)
@@ -141,7 +141,6 @@ class HTMLMainWindow():
                 return None
         else:
              key = search
-        #print(f'elem({key})')
         if not key in self.elements:
             if e := self.window.dom.get_elements(key):
                 self.elements[key] = e[0]
@@ -150,10 +149,8 @@ class HTMLMainWindow():
         return self.elements[key]
 
     def value(self, d, key, default = None):
-        #print('*1', key, default)
         keys = key.split('/')
         for i, k in enumerate(keys[:-1]):
-            #print('*2', k, d, default)
             if k.isdigit():
                 k = int(k)
                 if len(d) <= k:
@@ -167,7 +164,6 @@ class HTMLMainWindow():
             d = d[k]
         if keys[-1] not in d:
             d[keys[-1]] = default
-        #print('*3', d[keys[-1]], keys[-1])
         return d[keys[-1]]
 
     def cv(self, key, default = None):
@@ -180,7 +176,7 @@ class HTMLMainWindow():
         self.css = css
         self.config = util.json(CONFIG)
         self.elements = {}
-        print (f'Config: {json.dumps(self.config, sort_keys = True, indent = 4)}')
+        DEBUG(self.config)
         hpath = html if util.isPath(html) else None
         html = html if not util.isPath(html) else None
         time.sleep(0.1)

@@ -40,6 +40,9 @@ def path(filename = ''):
         return filename
     return MAIN_PATH + '/' + filename
 
+# needs that path func initialized
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
+
 def writeJson(fname, json_data):
     with open(path(fname), 'w') as f:
         lib_json.dump(json_data, f, indent = 4)
@@ -59,5 +62,5 @@ def stringList(filename):
         with open(path(filename), 'r') as f:
             data = f.read().strip().splitlines()
     except Exception as e:
-        print(f"Error reading file {filename}: {str(e)}")
+        print(f"Error reading file {filename}")
     return data

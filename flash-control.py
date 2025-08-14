@@ -39,6 +39,7 @@ from lib.metadata import RAWWatcher
 import lib.metadata as meta
 import lib.splash as splash
 import lib.exiftool as exiftool
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
 
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
@@ -120,18 +121,18 @@ class FlashControlWindow(HTMLMainWindow):
         super().on_closing()
 
     def close(self):
-        print('Flash Window closed')
+        INFO('Flash Window closed')
         self.window.events.closing -= self.on_closing
         if self.godox:
-            print('Stopping godox')
+            DEBUG('Stopping godox')
             self.godox.stop()
         if self.nano:
-            print('Stopping nano')
+            DEBUG('Stopping nano')
             self.nano.stop()
         if self.metadata:
-            print('Stopping metadata')
+            DEBUG('Stopping metadata')
             self.metadata.stop()
-        print('Stopping super')
+        DEBUG('Stopping super')
         super().close()
 
     def on_resized(self, width, height):
@@ -282,7 +283,7 @@ class FlashControlWindow(HTMLMainWindow):
             an = 1
         a = min(enumerate(self.FRACTIONS), key = lambda x: abs(x[1] - an))[0]
         res = max(a + b, 0)
-        print('Convert:', power, '=>', res)
+        DEBUG(f'Convert: {power} => {res}')
         return res
 
     def normalizePower(self, gid, power):
@@ -311,7 +312,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.overlay.setValue_(self.overlayPwr)
 
     def setPower(self, group_id, power):
-        print('setPower', group_id, power)
+        DEBUG(f'{group_id} = {power}')
         if self.overlay:
             self.overlay.hide()
             self.overlayPwr = None
@@ -343,7 +344,7 @@ class FlashControlWindow(HTMLMainWindow):
         e.children[1].text = s
 
     def onKeyPress(self, key):
-        print('Key pressed', key, chr(key))
+        DEBUG(f'Key pressed {key} ({chr(key) if key >= 32 else ' '})')
         manual = (self.cv(f'save/{self.activeGroup}/mode', 'M') == 'M')
         if key >= ord('0') and key <= ord('9'):
             n = key - 48
@@ -466,7 +467,7 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             cmd = data[0]
         v = data[1]
-        print('onNanoEvent', gid, cmd, v)
+        DEBUG(f'Event {gid} {cmd} {v}')
         if cmd == 'SLIDER' or cmd == 'KNOB':
             if self.activeGroup != gid:
                 self.activateGroup(gid)
@@ -490,8 +491,7 @@ class FlashControlWindow(HTMLMainWindow):
 
     def onShowConfig(self, e):
         cfg = util.path('user/config.json')
-        print(cfg)
-        print(subprocess.Popen(['open', cfg]))
+        DEBUG(cfg)
 
     def onMetadataMsg(self, msg):
         self.elem('#metadata-popup .message').append = f'<span>{msg[0]}</span><br'
@@ -542,13 +542,12 @@ class FlashControlWindow(HTMLMainWindow):
                 n = max(round(e['wheelDelta'] / 5000.0, 1), 0.1)
             if not self.overlayPwr:
                 self.overlayPwr = self.pwr(gid)
-            print(float(self.overlayPwr), n, float(self.overlayPwr) + n)
             n = float(self.overlayPwr) + n
             self.setPowerFast(gid, n)
 
     def bring_window_to_front(self):
         if platform.system() == 'Darwin':
-            print(subprocess.run([
+            DEBUG(subprocess.run([
                 'osascript', '-e',
                 f'tell application "System Events" to set frontmost of the first process whose unix id is {os.getpid()} to true'
             ]))
@@ -686,14 +685,14 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             if len(args.edit) > 1:
                 if os.path.exists(args.edit[1]):
-                    print('Using json:', args.edit[1])
+                    DEBUG(f'Using json: {args.edit[1]}')
                     data = util.json(args.edit[1])
                 else:
                     self.messageBox(f'File not found: {args.edit[1]}')
                     self.close()
             else:
                 if os.path.exists(args.edit[0]):
-                    print('Using image:', args.edit[0])
+                    DEBUG(f'Using image: {args.edit[0]}')
                     data = exiftool.read(args.edit[0])
                 else:
                     self.messageBox(f'File not found: {args.edit[0]}')

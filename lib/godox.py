@@ -23,15 +23,18 @@
 #
 #**************************************************************************
 
-from bleak import BleakScanner
-from bleak import BleakClient
-import PyObjCTools
-from crccheck.crc import Crc8Maxim
 from threading import Thread
 from queue import Queue
 import asyncio
 from copy import deepcopy
+
+from bleak import BleakScanner
+from bleak import BleakClient
+import PyObjCTools
+from crccheck.crc import Crc8Maxim
+
 import lib.metadata as meta
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
 
 class Godox:
     def __init__(self):
@@ -62,7 +65,7 @@ class Godox:
         self.fromWorkerQueue.put(('quit', None))
         self.poller.join()
 
-        print('* Godox::close')
+        INFO('Godox::close')
         self.sendMsg('stop')
         if self.worker:
             self.worker.join()
@@ -75,12 +78,11 @@ class Godox:
     def poll(self):
         while True:
             cmd, data = self.fromWorkerQueue.get()
-            #print('* poll', cmd, data)
 
             if cmd in self.callbacks:
                 self.callbacks[cmd](data)
             if cmd == 'quit':
-                print('* Godox::poll quit')
+                DEBUG('Godox::poll quit')
                 return
 
 
@@ -98,7 +100,6 @@ class GodoxWorker(Thread):
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
-            #print('- out', cmd, data)
             self.outQueue.put((cmd, data))
 
     @staticmethod
@@ -123,7 +124,6 @@ class GodoxWorker(Thread):
             res = max(a * 10 - b, 0)
         else:
             res = int(round((10.0 - float(s)) * 10))
-        #print(' =>', s, '=', res)
         return res
             
     @staticmethod
@@ -136,32 +136,30 @@ class GodoxWorker(Thread):
         return res
     
     async def scan(self):
-        print('scanning...')
+        INFO('scanning...')
         name = None
         try:
             devices = await BleakScanner.discover()
         except Exception as e:
-            print(str(e))
+            EXCEPTION('Scanning Failed.')
             self.sendMsg('failed', str(e))
             return False
         godox = None
         for device in devices:
             name = str(PyObjCTools.KeyValueCoding.getKey(device.details, 'name')[0])
             if name.startswith('GDBH'):
-                print('- Godox found:', name)
+                INFO(f'Godox found: {name}')
                 godox = device
                 break
         uuid = None
         if godox:
             address = str(PyObjCTools.KeyValueCoding.getKey(godox.details, 'identifier')[0])
-            print('- Godox address:', address)
+            DEBUG(f'Godox address: {address}')
             async with BleakClient(address) as client:
                 for service in client.services:
                     pre = '**' if service.description.startswith('KDDI') else ' ' * 2
-                    #print(pre, service.description, service.handle)
                     for ch in service.characteristics:
                         pre = '  **' if ch.uuid.startswith('0000fec7') else ' ' * 4
-                        #print(pre, ch.handle, ch.uuid)
                         if pre.strip() != '':
                             uuid = ch.uuid
         if uuid:
@@ -172,7 +170,7 @@ class GodoxWorker(Thread):
             self.sendMsg('config', self.config)
             return True
         else:
-            print('- GodoxWorker::scan failed', self.config)
+            ERROR(f'GodoxWorker::scan failed {self.config}')
             self.sendMsg('failed', self.config['name'] if name and name in self.config else None)
             return False
 
@@ -180,13 +178,12 @@ class GodoxWorker(Thread):
         tries = 0
         while tries < 2:
             if self.client and self.client.is_connected:
-                print('already connected')
+                INFO('already connected')
                 return True
 
             if 'address' in self.config:
                 if not self.client:
                     self.client = BleakClient(self.config['address'])
-                    print('new client')
                 try:
                     await self.client.connect()
                     self.sendMsg('connected', self.config['name'])
@@ -244,39 +241,33 @@ class GodoxWorker(Thread):
 
     async def sendCommand(self, command):
         if self.client and self.client.is_connected:
-            #print(self.config['uuid'], ''.join('{:02x}'.format(x) for x in command))
             await self.client.write_gatt_char(self.config['uuid'], command)
 
     async def stop(self):
         if self.client:
             if self.client.is_connected:
-                print('disconnect bt')
+                INFO('disconnect bt')
                 await self.client.disconnect()
 
     async def loop(self):
         while True:
             cmd, data = self.inQueue.get()
-            #print('- GodoxWorker::loop', cmd, '/', data)
+            DEBUG(f'Command: {cmd} / {data}')
 
             if cmd == 'connect':
-                #print('GodoxWorker::connect')
                 self.config = data
                 await self.connect()
             elif cmd == 'stop':
                 await self.stop()
-                #print('- GodoxWorker::quit')
                 return
             elif cmd == 'setValues':
-                #print('- GodoxWorker::setValues', data)
                 await self.setValues(data)
             elif cmd == 'setBeepAndLight':
-                #print('- GodoxWorker::setBeepAndLight', data)
                 await self.setBeepAndLight(data[0], data[1])
             elif cmd == 'test':
-                #print('- GodoxWorker::test')
                 await self.test()
             else:
-                print('- unknown command', cmd)
+                ERROR('unknown command', cmd)
 
     def run(self):
         loop = asyncio.new_event_loop()

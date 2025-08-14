@@ -27,11 +27,12 @@ import subprocess
 import lib.util as util
 import json
 import tempfile
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
 
 def write(fname, data):
     if isinstance(data, dict):
         tmp = tempfile.NamedTemporaryFile(mode = 'w', delete = False)
-        print(f"Temp file path: {tmp.name}")
+        DEBUG(f"Temp file path: {tmp.name}")
         tmp.write(json.dumps(data))
         tmp.close()
         data = tmp.name
@@ -69,6 +70,6 @@ def read(fname):
         data = json.loads(result.stdout.strip())[0]
         return data
     except Exception as e:
-        print(f"Error parsing JSON: {e}")
+        EXCEPTION("Error parsing JSON.")
         return None
 
