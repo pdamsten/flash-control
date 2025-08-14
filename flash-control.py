@@ -686,12 +686,14 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             if len(args.edit) > 1:
                 if os.path.exists(args.edit[1]):
+                    print('Using json:', args.edit[1])
                     data = util.json(args.edit[1])
                 else:
                     self.messageBox(f'File not found: {args.edit[1]}')
                     self.close()
             else:
                 if os.path.exists(args.edit[0]):
+                    print('Using image:', args.edit[0])
                     data = exiftool.read(args.edit[0])
                 else:
                     self.messageBox(f'File not found: {args.edit[0]}')
