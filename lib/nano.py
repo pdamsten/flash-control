@@ -156,13 +156,16 @@ class NanoKontrol2Worker(Thread):
     def setValues(self, values):
         a = []
         t = 0
-        for ch in range(ord('A'), ord('H') + 1):
+        for ch in range(8):
             for btn in ['SOLO', 'MUTE', 'RECORD']:
                 v = 0
                 if ch < len(values):
-                    v = 127 if values[ch][meta.MODE] == '-' else 0
-                print(ch, btn, self.invertedKeys[ch][btn], v)
-                a.append([[CC, self.invertedKeys[ch][btn], v], t]) 
+                    v = 127 if values[ch][meta.MODE] != '-' else 0
+                if ch in values:
+                    gid = values[ch][meta.ID]
+                else:
+                    gid = chr(ord('A') + ch)
+                a.append([[CC, self.invertedKeys[gid][btn], v], t]) 
                 t += 10
         self.setLights(a) 
 
