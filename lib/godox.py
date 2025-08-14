@@ -30,6 +30,7 @@ from crccheck.crc import Crc8Maxim
 from threading import Thread
 from queue import Queue
 import asyncio
+from copy import deepcopy
 import lib.metadata as meta
 
 class Godox:
@@ -60,7 +61,6 @@ class Godox:
     def stop(self):
         self.fromWorkerQueue.put(('quit', None))
         self.poller.join()
-        print('* joined')
 
         print('* Godox::close')
         self.sendMsg('stop')
@@ -75,7 +75,7 @@ class Godox:
     def poll(self):
         while True:
             cmd, data = self.fromWorkerQueue.get()
-            print('* poll', cmd, data)
+            #print('* poll', cmd, data)
 
             if cmd in self.callbacks:
                 self.callbacks[cmd](data)
@@ -98,7 +98,7 @@ class GodoxWorker(Thread):
     
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
-            print('- out', cmd, data)
+            #print('- out', cmd, data)
             self.outQueue.put((cmd, data))
 
     @staticmethod
@@ -123,7 +123,7 @@ class GodoxWorker(Thread):
             res = max(a * 10 - b, 0)
         else:
             res = int(round((10.0 - float(s)) * 10))
-        print(' =>', s, '=', res)
+        #print(' =>', s, '=', res)
         return res
             
     @staticmethod
@@ -141,6 +141,7 @@ class GodoxWorker(Thread):
         try:
             devices = await BleakScanner.discover()
         except Exception as e:
+            print(str(e))
             self.sendMsg('failed', str(e))
             return False
         godox = None
@@ -157,10 +158,10 @@ class GodoxWorker(Thread):
             async with BleakClient(address) as client:
                 for service in client.services:
                     pre = '**' if service.description.startswith('KDDI') else ' ' * 2
-                    print(pre, service.description, service.handle)
+                    #print(pre, service.description, service.handle)
                     for ch in service.characteristics:
                         pre = '  **' if ch.uuid.startswith('0000fec7') else ' ' * 4
-                        print(pre, ch.handle, ch.uuid)
+                        #print(pre, ch.handle, ch.uuid)
                         if pre.strip() != '':
                             uuid = ch.uuid
         if uuid:
@@ -222,7 +223,7 @@ class GodoxWorker(Thread):
             if not eq(meta.POWER, i, self.pastValues, values) or \
                not eq(meta.MODE, i, self.pastValues, values):
                 await self.setPower(v[meta.ID], v[meta.MODE][0], v[meta.POWER])
-        self.pastValues = values
+        self.pastValues = deepcopy(values)
 
     async def setBeepAndLight(self, beep = True, light = True):
         cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
@@ -255,24 +256,24 @@ class GodoxWorker(Thread):
     async def loop(self):
         while True:
             cmd, data = self.inQueue.get()
-            print('- GodoxWorker::loop', cmd, '/', data)
+            #print('- GodoxWorker::loop', cmd, '/', data)
 
             if cmd == 'connect':
-                print('GodoxWorker::connect')
+                #print('GodoxWorker::connect')
                 self.config = data
                 await self.connect()
             elif cmd == 'stop':
                 await self.stop()
-                print('- GodoxWorker::quit')
+                #print('- GodoxWorker::quit')
                 return
             elif cmd == 'setValues':
-                print('- GodoxWorker::setValues', data)
+                #print('- GodoxWorker::setValues', data)
                 await self.setValues(data)
             elif cmd == 'setBeepAndLight':
-                print('- GodoxWorker::setBeepAndLight', data)
+                #print('- GodoxWorker::setBeepAndLight', data)
                 await self.setBeepAndLight(data[0], data[1])
             elif cmd == 'test':
-                print('- GodoxWorker::test')
+                #print('- GodoxWorker::test')
                 await self.test()
             else:
                 print('- unknown command', cmd)
