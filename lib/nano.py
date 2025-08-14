@@ -113,9 +113,8 @@ class NanoKontrol2:
     def stop(self):
         self.fromWorkerQueue.put(('quit', None))
         self.poller.join()
-        print('* joined')
 
-        print('* NanoKontrol2::close')
+        #print('* NanoKontrol2::close')
         self.sendMsg('stop')
         if self.worker:
             self.worker.join()
@@ -132,7 +131,7 @@ class NanoKontrol2:
             if cmd in self.callbacks:
                 self.callbacks[cmd](data)
             if cmd == 'quit':
-                print('* NanoKontrol2::poll quit')
+                #print('* NanoKontrol2::poll quit')
                 return
 
 
@@ -176,7 +175,7 @@ class NanoKontrol2Worker(Thread):
             info = pygame.midi.get_device_info(i)
             (_, name, input_dev, output_dev, _) = info
             name = name.decode()
-            print(f"{i}: {name} (input={bool(input_dev)}, output={bool(output_dev)})")
+            #print(f"{i}: {name} (input={bool(input_dev)}, output={bool(output_dev)})")
             if "nanoKONTROL2" in name and bool(input_dev):
                 self.input_id = i
             if "nanoKONTROL2" in name and bool(output_dev):
@@ -238,7 +237,7 @@ class NanoKontrol2Worker(Thread):
             try:
                 cmd = 'pass'
                 cmd, data = self.inQueue.get(block = False, timeout = 0.1)
-                print('- NanoKontrol2Worker::loop', cmd, '/', data)
+                #print('- NanoKontrol2Worker::loop', cmd, '/', data)
             except:
                 if self.input_id >= 0:
                     if not pygame.midi.get_init():
@@ -255,19 +254,19 @@ class NanoKontrol2Worker(Thread):
                                 self.sendMsg('event', (KEYS[data[1]], data[2]))
 
             if cmd == 'connect':
-                print('NanoKontrol2Worker::connect')
+                #print('NanoKontrol2Worker::connect')
                 self.directCallback = data
                 self.connect()
                 self.resetLights()
             elif cmd == 'stop':
                 self.stop()
-                print('- NanoKontrol2Worker::stop')
+                #print('- NanoKontrol2Worker::stop')
                 return
             elif cmd == 'setValues':
-                print('- NanoKontrol2Worker::setValues', data)
+                #print('- NanoKontrol2Worker::setValues', data)
                 self.setValues(data)
             elif cmd == 'setBeepAndLight':
-                print('- NanoKontrol2Worker::setBeepAndLight', data)
+                #print('- NanoKontrol2Worker::setBeepAndLight', data)
                 self.setBeepAndLight(data[0], data[1])
             elif cmd == 'pass':
                 pass
