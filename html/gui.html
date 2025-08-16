@@ -7,35 +7,39 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <a href="#" id="close-all-popups" class="close-popup hidden"></a>
+  <div id="meta-popup" class="popup hidden">
+    <span class="message">Empty</span><br/><br/>
+  </div>
+
+  <div id="flash-popup" class="popup hidden">
+    <span class="message">Connecting...</span><br/><br/>
+    <button id="try-trigger-button" class="hidden">Try Again...</button>
+  </div>
+
+  <div id="nano-popup" class="popup hidden">
+    <span class="message">Connecting...</span><br/><br/>
+    <button id="try-nano-button" class="hidden">Try Again...</button>
+  </div>
+
+  <div id="skull-popup" class="popup hidden">
+    <img src="svg/skull.svg" width="50rem"><br><br>
+    <span id="skull-text" class="message"></span><br/><br/>
+    <button id="skull-close-button">Close</button>
+  </div>
+
   <div class="top-bar">
     <div class="icon-bar">
       <a href="#meta-popup" id="meta-button" class="hidden mini-button disabled">
         <img src="svg/metadata.svg">
       </a>
-      <div id="meta-popup" class="popup hidden">
-        <span class="message">Empty</span><br/><br/>
-      </div>
-      <a href="#" id="meta-close" class="close-popup hidden"></a>
-
       <a href="#flash-popup" id="flash-button" class="hidden mini-button pulse">
         <img src="svg/flash.svg">
       </a>
-      <div id="flash-popup" class="popup hidden">
-        <span class="message">Connecting...</span><br/><br/>
-        <button id="try-trigger-button" class="hidden">Try Again...</button>
-      </div>
-      <a href="#" id="flash-close" class="close-popup hidden"></a>
-
       <a href="#nano-popup" id="nano-button" class="hidden mini-button pulse">
         <img src="svg/nano.svg">
       </a>
-      <div id="nano-popup" class="popup hidden">
-        <span class="message">Connecting...</span><br/><br/>
-        <button id="try-nano-button" class="hidden">Try Again...</button>
-      </div>
-      <a href="#" id="nano-close" class="close-popup hidden"></a>
-
-      <a href="#" id="skull-button" class="mini-button"><img src="svg/skull.svg"></a>
+      <a href="#skull-popup" id="skull-button" class="mini-button"><img src="svg/skull.svg"></a>
     </div>
     <div class="info-bar">
       <select id="stands" data-key="stand"></select>
