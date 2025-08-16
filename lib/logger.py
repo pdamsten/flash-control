@@ -70,9 +70,7 @@ def pp(s):
     return str(s)
 
 def format_msg(msg, *args):
-    msg = pp(msg)
-    msg += ' ' + ' '.join([pp(x) for x in args])
-    return msg
+    return ' '.join([pp(msg)] + [pp(x) for x in args])
 
 def INFO(msg, *args, **kwargs):
     kwargs.setdefault("stacklevel", 2)
