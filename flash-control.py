@@ -736,7 +736,8 @@ def main():
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', type = int, default = None, help = 'Debug level')
+    parser.add_argument('-d', '--debug', type = int, default = None, 
+        help = 'Debug level eg. 5 = debug level 5 to console, 1005 debug file level to log file.')
     parser.add_argument('-e', '--edit', nargs = '+', help = 'Edit metadata in file')
     args = parser.parse_args()    
     main()

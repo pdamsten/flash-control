@@ -181,8 +181,8 @@ class HTMLMainWindow():
 
         debug_level = debug_level if debug_level else self.cv('DEBUG', 0)
         if debug_level > 0:
-            print('Logging level:', debug_level)
-            logger.setParams(False, debug_level)
+            print('Logging level:', debug_level % 1000)
+            logger.setParams((debug_level > 1000), debug_level % 1000)
         else:
             logger.setParams(True, logging.INFO)
 
