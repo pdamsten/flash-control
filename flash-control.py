@@ -107,14 +107,14 @@ class FlashControlWindow(HTMLMainWindow):
         if sys.platform.startswith('darwin'):
             self.overlay = NumberOverlay.alloc().init()
 
-        info = {
+        self.info = {
             'name': 'Flash Control',
             'bundle_version': 'X',
             'version': '0.1',
             'icon': util.path('app-icon.icns'),
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
-        self.setMacOsTitle(info)
+        self.setMacOsTitle(self.info)
         super().__init__(title, html, css, self.keyhandler)
 
     def on_closing(self):
@@ -501,30 +501,29 @@ class FlashControlWindow(HTMLMainWindow):
 
     def onShowFlashPopup(self, e):
         self.setVisible('#flash-popup', True)
-        self.setVisible('#flash-close', True)
+        self.setVisible('#close-all-popups', True)
         self.setNotification('#flash-button', False)
-
-    def onCloseFlashPopup(self, e):
-        self.setVisible('#flash-popup', False)
-        self.setVisible('#flash-close', False)
 
     def onShowMetaPopup(self, e):
         self.setVisible('#meta-popup', True)
-        self.setVisible('#meta-close', True)
+        self.setVisible('#close-all-popups', True)
         self.setNotification('#meta-button', False)
-
-    def onCloseMetaPopup(self, e):
-        self.setVisible('#meta-popup', False)
-        self.setVisible('#meta-close', False)
 
     def onShowNanoPopup(self, e):
         self.setVisible('#nano-popup', True)
-        self.setVisible('#nano-close', True)
+        self.setVisible('#close-all-popups', True)
         self.setNotification('#nano-button', False)
 
-    def onCloseNanoPopup(self, e):
+    def onShowSkullPopup(self, e):
+        self.setVisible('#skull-popup', True)
+        self.setVisible('#close-all-popups', True)
+
+    def onCloseAllPopups(self, e):
+        self.setVisible('#flash-popup', False)
+        self.setVisible('#meta-popup', False)
         self.setVisible('#nano-popup', False)
-        self.setVisible('#nano-close', False)
+        self.setVisible('#skull-popup', False)
+        self.setVisible('#close-all-popups', False)
 
     def onOkPressed(self, e):
         exiftool.write(args.edit[0], self.forExiftool(self.config['shooting-info']))
@@ -641,12 +640,17 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#flash-button').events.click += self.onShowFlashPopup
         self.elem('#meta-button').events.click += self.onShowMetaPopup
         self.elem('#nano-button').events.click += self.onShowNanoPopup
-        self.elem('#flash-close').events.click += self.onCloseFlashPopup
-        self.elem('#meta-close').events.click += self.onCloseMetaPopup
-        self.elem('#nano-close').events.click += self.onCloseNanoPopup
+        self.elem('#skull-button').events.click += self.onShowSkullPopup
+        self.elem('#skull-close-button').events.click +=self.onCloseAllPopups
+        self.elem('#close-all-popups').events.click += self.onCloseAllPopups
 
         self.elem('#ok-button').events.click += self.onOkPressed
         self.elem('#cancel-button').events.click += self.onCancelPressed
+
+        txt = f'<span>{self.info["name"]} {self.info["version"]}<br>{self.info["copyright"]}</span>'
+        txt = txt.replace('\nhttps://petridamsten.com', 
+            '<br><a target="_blank" href="https://petridamsten.com">https://petridamsten.com</a>')
+        self.elem('#skull-text').append(txt)
 
         for e in window.dom.get_elements('select'):
             e.events.change += self.onSelectChange
