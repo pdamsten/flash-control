@@ -692,6 +692,8 @@ class FlashControlWindow(HTMLMainWindow):
                 if os.path.exists(args.edit[1]):
                     DEBUG(f'Using json: {args.edit[1]}')
                     data = util.json(args.edit[1])
+                    self.elem('#icon-bar-text').text = \
+                            f'{os.path.basename(args.edit[0])} / {os.path.basename(args.edit[1])}' 
                 else:
                     self.messageBox(f'File not found: {args.edit[1]}')
                     self.close()
@@ -699,6 +701,7 @@ class FlashControlWindow(HTMLMainWindow):
                 if os.path.exists(args.edit[0]):
                     DEBUG(f'Using image: {args.edit[0]}')
                     data = exiftool.read(args.edit[0])
+                    self.elem('#icon-bar-text').text = f'{os.path.basename(args.edit[0])}' 
                 else:
                     self.messageBox(f'File not found: {args.edit[0]}')
                     self.close()
