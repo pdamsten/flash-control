@@ -65,7 +65,7 @@ def setParams(fileOutput = False, level = logging.DEBUG):
     setHandler()
 
 def pp(s):
-    if isinstance(s, dict):
+    if isinstance(s, dict) or isinstance(s, list):
         return '\n' + json.dumps(s, sort_keys = True, indent = 4)
     return str(s)
 
