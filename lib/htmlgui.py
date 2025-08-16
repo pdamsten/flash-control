@@ -28,11 +28,13 @@ import os
 import inspect
 import time
 from threading import Semaphore
+import logging
 
 import webview
 
 import lib.util as util
-from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
+import lib.logger as logger
 
 CONFIG = 'user/config.json'
 
@@ -176,7 +178,14 @@ class HTMLMainWindow():
         self.css = css
         self.config = util.json(CONFIG)
         self.elements = {}
-        DEBUG(self.config)
+
+        if (level := self.cv('DEBUG', 0)) > 0:
+            print('Logging level:', level)
+            logger.setParams(False, level)
+        else:
+            logger.setParams(True, logging.INFO)
+
+        VERBOSE(self.config)
         hpath = html if util.isPath(html) else None
         html = html if not util.isPath(html) else None
         time.sleep(0.1)

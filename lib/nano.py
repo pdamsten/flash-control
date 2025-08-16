@@ -31,7 +31,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame.midi
 
 import lib.metadata as meta
-from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
 
 CC = 176
 KEYDOWN = 127
@@ -235,7 +235,7 @@ class NanoKontrol2Worker(Thread):
             try:
                 cmd = 'pass'
                 cmd, data = self.inQueue.get(block = False, timeout = 0.1)
-                DEBUG(f'Command: {cmd} / {data}')
+                VERBOSE(f'Command: {cmd}', data)
             except:
                 if self.input_id >= 0:
                     if not pygame.midi.get_init():

@@ -34,6 +34,17 @@ FORMAT = '%(asctime)s.%(msecs)03d %(levelname)s %(module)s::%(funcName)s - %(mes
 DATETIME = '%Y-%m-%d %H:%M:%S'
 _level = logging.DEBUG
 _file_output = False
+VERBOSE_LEVEL = logging.DEBUG - 5
+
+logging.addLevelName(VERBOSE_LEVEL, "VERBOSE")
+logger = logging.getLogger(__name__)
+logger.setLevel(VERBOSE_LEVEL)
+
+def verbose(self, message, *args, **kwargs):
+    if self.isEnabledFor(VERBOSE_LEVEL):
+        self._log(VERBOSE_LEVEL, message, args, **kwargs)
+
+logging.Logger.verbose = verbose
     
 def setHandler():
     logger.handlers.clear()
@@ -53,27 +64,35 @@ def setParams(fileOutput = False, level = logging.DEBUG):
     _level = level
     setHandler()
 
-def format_msg(msg):
-    if isinstance(msg, dict):
-        return json.dumps(msg, sort_keys = True, indent = 4)
+def pp(s):
+    if isinstance(s, dict):
+        return '\n' + json.dumps(s, sort_keys = True, indent = 4)
+    return str(s)
+
+def format_msg(msg, *args):
+    msg = pp(msg)
+    msg += ' ' + ' '.join([pp(x) for x in args])
     return msg
 
 def INFO(msg, *args, **kwargs):
     kwargs.setdefault("stacklevel", 2)
-    logger.info(format_msg(msg), *args, **kwargs)
+    logger.info(format_msg(msg, *args), **kwargs)
 
 def DEBUG(msg, *args, **kwargs):
     kwargs.setdefault("stacklevel", 2)
-    logger.debug(format_msg(msg), *args, **kwargs)
+    logger.debug(format_msg(msg, *args), **kwargs)
+
+def VERBOSE(msg, *args, **kwargs):
+    kwargs.setdefault("stacklevel", 2)
+    logger.verbose(format_msg(msg, *args), **kwargs)
 
 def EXCEPTION(msg, *args, **kwargs):
     kwargs.setdefault("stacklevel", 2)
-    logger.exception(format_msg(msg), *args, **kwargs)
+    logger.exception(format_msg(msg, *args), **kwargs)
 
 def ERROR(msg, *args, **kwargs):
     kwargs.setdefault("stacklevel", 2)
-    logger.error(format_msg(msg), *args, **kwargs)
+    logger.error(format_msg(msg, *args), **kwargs)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 setHandler()
+

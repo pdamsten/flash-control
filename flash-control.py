@@ -39,7 +39,8 @@ from lib.metadata import RAWWatcher
 import lib.metadata as meta
 import lib.splash as splash
 import lib.exiftool as exiftool
-from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
+import logging 
 
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay

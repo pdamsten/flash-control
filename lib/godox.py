@@ -34,7 +34,7 @@ import PyObjCTools
 from crccheck.crc import Crc8Maxim
 
 import lib.metadata as meta
-from lib.logger import INFO, ERROR, EXCEPTION, DEBUG
+from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
 
 class Godox:
     def __init__(self):
@@ -170,7 +170,7 @@ class GodoxWorker(Thread):
             self.sendMsg('config', self.config)
             return True
         else:
-            ERROR(f'GodoxWorker::scan failed {self.config}')
+            ERROR(f'GodoxWorker::scan failed', self.config)
             self.sendMsg('failed', self.config['name'] if name and name in self.config else None)
             return False
 
@@ -252,7 +252,7 @@ class GodoxWorker(Thread):
     async def loop(self):
         while True:
             cmd, data = self.inQueue.get()
-            DEBUG(f'Command: {cmd} / {data}')
+            VERBOSE(f'Command: {cmd}', data)
 
             if cmd == 'connect':
                 self.config = data
