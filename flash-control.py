@@ -562,9 +562,10 @@ class FlashControlWindow(HTMLMainWindow):
     def fillFlashes(self, data):
         flashes = {}
 
-        for i, f in enumerate(data[meta.FLASHES]):
-            key = f.get(meta.ID, f.get('ID', chr(ord('A') + i)))
-            flashes[key] = f
+        if meta.FLASHES in data:
+            for i, f in enumerate(data[meta.FLASHES]):
+                key = f.get(meta.ID, f.get('ID', chr(ord('A') + i)))
+                flashes[key] = f
         a = []
         for i in range(self.cv('flash-groups', 6)):
             gid = chr(ord('A') + i)
