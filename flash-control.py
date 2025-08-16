@@ -115,7 +115,7 @@ class FlashControlWindow(HTMLMainWindow):
             'copyright': 'Copyright © 2025 Petri Damstén\nhttps://petridamsten.com'
         }
         self.setMacOsTitle(self.info)
-        super().__init__(title, html, css, self.keyhandler)
+        super().__init__(title, html, css, self.keyhandler, debug_level = args.debug)
 
     def on_closing(self):
         self.close()
@@ -733,7 +733,7 @@ def main():
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', action = 'store_true')
+    parser.add_argument('-d', '--debug', type = int, default = None, help = 'Debug level')
     parser.add_argument('-e', '--edit', nargs = '+', help = 'Edit metadata in file')
     args = parser.parse_args()    
     main()

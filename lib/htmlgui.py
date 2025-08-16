@@ -171,7 +171,7 @@ class HTMLMainWindow():
     def cv(self, key, default = None):
         return self.value(self.config, key, default)
    
-    def __init__(self, title, html, css = None, api = None, size = (1000, 800)):
+    def __init__(self, title, html, css = None, api = None, size = (1000, 800), debug_level = None):
         HTMLMainWindow.instances.append(self)
 
         self.api = api
@@ -179,9 +179,10 @@ class HTMLMainWindow():
         self.config = util.json(CONFIG)
         self.elements = {}
 
-        if (level := self.cv('DEBUG', 0)) > 0:
-            print('Logging level:', level)
-            logger.setParams(False, level)
+        debug_level = debug_level if debug_level else self.cv('DEBUG', 0)
+        if debug_level > 0:
+            print('Logging level:', debug_level)
+            logger.setParams(False, debug_level)
         else:
             logger.setParams(True, logging.INFO)
 
