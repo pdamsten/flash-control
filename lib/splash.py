@@ -179,7 +179,7 @@ def main():
 
 def start(img, maxtime):
     global _proc
-    _proc = subprocess.Popen(["python", __file__, '--image', img, '--max', str(maxtime)], 
+    _proc = subprocess.Popen([sys.executable, __file__, '--image', img, '--max', str(maxtime)], 
                              stdin = subprocess.PIPE)
 
 def stop():
