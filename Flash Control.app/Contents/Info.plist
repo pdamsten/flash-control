@@ -105,5 +105,7 @@
 	<array/>
 	<key>UTImportedTypeDeclarations</key>
 	<array/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+  <string>This app uses Bluetooth to connect godox flash triggers.</string>
 </dict>
 </plist>
