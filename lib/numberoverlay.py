@@ -32,6 +32,7 @@ from Cocoa import (
 from Foundation import NSObject
 import objc
 from PyObjCTools import AppHelper
+import Quartz
 
 W = 900
 H = 400
@@ -78,7 +79,7 @@ class NumberOverlay(NSObject):
         layer = content_view.layer()
         layer.setCornerRadius_(radius)
         layer.setMasksToBounds_(True)
-        color = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.5).CGColor()
+        color = Quartz.CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.5)
         layer.setBackgroundColor_(color)
 
     def show(self):
