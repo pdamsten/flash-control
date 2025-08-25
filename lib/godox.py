@@ -104,6 +104,7 @@ class GodoxWorker(Thread):
 
     @staticmethod
     def power2godox(s):
+        s = 0 if not s else s
         if isinstance(s, str) and s.find('/') != -1:
             l = s.replace('1/', '').split('+')
             if len(l) > 1:
