@@ -81,7 +81,7 @@ def DEBUG(msg, *args, **kwargs):
     logger.debug(format_msg(msg, *args), **kwargs)
 
 def VERBOSE(msg, *args, **kwargs):
-    kwargs.setdefault("stacklevel", 2)
+    kwargs.setdefault("stacklevel", 3)
     logger.verbose(format_msg(msg, *args), **kwargs)
 
 def EXCEPTION(msg, *args, **kwargs):
