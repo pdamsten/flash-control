@@ -1,6 +1,6 @@
 # Description
 
-Control Godox flash settings from a destop app.
+Control Godox flash settings from a destop app. The application is currently somewhere between proof of concept and alpha, so expect some bugs if you want to tinker with it.
 
 ![gui](https://petridamsten.com/media/flash-control.png "GUI")
 
