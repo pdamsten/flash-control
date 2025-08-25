@@ -223,9 +223,13 @@ class GodoxWorker(Thread):
         self.pastValues = deepcopy(values)
 
     async def setBeepAndLight(self, beep = True, light = True):
-        cmd = list(bytes.fromhex("F0A00AFF000003000404FF0000"))
+        cmd = list(bytes.fromhex("F0A00A00000003000000FF0000"))
+        cmd[3] = 0 # 0 = Channel 01
         cmd[4] = int(beep)
         cmd[5] = int(light)
+        cmd[7] = 0 # strobe mode
+        cmd[8] = 1 # Hz
+        cmd[9] = 1 # Times
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def setPower(self, group, mode, power = '1/1'):
