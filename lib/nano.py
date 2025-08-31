@@ -247,7 +247,8 @@ class NanoKontrol2Worker(Thread):
                             data, _ = event
                             if (KEYS[data[1]][1] == 'SLIDER' or KEYS[data[1]][1] == 'KNOB'):
                                 if self.directCallback:
-                                    self.directCallback((KEYS[data[1]][0], data[2]))
+                                    self.directCallback(
+                                        (KEYS[data[1]][0], data[2], KEYS[data[1]][1]))
                             else:
                                 self.sendMsg('event', (KEYS[data[1]], data[2]))
 

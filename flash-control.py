@@ -449,15 +449,22 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
         self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
-    def nano2Power(self, gid, v):
-        if self.cv(f'save/{gid}/mode', 'M') == 'M':
-            v = 8.0 * (v / 127.0) + 2.0
+    def nano2Power(self, gid, v, full = True):
+        mode = self.cv(f'save/{gid}/mode', 'M')
+        pwr = self.cv(f'save/{gid}/Power{mode}', 10)
+        f = int(pwr)
+        m = pwr - f
+        if full:
+            if mode == 'M':
+                v = int(8.0 * (v / 127.0) + 2.0) + m
+            else:
+                v = int(6.0 * (v / 127.0) - 3.0) + m
         else:
-            v = 6.0 * (v / 127.0) - 3.0
+            v = f + ((v / 127.0) * 0.9)
         return v
 
     def onNanoSlider(self, d):
-        v = self.nano2Power(d[0], d[1])
+        v = self.nano2Power(d[0], d[1], d[2] == 'KNOB')
         self.setPowerFast(d[0], v)
 
     def onNanoEvent(self, data):
