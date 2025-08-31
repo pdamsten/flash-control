@@ -452,8 +452,8 @@ class FlashControlWindow(HTMLMainWindow):
     def nano2Power(self, gid, v, full = True):
         mode = self.cv(f'save/{gid}/mode', 'M')
         pwr = self.cv(f'save/{gid}/Power{mode}', 10)
-        f = int(pwr)
-        m = pwr - f
+        f = int(float(pwr))
+        m = float(pwr) - f
         if full:
             if mode == 'M':
                 v = int(8.0 * (v / 127.0) + 2.0) + m
@@ -464,7 +464,7 @@ class FlashControlWindow(HTMLMainWindow):
         return v
 
     def onNanoSlider(self, d):
-        v = self.nano2Power(d[0], d[1], d[2] == 'KNOB')
+        v = self.nano2Power(d[0], d[1], d[2] == 'SLIDER')
         self.setPowerFast(d[0], v)
 
     def onNanoEvent(self, data):
