@@ -3,5 +3,6 @@ with Grid
 with Diffusor
 with White Wall
 with V-Flat
+with Lee filter 216 White Diffusion
 without Diffusor
 without Outer Diffusor
