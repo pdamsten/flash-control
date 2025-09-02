@@ -687,14 +687,18 @@ class FlashControlWindow(HTMLMainWindow):
             self.nano.callback('event', self.onNanoEvent)
             self.nano.connect(self.onNanoSlider)
 
-            tethering_path = self.cv('TetheringPath', '')
-            tethering_pat = self.cv('TetheringPattern', '')
+            TETH_PATH = os.path.expanduser('~/Documents/TETHERING/')
+            TETH_PATH = TETH_PATH if os.path.exists(TETH_PATH) else ''
+            tethering_path = self.cv('TetheringPath', TETH_PATH)
+            tethering_pat = self.cv('TetheringPattern', 
+                                    '*.RAF;*.ARW;*.NEF;*.CR3;*.DNG')
             if tethering_path:
+                DEBUG('Tethering folder:', tethering_path, tethering_pat)
                 self.metadata = RAWWatcher()
                 self.metadata.start(tethering_path, tethering_pat)
                 self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
                 self.metadata.callback('msg', self.onMetadataMsg)
-                self.setEnabled('#metadata-popup', True)
+                self.setEnabled('#meta-button', True)
 
         else:
             if len(args.edit) > 1:
