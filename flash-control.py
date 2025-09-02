@@ -41,6 +41,7 @@ import lib.splash as splash
 import lib.exiftool as exiftool
 from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
 import logging 
+import lib.power as power
 
 if sys.platform.startswith('darwin'):
     from lib.numberoverlay import NumberOverlay
@@ -49,7 +50,8 @@ flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
       <button id="flash-group-{group_id}" tabindex="0" class="flash-group">{group_id}</button>
       <div id="flash-power-{group_id}" class="flash-power">
-            <span id="flash-power-prefix{group_id}" class="flash-prefix">-</span><span id="flash-power-number{group_id}" class="flash-power-nbr">3.0</span>
+            <div class="big-power"><span id="flash-power-prefix{group_id}" class="flash-prefix">-</span><span id="flash-power-number{group_id}" class="flash-power-nbr">3.0</span></div>
+            <div id="flash-power-fnumber{group_id}" class="small-power">1/256</div>
       </div>
       <button id="flash-mode-{group_id}" tabindex="0" class="flash-mode">M</button>
       <div class="flash-info-a">
@@ -100,9 +102,6 @@ class FlashControlWindow(HTMLMainWindow):
         self.overlay = None
         self.overlayPwr = None
         self.keyhandler = KeyHandler()
-        self.FRACTIONS = [2 ** n for n in range(11)]
-        self.FRACTIONS.reverse()
-
 
         if sys.platform.startswith('darwin'):
             self.overlay = NumberOverlay.alloc().init()
@@ -268,26 +267,6 @@ class FlashControlWindow(HTMLMainWindow):
         with open(util.path('html/debug.html'), 'w') as f:
             f.write(html)
 
-    def convertFromFraction(self, power):
-        if not isinstance(power, str):
-            return power
-        l = power.replace('1/', '').split('+')
-        if len(l) > 1:
-            try:
-                b = float(l[1])
-            except:
-                b = 0.0
-        else:
-            b = 0
-        try:
-            an = int(l[0])
-        except:
-            an = 1
-        a = min(enumerate(self.FRACTIONS), key = lambda x: abs(x[1] - an))[0]
-        res = max(a + b, 0)
-        DEBUG(f'Convert: {power} => {res}')
-        return res
-
     def normalizePower(self, gid, power):
         if isinstance(power, str) and power.find('/') >= 0:
             power = self.convertFromFraction(power)
@@ -334,16 +313,18 @@ class FlashControlWindow(HTMLMainWindow):
         if self.nano:
             self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
-    def powerHtml(self, gid, power = None):
+    def powerHtml(self, gid, pwr = None):
         e = self.elem(f'#flash-power-{gid}')
-        s = str(power) if power else str(self.pwr(gid))
+        s = str(pwr) if pwr else str(self.pwr(gid))
         s = self.normalizePower(gid, s)
         if s[0] in ['+', '-']:
-            e.children[0].text = s[0]
             s = s[1:]
+            pre = s[0]
         else:
-            e.children[0].text = ''
-        e.children[1].text = s
+            pre = ''
+        self.elem(f'#flash-power-prefix{gid}').text = pre
+        self.elem(f'#flash-power-number{gid}').text = s
+        self.elem(f'#flash-power-fnumber{gid}').text = power.full2fraction(s)
 
     def onKeyPress(self, key):
         DEBUG(f'Key pressed {key} ({chr(key) if key >= 32 else ' '})')

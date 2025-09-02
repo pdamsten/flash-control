@@ -226,12 +226,24 @@ button:active, button:focus {
   aspect-ratio: 1;
   padding: 0;
   align-self: start;
+  min-height: 8rem;
 }
 
 .flash-power {
   grid-area: flash-power;
   font-size: 12rem;
   font-weight: bold;
+  text-align: center;
+}
+
+.big-power {
+  margin-top: -2rem;
+}
+
+.small-power {
+  font-size: 1rem;
+  width: 100%;
+  margin-top: -1.5rem;
 }
 
 .flash-prefix {

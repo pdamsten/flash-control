@@ -34,6 +34,7 @@ import PyObjCTools
 from crccheck.crc import Crc8Maxim
 
 import lib.metadata as meta
+import lib.power as power
 from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
 
 class Godox:
@@ -88,7 +89,6 @@ class Godox:
 
 class GodoxWorker(Thread):
     modes = {'-': 3, 'T': 0, 'M': 1}
-    fractions = [2 ** n for n in range(9)]
 
     def __init__(self, inQueue, outQueue):
         super().__init__()
@@ -101,40 +101,6 @@ class GodoxWorker(Thread):
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
             self.outQueue.put((cmd, data))
-
-    @staticmethod
-    def power2godox(s):
-        s = 0 if not s else s
-        if isinstance(s, str) and s.find('/') != -1:
-            l = s.replace('1/', '').split('+')
-            if len(l) > 1:
-                try:
-                    b = float(l[1])
-                except:
-                    b = 0.0
-                b = b if b < 1.0 else b / 10.0
-                b = int(max(min(0.9, b), 0.0) * 10)
-            else:
-                b = 0
-            try:
-                an = int(l[0])
-            except:
-                an = 1
-            a = min(range(len(GodoxWorker.fractions)), \
-                    key = lambda n : abs(GodoxWorker.fractions[n] - an))
-            res = max(a * 10 - b, 0)
-        else:
-            res = int(round((10.0 - float(s)) * 10))
-        return res
-            
-    @staticmethod
-    def ttl2godox(s):
-        n = float(s)
-        if n >= 0.0:
-            res = int(round(n * 10))
-        else:
-            res = 0x80 + int(round(abs(n) * 10))
-        return res
     
     async def scan(self):
         INFO('scanning...')
@@ -238,10 +204,10 @@ class GodoxWorker(Thread):
         cmd[3] = int('0' + group, 16)
         cmd[4] = int(GodoxWorker.modes[mode])
         if mode == 'M':
-            cmd[5] = GodoxWorker.power2godox(power)
+            cmd[5] = power.power2godox(power)
         elif mode == 'T':
             cmd[5] = 0x17
-            cmd[9] = GodoxWorker.ttl2godox(power)
+            cmd[9] = power.ttl2godox(power)
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
