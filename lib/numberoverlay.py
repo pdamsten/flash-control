@@ -35,7 +35,7 @@ from PyObjCTools import AppHelper
 import Quartz
 
 W = 900
-H = 400
+H = 500
 
 class NumberOverlay(NSObject):
     def init(self):
@@ -58,7 +58,19 @@ class NumberOverlay(NSObject):
         self.window.setAlphaValue_(1.0)
         self.setBorderRadius_((self.window, 50))
 
-        self.label = NSTextField.alloc().initWithFrame_(NSMakeRect(0, 0, W, H + 15))
+        self.gid = NSTextField.alloc().initWithFrame_(NSMakeRect(0, H * 0.75, W, H * 0.2))
+        self.gid.setStringValue_("A")
+        self.gid.setAlignment_(NSCenterTextAlignment)
+        self.gid.setFont_(NSFont.boldSystemFontOfSize_(75))
+        self.gid.setBezeled_(False)
+        self.gid.setDrawsBackground_(False)
+        self.gid.setEditable_(False)
+        self.gid.setSelectable_(False)
+        self.gid.setAlignment_(NSCenterTextAlignment)
+        self.gid.setTextColor_(NSColor.whiteColor())
+        self.window.contentView().addSubview_(self.gid)
+
+        self.label = NSTextField.alloc().initWithFrame_(NSMakeRect(0, H * 0.1, W, H * 0.8))
         self.label.setStringValue_("-")
         self.label.setAlignment_(NSCenterTextAlignment)
         self.label.setFont_(NSFont.boldSystemFontOfSize_(350))
@@ -92,11 +104,12 @@ class NumberOverlay(NSObject):
             self.window.orderOut_(None)
         AppHelper.callAfter(_hide)
 
-    def setValue_(self, txt):
-        def _tick(txt):
-            self.label.setStringValue_(str(txt))
+    def setValue_(self, flash):
+        def _tick(flash):
+            self.label.setStringValue_(str(flash[0]))
+            self.gid.setStringValue_(str(flash[1]))
         self.show()
-        AppHelper.callAfter(_tick, txt)
+        AppHelper.callAfter(_tick, flash)
 
     def center_(self, rect):
         def _center(rect):

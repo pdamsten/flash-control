@@ -311,7 +311,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.delay = Timer(0.5, self.setPower, [gid, pwr])
         self.delay.start()
         if self.overlay:
-            self.overlay.setValue_(self.overlayPwr)
+            self.overlay.setValue_((self.overlayPwr, gid))
 
     def setPower(self, group_id, power):
         DEBUG(f'{group_id} = {power}')
