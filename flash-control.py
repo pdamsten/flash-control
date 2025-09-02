@@ -192,6 +192,7 @@ class FlashControlWindow(HTMLMainWindow):
         value = None if n == 0 else e['target']['childNodes'][n]['text']
         if pid.startswith('flash-'):
             index = pid[-1:]
+            VERBOSE(meta.FLASHES, self.findex(index), key, value)
             self.config['shooting-info'][meta.FLASHES][self.findex(index)][key] = value
             self.activateGroup(index)
         else:
@@ -661,10 +662,6 @@ class FlashControlWindow(HTMLMainWindow):
             '<br><a target="_blank" href="https://petridamsten.com">https://petridamsten.com</a>')
         self.elem('#skull-text').append(txt)
 
-        for e in window.dom.get_elements('select'):
-            e.events.change += self.onSelectChange
-        self.window.events.closing += self.on_closing
-
         if not args.edit:
             self.fill_shooting_info(self.cv('shooting-info', {}))
         
@@ -729,6 +726,10 @@ class FlashControlWindow(HTMLMainWindow):
             self.setVisible('#ok-button', True)
             self.setVisible('#cancel-button', True)
             self.setClass('.bottom-bar', 'bb-narrow', True)
+
+        for e in window.dom.get_elements('select'):
+            e.events.change += self.onSelectChange
+        self.window.events.closing += self.on_closing
 
         self.activateFirstEnabledGroup()
 
