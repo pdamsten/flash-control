@@ -227,13 +227,13 @@ class FlashControlWindow(HTMLMainWindow):
             group = self.findex(group)
         return (self.cv(f'shooting-info/{meta.FLASHES}/{group}/{meta.MODE}', '-') == '-')
 
-    def onModeClicked(self, e):
+    def onModeClicked(self, e, gid = None):
         if e:
             e = self.elem(e)
             gid = e.id[-1:]
             self.activateGroup(gid)
         else:
-            gid = self.activeGroup
+            gid = gid if gid else self.activeGroup
         m = self.cv(f'save/{gid}/mode', 'M')
         self.setMode(gid, 'M' if m == 'TTL' else 'TTL')
         self.powerHtml(gid)
@@ -465,9 +465,13 @@ class FlashControlWindow(HTMLMainWindow):
             if self.activeGroup != gid:
                 self.activateGroup(gid)
             self.setPower(gid, self.nano2Power(gid, v))
-        elif (cmd == 'RECORD' or cmd == 'SOLO' or cmd == 'MUTE') and gid != '-' and v == 0:
+        elif cmd == 'SOLO' and gid != '-' and v == 0:
             self.activateGroup(gid)
             self.setGroupDisabled(gid, not self.disabled(gid))
+        elif cmd == 'RECORD' and gid != '-' and v == 0:
+            self.reset(self.activeGroup)
+        elif cmd == 'MUTE' and gid != '-' and v == 0:
+            self.onModeClicked(None, gid)
         elif cmd == 'STOP' and gid == '-' and v == 0:
             self.onShutterClicked(None)
         elif cmd == 'RECORD' and gid == '-' and v == 0:
