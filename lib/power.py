@@ -23,6 +23,7 @@
 #
 #**************************************************************************
 
+import math
 from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
 from copy import deepcopy
 
@@ -82,8 +83,14 @@ def fraction2Full(power):
     return res
 
 def full2fraction(pwr):
-    f = float(pwr)
-    nbr = int(f)
-    s = '1/' + str(rfractions[nbr]) + (('+' + str(round(f - nbr, 1))) if f - nbr != 0 else '')
+    f = fraction(pwr)
+    s = '1/' + str(rfractions[integer(pwr)]) + (('+' + str(f)) if f != 0 else '')
     return s
-    
+
+def integer(n):    
+    _, i = math.modf(float(n))
+    return int(i)
+
+def fraction(n):    
+    frac, _ = math.modf(float(n))
+    return abs(round(frac, 1))
