@@ -227,6 +227,7 @@ button:active, button:focus {
   padding: 0;
   align-self: start;
   min-height: 8rem;
+  padding-bottom: 0.3rem;
 }
 
 .flash-power {
