@@ -434,13 +434,16 @@ class FlashControlWindow(HTMLMainWindow):
     def nano2Power(self, gid, v, full = True):
         mode = self.cv(f'save/{gid}/mode', 'M')
         pwr = self.cv(f'save/{gid}/Power{mode}', 10)
+        frac = self.cv(f'save/{gid}/NanoFraction{mode}', power.fraction(pwr))
         if full:
             if mode == 'M':
-                v = int(8.0 * (v / 127.0) + 2.0) + power.fraction(pwr)
+                v = int(8.0 * (v / 127.0) + 2.0) + frac
             else:
-                v = int(6.0 * (v / 127.0) - 3.0) + power.fraction(pwr)
+                v = int(6.0 * (v / 127.0) - 3.0) + frac
         else:
-            v = power.integer(pwr) + ((v / 127.0) * 0.9)
+            frac = ((v / 127.0) * 0.9)
+            v = power.integer(pwr) + frac
+            self.config['save'][gid][f'NanoFraction{mode}'] = frac
         return v
 
     def onNanoSlider(self, d):
