@@ -60,7 +60,7 @@ flash_group = '''
       </div>
       <div class="flash-info-b">
         <select id="flash-modifier-{group_id}" class="flash-modifier" data-key="Modifier"></select>
-        <select id="flash-accessory{group_id}" class="flash-accessory" data-key="Accessory"></select>
+        <select id="flash-accessory-{group_id}" class="flash-accessory" data-key="Accessory"></select>
         <select id="flash-gel-{group_id}" class="flash-gel" data-key="Gel"></select>
       </div>
     </div>
@@ -210,7 +210,7 @@ class FlashControlWindow(HTMLMainWindow):
 
     def setGroupDisabled(self, group_id, disabled):
         a = ['flash-group-', 'flash-power-', 'flash-mode-', 
-             'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory', 'flash-gel-']
+             'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory-', 'flash-gel-']
 
         mode = '-' if disabled else self.cv(f'save/{group_id}/mode', 'M') 
         self.config['shooting-info'][meta.FLASHES][self.findex(group_id)][meta.MODE] = mode
@@ -392,6 +392,8 @@ class FlashControlWindow(HTMLMainWindow):
             self.setLight(not self.cv('ModellingLight'))
         elif key == ord('t'):
             self.onModeClicked(None)
+        elif key == ord('r'):
+            self.reset(self.activeGroup)
 
     def onTryAgain(self, e):
         self.setPulsing('#flash-button', True)
@@ -479,6 +481,19 @@ class FlashControlWindow(HTMLMainWindow):
         pwr = self.cv(f'save/{gid}/Power{mode}', default)
         self.config['shooting-info'][meta.FLASHES][self.findex(gid)]['Power'] = pwr
         return pwr
+
+    def reset(self, gid):
+        def resetSelect(eid):
+            e = self.elem(eid)
+            e.value = '0'
+        resetSelect(f'#flash-role-{gid}')
+        resetSelect(f'#flash-modifier-{gid}')
+        resetSelect(f'#flash-accessory-{gid}')
+        resetSelect(f'#flash-gel-{gid}')
+        self.config['shooting-info'][meta.FLASHES][self.findex(gid)][meta.ROLE] = None
+        self.config['shooting-info'][meta.FLASHES][self.findex(gid)][meta.MODIFIER] = None
+        self.config['shooting-info'][meta.FLASHES][self.findex(gid)][meta.ACCESSORY] = None
+        self.config['shooting-info'][meta.FLASHES][self.findex(gid)][meta.GEL] = None
 
     def onShowConfig(self, e):
         cfg = util.path('user/config.json')
