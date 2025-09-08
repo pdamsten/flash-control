@@ -199,15 +199,15 @@ class GodoxWorker(Thread):
         cmd[9] = 1 # Times
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
-    async def setPower(self, group, mode, power = '1/1'):
+    async def setPower(self, group, mode, pwr = '1/1'):
         cmd = list(bytes.fromhex("F0A10700000000000100"))
         cmd[3] = int('0' + group, 16)
         cmd[4] = int(GodoxWorker.modes[mode])
         if mode == 'M':
-            cmd[5] = power.power2godox(power)
+            cmd[5] = power.power2godox(pwr)
         elif mode == 'T':
             cmd[5] = 0x17
-            cmd[9] = power.ttl2godox(power)
+            cmd[9] = power.ttl2godox(pwr)
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
     async def sendCommand(self, command):
