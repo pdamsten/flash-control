@@ -314,17 +314,20 @@ class FlashControlWindow(HTMLMainWindow):
             self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
     def powerHtml(self, gid, pwr = None):
-        e = self.elem(f'#flash-power-{gid}')
         s = str(pwr) if pwr else str(self.pwr(gid))
         s = self.normalizePower(gid, s)
+        print('a', pwr, s, s[0])
         if s[0] in ['+', '-']:
-            s = s[1:]
             pre = s[0]
+            s = s[1:]
+            f = ''
         else:
             pre = ''
+            f = power.full2fraction(s)
+        print('b', pwr, s, s[0], pre, f)
         self.elem(f'#flash-power-prefix{gid}').text = pre
         self.elem(f'#flash-power-number{gid}').text = s
-        self.elem(f'#flash-power-fnumber{gid}').text = power.full2fraction(s)
+        self.elem(f'#flash-power-fnumber{gid}').text = f
 
     def onKeyPress(self, key):
         DEBUG(f'Key pressed {key} ({chr(key) if key >= 32 else ' '})')
