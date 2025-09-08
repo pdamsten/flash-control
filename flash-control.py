@@ -444,10 +444,12 @@ class FlashControlWindow(HTMLMainWindow):
             if mode == 'M':
                 v = int(8.0 * (v / 127.0) + 2.0) + frac
             else:
-                v = int(6.0 * (v / 127.0) - 3.0) + frac
+                v = int(6.0 * (v / 127.0) - 3.0)
+                v = v + frac if v >= 0 else v - frac
         else:
             frac = ((v / 127.0) * 0.9)
-            v = power.integer(pwr) + frac
+            v = power.integer(pwr)
+            v = v + frac if v >= 0 else v - frac
             self.config['save'][gid][f'NanoFraction{mode}'] = frac
         return v
 
