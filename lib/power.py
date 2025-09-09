@@ -93,7 +93,7 @@ def fraction2full(power):
 
 def full2fraction(pwr):
     f = fraction(pwr)
-    s = '1/' + str(rfractions[integer(pwr)]) + (('+' + str(f)) if f != 0 else '')
+    s = '1/' + str(rfractions[fullstop(pwr)]) + (('+' + str(f)) if f != 0 else '')
     return s
 
 def full2percentage(n, m):    
@@ -111,7 +111,7 @@ def percentage2full(percentage, m, separate_frac = None):
     else:
         v = ((TTLMAX - (TTLMIN - 1)) * percentage)
     if separate_frac != None:
-        v = integer(v)
+        v = fullstop(v)
     else:
         separate_frac = 0.0
     if m == 'M':
@@ -120,8 +120,8 @@ def percentage2full(percentage, m, separate_frac = None):
         v = (v + separate_frac) + (TTLMIN - 1)
     return cap(v, m)
 
-def integer(n):    
-    _, i = math.modf(float(n))
+def fullstop(n):    
+    _, i = math.floor(float(n))
     return int(i)
 
 def fraction(n):    
