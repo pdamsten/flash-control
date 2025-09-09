@@ -442,11 +442,11 @@ class FlashControlWindow(HTMLMainWindow):
             v /= 127.0
         else:
             frac = ((v / 127.0) * 0.9)
-            v = power.full2percentage(power.integer(pwr), mode)
+            v = power.full2percentage(power.fullstop(pwr), mode)
             self.config['save'][gid][f'NanoFraction{mode}'] = frac
         pwr = power.percentage2full(v, mode, frac)
         self.config['save'][gid][f'Power{mode}'] = pwr
-        return 
+        return pwr
 
     def onNanoSlider(self, d):
         v = self.nano2Power(d[0], d[1], d[2] == 'SLIDER')
@@ -464,6 +464,7 @@ class FlashControlWindow(HTMLMainWindow):
         if cmd == 'SLIDER' or cmd == 'KNOB':
             if self.activeGroup != gid:
                 self.activateGroup(gid)
+            DEBUG(v)
             self.setPower(gid, self.nano2Power(gid, v))
         elif cmd == 'SOLO' and gid != '-' and v == 0:
             self.activateGroup(gid)
