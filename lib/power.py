@@ -99,13 +99,21 @@ def full2percentage(n, m):
     else:
         nmax = TTLMAX
         nmin = TTLMIN
-    return (n - nmin) / nmax
+    return (n - nmin) / (nmax - nmin)
 
-def percentage2full(percentage, m, separate_frac = 0.0):    
+def percentage2full(percentage, m, separate_frac = None):    
     if m == 'M':
-        v = (MMAX * v + separate_frac) + MMIN
+        v = ((MMAX - MMIN) * percentage)
     else:
-        v = (TTLMAX * v + separate_frac) + TTLMIN
+        v = ((TTLMAX - TTLMIN) * percentage)
+    if separate_frac != None:
+        v = integer(v)
+    else:
+        separate_frac = 0.0
+    if m == 'M':
+        v = (v + separate_frac) + MMIN
+    else:
+        v = (v + separate_frac) + TTLMIN
     return round(v, 1)
 
 def integer(n):    
