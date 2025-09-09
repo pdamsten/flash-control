@@ -316,7 +316,6 @@ class FlashControlWindow(HTMLMainWindow):
     def powerHtml(self, gid, pwr = None):
         s = str(pwr) if pwr else str(self.pwr(gid))
         s = self.normalizePower(gid, s)
-        print('a', pwr, s, s[0])
         if s[0] in ['+', '-']:
             pre = s[0]
             s = s[1:]
@@ -324,7 +323,6 @@ class FlashControlWindow(HTMLMainWindow):
         else:
             pre = ''
             f = power.full2fraction(s)
-        print('b', pwr, s, s[0], pre, f)
         self.elem(f'#flash-power-prefix{gid}').text = pre
         self.elem(f'#flash-power-number{gid}').text = s
         self.elem(f'#flash-power-fnumber{gid}').text = f
