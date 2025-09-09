@@ -7,7 +7,26 @@ Control Godox flash settings from a destop app. The application is currently som
 ## Additional features
 
 - Write all the info in gui to image metadata when tethering
-- Use nanoKontrol 2 midi controller to adjust flash settings
+- Use nanoKONTROL2 midi controller to adjust flash settings
+
+## Hardware requirements
+
+- Godox trigger with bluetooth 
+- Korg nanoKONTROL2 (optional)
+
+## Keyboard / Nano shortcuts
+
+- numbers or . or - or Enter : set power of active group eg. press 55 and group gets power 5.5
+- Esc or Backspae : Cancel power
+- O (nano PREV): Sound on/off
+- Z (nano RECORD) : Modelling light on/off
+- A - L : select group
+- Space (nano S): Activate/deactivate group
+- M (nano M): TTL / Manual toogle
+- R (nano R): Reset modifiers etc. in active group
+- nano STOP : test
+- nano slider : adjust full stops
+- nano knob : adjust fractions
 
 # Installing
 ## MacOS
