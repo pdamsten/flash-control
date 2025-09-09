@@ -121,8 +121,7 @@ def percentage2full(percentage, m, separate_frac = None):
     return cap(v, m)
 
 def fullstop(n):    
-    _, i = math.floor(float(n))
-    return int(i)
+    return int(math.floor(float(n)))
 
 def fraction(n):    
     frac, _ = math.modf(float(n))
