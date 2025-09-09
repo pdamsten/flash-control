@@ -31,6 +31,11 @@ fractions = [2 ** n for n in range(11)]
 rfractions = deepcopy(fractions)
 rfractions.reverse()
 
+TTLMAX = 3.0
+TTLMIN = -3.0
+MMAX = 10.0
+MMIN = 2.0
+
 def power2godox(s):
     s = 0 if not s else s
     if isinstance(s, str) and s.find('/') != -1:
@@ -63,7 +68,7 @@ def ttl2godox(s):
         res = 0x80 + int(round(abs(n) * 10))
     return res
 
-def fraction2Full(power):
+def fraction2full(power):
     if not isinstance(power, str):
         return power
     l = power.replace('1/', '').split('+')
@@ -86,6 +91,22 @@ def full2fraction(pwr):
     f = fraction(pwr)
     s = '1/' + str(rfractions[integer(pwr)]) + (('+' + str(f)) if f != 0 else '')
     return s
+
+def full2percentage(n, m):    
+    if m == 'M':
+        nmax = MMAX
+        nmin = MMIN
+    else:
+        nmax = TTLMAX
+        nmin = TTLMIN
+    return (n - nmin) / nmax
+
+def percentage2full(percentage, m, separate_frac = 0.0):    
+    if m == 'M':
+        v = (MMAX * v + separate_frac) + MMIN
+    else:
+        v = (TTLMAX * v + separate_frac) + TTLMIN
+    return round(v, 1)
 
 def integer(n):    
     _, i = math.modf(float(n))
