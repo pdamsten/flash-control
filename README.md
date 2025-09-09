@@ -11,6 +11,7 @@ Control Godox flash settings from a destop app. The application is currently som
 
 ## Hardware requirements
 
+- Mac or PC with Linux or Windows
 - Godox trigger with bluetooth 
 - Korg nanoKONTROL2 (optional)
 
