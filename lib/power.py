@@ -24,8 +24,12 @@
 #**************************************************************************
 
 import math
-from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
 from copy import deepcopy
+
+try:
+    from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
+except:
+    pass
 
 fractions = [2 ** n for n in range(11)]
 rfractions = deepcopy(fractions)
@@ -95,26 +99,26 @@ def full2fraction(pwr):
 def full2percentage(n, m):    
     if m == 'M':
         nmax = MMAX
-        nmin = MMIN
+        nmin = MMIN - 1
     else:
         nmax = TTLMAX
-        nmin = TTLMIN
+        nmin = TTLMIN - 1
     return (n - nmin) / (nmax - nmin)
 
 def percentage2full(percentage, m, separate_frac = None):    
     if m == 'M':
-        v = ((MMAX - MMIN) * percentage)
+        v = ((MMAX - (MMIN - 1)) * percentage)
     else:
-        v = ((TTLMAX - TTLMIN) * percentage)
+        v = ((TTLMAX - (TTLMIN - 1)) * percentage)
     if separate_frac != None:
         v = integer(v)
     else:
         separate_frac = 0.0
     if m == 'M':
-        v = (v + separate_frac) + MMIN
+        v = (v + separate_frac) + (MMIN - 1)
     else:
-        v = (v + separate_frac) + TTLMIN
-    return round(v, 1)
+        v = (v + separate_frac) + (TTLMIN - 1)
+    return cap(v, m)
 
 def integer(n):    
     _, i = math.modf(float(n))
@@ -123,3 +127,64 @@ def integer(n):
 def fraction(n):    
     frac, _ = math.modf(float(n))
     return abs(round(frac, 1))
+
+def cap(n, mode):    
+    if mode == 'M':
+        nmax = MMAX
+        nmin = MMIN
+    else:
+        nmax = TTLMAX
+        nmin = TTLMIN
+    return round(max(nmin, min(nmax, n)), 1)
+
+def main():
+    def test(power, mode, sep = None):
+        per = full2percentage(power, mode)
+        v = percentage2full(per, mode, sep)
+        print(f'{mode} : {power} ({sep}) => {per:.2f} => {v}')
+
+    def testPercentage(per, mode, sep = None):
+        v = percentage2full(per, mode, sep)
+        print(f'{mode} : {per:.2f} ({sep}) => {v}')
+
+    test(12, 'M')
+    test(10, 'M')
+    test(8.9, 'M')
+    test(6.5, 'M')
+    test(4.1, 'M')
+    test(2, 'M')
+    test(0, 'M')
+
+    testPercentage(0, 'M', 0.1)
+    testPercentage(0.1, 'M', 0.1)
+    testPercentage(0.2, 'M', 0.1)
+    testPercentage(0.4, 'M', 0.1)
+    testPercentage(0.7, 'M', 0.1)
+    testPercentage(1.0, 'M', 0.1)
+
+    test(4, 'TTL')
+    test(3.0, 'TTL')
+    test(2.9, 'TTL')
+    test(0.5, 'TTL')
+    test(-1.1, 'TTL')
+    test(-3.0, 'TTL')
+    test(-66, 'TTL')
+
+    test(1, 'TTL', 0.2)
+    test(0, 'TTL', 0.2)
+    test(-1, 'TTL', 0.2)
+    test(-1, 'TTL', 0.9)
+    test(-1, 'TTL', 0.1)
+    test(-2, 'TTL', 0.1)
+    test(-3, 'TTL', 0.1)
+    test(-4, 'TTL', 0.1)
+
+    testPercentage(0, 'TTL', 0.1)
+    testPercentage(0.1, 'TTL', 0.1)
+    testPercentage(0.2, 'TTL', 0.1)
+    testPercentage(0.4, 'TTL', 0.1)
+    testPercentage(0.7, 'TTL', 0.1)
+    testPercentage(1.0, 'TTL', 0.1)
+
+if __name__ == "__main__":
+    main()
