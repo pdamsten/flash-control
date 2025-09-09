@@ -438,11 +438,11 @@ class FlashControlWindow(HTMLMainWindow):
         mode = self.cv(f'save/{gid}/mode', 'M')
         pwr = self.cv(f'save/{gid}/Power{mode}', 10)
         if full:
-            v /= 127.0
             frac = self.cv(f'save/{gid}/NanoFraction{mode}', power.fraction(pwr))
+            v /= 127.0
         else:
-            v = power.full2percentage(power.integer(pwr))
             frac = ((v / 127.0) * 0.9)
+            v = power.full2percentage(power.integer(pwr), mode)
             self.config['save'][gid][f'NanoFraction{mode}'] = frac
         return power.percentage2full(v, mode, frac)
 
