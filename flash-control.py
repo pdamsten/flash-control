@@ -387,11 +387,11 @@ class FlashControlWindow(HTMLMainWindow):
                 self.power = ''
                 pkey = f'shooting-info/{meta.FLASHES}/{self.findex(self.activeGroup)}/{meta.POWER}'
                 self.elem(f'#flash-power-{self.activeGroup}').text = self.cv(pkey)
-        elif key == ord('m'):
+        elif key == ord('o'):
             self.setSound(not self.cv('Sound'))
         elif key == ord('z'):
             self.setLight(not self.cv('ModellingLight'))
-        elif key == ord('t'):
+        elif key == ord('m'):
             self.onModeClicked(None)
         elif key == ord('r'):
             self.reset(self.activeGroup)
