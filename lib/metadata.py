@@ -51,7 +51,7 @@ MODE =           "Mode"
 class RAWEventHandler(PatternMatchingEventHandler):
     def __init__(self, watcher, pattern):
         super(RAWEventHandler, self).__init__(    
-            patterns = [pattern],
+            patterns = pattern.split(';'),
             ignore_patterns = [],
             ignore_directories = True
         )
