@@ -505,7 +505,7 @@ class FlashControlWindow(HTMLMainWindow):
         DEBUG(cfg)
 
     def onMetadataMsg(self, msg):
-        self.elem('#metadata-popup .message').append = f'<span>{msg[0]}</span><br'
+        self.elem('#meta-popup .message').append = f'<span>{msg[0]}</span><br'
         if msg[1] > 0:
             self.setNotification('#meta-button', True)
 
