@@ -267,21 +267,21 @@ class FlashControlWindow(HTMLMainWindow):
         with open(util.path('html/debug.html'), 'w') as f:
             f.write(html)
 
-    def normalizePower(self, gid, power):
-        if isinstance(power, str) and power.find('/') >= 0:
-            power = self.convertFromFraction(power)
+    def normalizePower(self, gid, pwr):
+        if isinstance(pwr, str) and pwr.find('/') >= 0:
+            pwr = power.fraction2full(pwr)
         mode = self.cv(f'save/{gid}/mode', 'M')
         try:
-            power = float(power)
+            pwr = float(pwr)
         except:
-            power = 0.0
-        power = max(2.0, min(10.0, power)) if mode == 'M' else max(-3.0, min(3.0, power))
-        power = str(round(power, 1))
+            pwr = 0.0
+        pwr = max(2.0, min(10.0, pwr)) if mode == 'M' else max(-3.0, min(3.0, pwr))
+        pwr = str(round(pwr, 1))
         if mode == 'TTL' and power[0] != '-':
-            power = '+' + power
-        if power == '10.0':
-            power = '10'
-        return power
+            pwr = '+' + pwr
+        if pwr == '10.0':
+            pwr = '10'
+        return pwr
 
     def setPowerFast(self, gid, pwr):
         if self.delay:
