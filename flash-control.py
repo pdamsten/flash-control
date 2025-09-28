@@ -40,7 +40,6 @@ import lib.metadata as meta
 import lib.splash as splash
 import lib.exiftool as exiftool
 from lib.logger import INFO, ERROR, EXCEPTION, DEBUG, VERBOSE
-import logging 
 import lib.power as power
 
 if sys.platform.startswith('darwin'):
@@ -179,7 +178,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.nano.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
     
     def forExiftool(self, data):
-        data = {k: v for k, v in data.items() if v}
+        data = {k: v if v else '' for k, v in data.items()}
         data[meta.FLASHES] = [x for x in data[meta.FLASHES] if x[meta.MODE] != '-']
         return data
     
@@ -195,6 +194,7 @@ class FlashControlWindow(HTMLMainWindow):
             self.config['shooting-info'][meta.FLASHES][self.findex(index)][key] = value
             self.activateGroup(index)
         else:
+            VERBOSE(key, value)
             self.config['shooting-info'][key] = value
         if self.metadata:
             self.metadata.setJson(self.forExiftool(self.config['shooting-info']))
