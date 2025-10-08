@@ -434,22 +434,26 @@ class FlashControlWindow(HTMLMainWindow):
         self.elem('#nano-popup .message').text = 'Connected to nanoKontrol2'
         self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
-    def nano2Power(self, gid, v, full = True):
+    def nano2Power(self, gid, v, atype):
+        defaults = {'M': (2.5, 10.5, 1.0), 'TTL': (-3.5, 3.5, 1.0)}
         mode = self.cv(f'save/{gid}/mode', 'M')
         pwr = self.cv(f'save/{gid}/Power{mode}', 10)
-        if full:
-            frac = self.cv(f'save/{gid}/NanoFraction{mode}', power.fraction(pwr))
-            v /= 127.0
+
+        if atype == 'SLIDER':
+            r = self.cv(f'SliderRange{mode}', defaults[mode])
+            other = self.cv(f'save/{gid}/NanoKnob{mode}', 0.0)
+            key = f'NanoSlider{mode}'
         else:
-            frac = ((v / 127.0) * 0.9)
-            v = power.full2percentage(power.fullstop(pwr), mode)
-            self.config['save'][gid][f'NanoFraction{mode}'] = frac
-        pwr = power.percentage2full(v, mode, frac)
-        self.config['save'][gid][f'Power{mode}'] = pwr
+            r = self.cv(f'KnobRange{mode}', (-0.5, 0.5, 0.1))
+            other = self.cv(f'save/{gid}/NanoSlider{mode}', 11)
+            key = f'NanoKnob{mode}'
+        this = ((v / 127.0) * (r[1] - r[0]) + r[1])
+        self.config['save'][gid][key] = this
+        pwr = other + power.limitPrecision(this, r[2], mode)
         return pwr
 
     def onNanoSlider(self, d):
-        v = self.nano2Power(d[0], d[1], d[2] == 'SLIDER')
+        v = self.nano2Power(d[0], d[1], d[2])
         self.setPowerFast(d[0], v)
 
     def onNanoEvent(self, data):
@@ -465,7 +469,7 @@ class FlashControlWindow(HTMLMainWindow):
             if self.activeGroup != gid:
                 self.activateGroup(gid)
             DEBUG(v)
-            self.setPower(gid, self.nano2Power(gid, v))
+            self.setPower(gid, self.nano2Power(gid, v, cmd))
         elif cmd == 'SOLO' and gid != '-' and v == 0:
             self.activateGroup(gid)
             self.setGroupDisabled(gid, not self.disabled(gid))
