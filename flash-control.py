@@ -277,7 +277,7 @@ class FlashControlWindow(HTMLMainWindow):
             pwr = 0.0
         pwr = max(2.0, min(10.0, pwr)) if mode == 'M' else max(-3.0, min(3.0, pwr))
         pwr = str(round(pwr, 1))
-        if mode == 'TTL' and power[0] != '-':
+        if mode == 'TTL' and pwr[0] != '-':
             pwr = '+' + pwr
         if pwr == '10.0':
             pwr = '10'
