@@ -127,14 +127,24 @@ def fraction(n):
     frac, _ = math.modf(float(n))
     return abs(round(frac, 1))
 
-def cap(n, mode):    
+def getminmax(mode):    
     if mode == 'M':
         nmax = MMAX
         nmin = MMIN
     else:
         nmax = TTLMAX
         nmin = TTLMIN
+    return nmin, nmax
+
+def cap(n, mode):    
+    nmin, nmax = getminmax(mode)
     return round(max(nmin, min(nmax, n)), 1)
+
+def limitPrecision(pwr, step, mode):
+    nmin, nmax = getminmax(mode)
+    rounded = round((pwr - nmin) / step) * step + nmin
+    rounded = min(max(rounded, nmin), nmax)
+    return round(rounded, 1)
 
 def main():
     def test(power, mode, sep = None):
