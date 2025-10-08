@@ -435,21 +435,24 @@ class FlashControlWindow(HTMLMainWindow):
         self.nano.setValues(self.config['shooting-info'][meta.FLASHES])
 
     def nano2Power(self, gid, v, atype):
-        defaults = {'M': (2.5, 10.5, 1.0), 'TTL': (-3.5, 3.5, 1.0)}
+        defaultsS = {'M': (2.0, 10.0, 1.0), 'TTL': (-3.0, 3.0, 1.0)}
+        defaultsK = {'M': (-0.5, 0.5, 0.1), 'TTL': (-0.5, 0.5, 0.33333)}
         mode = self.cv(f'save/{gid}/mode', 'M')
         pwr = self.cv(f'save/{gid}/Power{mode}', 10)
 
         if atype == 'SLIDER':
-            r = self.cv(f'SliderRange{mode}', defaults[mode])
+            r = self.cv(f'SliderRange{mode}', defaultsS[mode])
             other = self.cv(f'save/{gid}/NanoKnob{mode}', 0.0)
             key = f'NanoSlider{mode}'
         else:
-            r = self.cv(f'KnobRange{mode}', (-0.5, 0.5, 0.1))
+            r = self.cv(f'KnobRange{mode}', defaultsK[mode])
             other = self.cv(f'save/{gid}/NanoSlider{mode}', 11)
             key = f'NanoKnob{mode}'
-        this = ((v / 127.0) * (r[1] - r[0]) + r[1])
+        this = ((v / 127.0) * (r[1] - r[0]) + r[0])
+        this = power.limitPrecision(this, r[2])
         self.config['save'][gid][key] = this
-        pwr = other + power.limitPrecision(this, r[2], mode)
+        pwr = other + this
+        DEBUG(this, other, pwr)
         return pwr
 
     def onNanoSlider(self, d):
