@@ -438,7 +438,6 @@ class FlashControlWindow(HTMLMainWindow):
         defaultsS = {'M': (2.0, 10.0, 1.0), 'TTL': (-3.0, 3.0, 1.0)}
         defaultsK = {'M': (-0.5, 0.5, 0.1), 'TTL': (-0.5, 0.5, 0.33333)}
         mode = self.cv(f'save/{gid}/mode', 'M')
-        pwr = self.cv(f'save/{gid}/Power{mode}', 10)
 
         if atype == 'SLIDER':
             r = self.cv(f'SliderRange{mode}', defaultsS[mode])
