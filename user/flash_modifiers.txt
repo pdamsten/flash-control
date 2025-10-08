@@ -1,6 +1,8 @@
 No Modifier
 18cm Reflector
+60cm Parabolic Softbox
 80cm Octabox
+90cm Parabolic Softbox
 120cm Octabox
 150cm Octabox
 140cm Stripbox
