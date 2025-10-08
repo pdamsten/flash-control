@@ -140,10 +140,8 @@ def cap(n, mode):
     nmin, nmax = getminmax(mode)
     return round(max(nmin, min(nmax, n)), 1)
 
-def limitPrecision(pwr, step, mode):
-    nmin, nmax = getminmax(mode)
-    rounded = round((pwr - nmin) / step) * step + nmin
-    rounded = min(max(rounded, nmin), nmax)
+def limitPrecision(pwr, step):
+    rounded = round(pwr / step) * step
     return round(rounded, 1)
 
 def main():
