@@ -53,7 +53,7 @@ class HTMLMainWindow():
     def on_closing(self):
         self.close()
 
-    def close(self):
+    def close(self, code = 0):
         DEBUG('Window closed')
         self.window.events.closing -= self.on_closing
         HTMLMainWindow.instances.remove(self)
@@ -61,7 +61,7 @@ class HTMLMainWindow():
         if not HTMLMainWindow.instances:
             INFO('All windows closed, exiting')
             self.writeConfig()
-            sys.exit(0)
+            sys.exit(code)
 
     def messageBox(self, msg):
         def _message(msg):

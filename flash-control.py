@@ -119,7 +119,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.close()
         super().on_closing()
 
-    def close(self):
+    def close(self, code = 0):
         INFO('Flash Window closed')
         self.window.events.closing -= self.on_closing
         if self.godox:
@@ -132,7 +132,7 @@ class FlashControlWindow(HTMLMainWindow):
             DEBUG('Stopping metadata')
             self.metadata.stop()
         DEBUG('Stopping super')
-        super().close()
+        super().close(code)
 
     def on_resized(self, width, height):
         if self.overlay:
@@ -543,10 +543,10 @@ class FlashControlWindow(HTMLMainWindow):
 
     def onOkPressed(self, e):
         exiftool.write(args.edit[0], self.forExiftool(self.config['shooting-info']))
-        self.close()
+        self.close(0)
 
     def onCancelPressed(self, e):
-        self.close()
+        self.close(1)
 
     def onWheel(self, e):
         elem = self.elementFromPoint(e['clientX'], e['clientY'])
