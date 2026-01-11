@@ -3,7 +3,7 @@
 #
 #**************************************************************************
 #
-#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com> 
+#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com>
 #                         https://petridamsten.com
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -88,7 +88,7 @@ if sys.platform.startswith('darwin'):
                     width = rep.pixelsWide()
                     height = rep.pixelsHigh()
                     return width, height
-            return None, None 
+            return None, None
 
         def setBorderRadius_(self, params):
             window, radius = params
@@ -128,7 +128,7 @@ else:
             y = (self.screen_height // 2) - (self.height // 2)
             self.root.geometry(f"{self.width}x{self.height}+{x}+{y}")
             self.photo = ImageTk.PhotoImage(self.image)
-            self.label = tk.Label(self.root, image = self.photo, borderwidth = 0, 
+            self.label = tk.Label(self.root, image = self.photo, borderwidth = 0,
                                 highlightthickness = 0)
             self.label.pack()
             self.root.lift()
@@ -179,20 +179,20 @@ def main():
 
 def start(img, maxtime):
     global _proc
-    _proc = subprocess.Popen([sys.executable, __file__, '--image', img, '--max', str(maxtime)], 
+    _proc = subprocess.Popen([sys.executable, __file__, '--image', img, '--max', str(maxtime)],
                              stdin = subprocess.PIPE)
 
 def stop():
     global _proc
     if _proc:
         _proc.stdin.write(b"quit\n")
-        _proc.stdin.flush()
+        _proc.stdin.close()
         _proc = None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Show a splash image.")
     parser.add_argument("--image", required = True, help = "Path to the splash image.")
-    parser.add_argument("--max", type = float, default = 15.0, 
+    parser.add_argument("--max", type = float, default = 15.0,
                         help = "Maximum time to show the splash (seconds).")
     args = parser.parse_args()
     main()
