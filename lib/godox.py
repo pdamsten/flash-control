@@ -26,6 +26,7 @@
 from threading import Thread
 from queue import Queue
 import asyncio
+import time
 from copy import deepcopy
 
 from bleak import BleakScanner
@@ -97,6 +98,7 @@ class GodoxWorker(Thread):
         self.outQueue = outQueue
         self.client = None
         self.pastValues = {}
+        self.startTime = 0
 
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
@@ -137,7 +139,7 @@ class GodoxWorker(Thread):
             self.sendMsg('config', self.config)
             return True
         else:
-            ERROR(f'GodoxWorker::scan failed', self.config)
+            ERROR('GodoxWorker::scan failed', self.config)
             self.sendMsg('failed', self.config['name'] if name and name in self.config else None)
             return False
 
@@ -152,10 +154,11 @@ class GodoxWorker(Thread):
                 if not self.client:
                     self.client = BleakClient(self.config['address'])
                 try:
+                    self.startTime = time.time()
                     await self.client.connect()
                     self.sendMsg('connected', self.config['name'])
                     return True
-                except:
+                except Exception:
                     pass
 
             if not await self.scan():
@@ -172,6 +175,7 @@ class GodoxWorker(Thread):
     async def test(self):
         # TODO
         # Godox app sends some values + ,Test every time test button is pressed
+        # Milliseconds from connection?
         # Value: 3638 3331 3732 2C54 6573 74
         # Value: 3731 3135 3534 2C54 6573 74
         # Value: 3731 3830 3639 2C54 6573 74
@@ -182,14 +186,15 @@ class GodoxWorker(Thread):
         # Value: 3132 3337 382C 5465 7374
         # Value: 3632 3236 342C 5465 7374
 
-        cmd = bytes.fromhex("38383838382C54657374")
+        t = int((time.time() - self.startTime) * 1000)
+        cmd = bytearray(f"{t},Test", encoding="utf-8")
         await self.sendCommand(cmd)
 
     async def setValues(self, values):
         def eq(key, i, a, b):
             if i >= len(a) or i >= len(b):
                 return False
-            if not key in a[i] or not key in b[i]:
+            if key not in a[i] or key not in b[i]:
                 return False
             if a[i][key] != b[i][key]:
                 return False
@@ -224,7 +229,8 @@ class GodoxWorker(Thread):
 
     async def sendCommand(self, command):
         if self.client and self.client.is_connected:
-            VERBOSE(f'Command: {command}')
+            VERBOSE(f'{command}')
+            VERBOSE(' '.join('{:02x}'.format(x) for x in command))
             await self.client.write_gatt_char(self.config['uuid'], command)
 
     async def stop(self):
