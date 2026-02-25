@@ -3,7 +3,7 @@
 #
 #**************************************************************************
 #
-#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com> 
+#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com>
 #                         https://petridamsten.com
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -97,11 +97,11 @@ class GodoxWorker(Thread):
         self.outQueue = outQueue
         self.client = None
         self.pastValues = {}
-    
+
     def sendMsg(self, cmd, data = None):
         if self.outQueue:
             self.outQueue.put((cmd, data))
-    
+
     async def scan(self):
         INFO('scanning...')
         name = None
@@ -170,7 +170,19 @@ class GodoxWorker(Thread):
         return command + crcinst.finalbytes()
 
     async def test(self):
-        cmd = bytes.fromhex("31333234312C54657374")
+        # TODO
+        # Godox app sends some values + ,Test every time test button is pressed
+        # Value: 3638 3331 3732 2C54 6573 74
+        # Value: 3731 3135 3534 2C54 6573 74
+        # Value: 3731 3830 3639 2C54 6573 74
+        # Value: 3732 3130 3337 2C54 6573 74
+        # Value: 3732 3339 3032 2C54 6573 74
+        # Value: 3732 3634 3533 2C54 6573 74
+        # Value: 3734 3236 3233 2C54 6573 74
+        # Value: 3132 3337 382C 5465 7374
+        # Value: 3632 3236 342C 5465 7374
+
+        cmd = bytes.fromhex("38383838382C54657374")
         await self.sendCommand(cmd)
 
     async def setValues(self, values):
@@ -182,7 +194,7 @@ class GodoxWorker(Thread):
             if a[i][key] != b[i][key]:
                 return False
             return True
-        
+
         for i, v in enumerate(values):
             if not eq(meta.POWER, i, self.pastValues, values) or \
                not eq(meta.MODE, i, self.pastValues, values):
@@ -212,6 +224,7 @@ class GodoxWorker(Thread):
 
     async def sendCommand(self, command):
         if self.client and self.client.is_connected:
+            VERBOSE(f'Command: {command}')
             await self.client.write_gatt_char(self.config['uuid'], command)
 
     async def stop(self):
