@@ -116,26 +116,33 @@ class GodoxWorker(Thread):
         godox = None
         for device in devices:
             name = str(PyObjCTools.KeyValueCoding.getKey(device.details, 'name')[0])
+            #VERBOSE(name)
             if name.startswith('GDBH'):
                 INFO(f'Godox found: {name}')
                 godox = device
                 break
         uuid = None
+        iuuid = ''
+        address = ''
         if godox:
             address = str(PyObjCTools.KeyValueCoding.getKey(godox.details, 'identifier')[0])
             DEBUG(f'Godox address: {address}')
             async with BleakClient(address) as client:
                 for service in client.services:
-                    pre = '**' if service.description.startswith('KDDI') else ' ' * 2
+                    VERBOSE(service.description)
                     for ch in service.characteristics:
-                        pre = '  **' if ch.uuid.startswith('0000fec7') else ' ' * 4
-                        if pre.strip() != '':
+                        VERBOSE(ch.uuid)
+                        if ch.uuid.startswith('0000fec7'):
                             uuid = ch.uuid
+                        if ch.uuid.startswith('0000fff1'):
+                            iuuid = ch.uuid
         if uuid:
             self.config = {}
             self.config['name'] = name
             self.config['address'] = address
             self.config['uuid'] = uuid
+            self.config['trigger_uuid'] = iuuid
+            VERBOSE(self.config)
             self.sendMsg('config', self.config)
             return True
         else:
@@ -156,10 +163,11 @@ class GodoxWorker(Thread):
                 try:
                     self.startTime = time.time()
                     await self.client.connect()
+                    await self.init()
                     self.sendMsg('connected', self.config['name'])
                     return True
-                except Exception:
-                    pass
+                except Exception as e:
+                    ERROR(f'connect failed {e}')
 
             if not await self.scan():
                 return False
@@ -173,22 +181,13 @@ class GodoxWorker(Thread):
         return command + crcinst.finalbytes()
 
     async def test(self):
-        # TODO
-        # Godox app sends some values + ,Test every time test button is pressed
-        # Milliseconds from connection?
-        # Value: 3638 3331 3732 2C54 6573 74
-        # Value: 3731 3135 3534 2C54 6573 74
-        # Value: 3731 3830 3639 2C54 6573 74
-        # Value: 3732 3130 3337 2C54 6573 74
-        # Value: 3732 3339 3032 2C54 6573 74
-        # Value: 3732 3634 3533 2C54 6573 74
-        # Value: 3734 3236 3233 2C54 6573 74
-        # Value: 3132 3337 382C 5465 7374
-        # Value: 3632 3236 342C 5465 7374
-
         t = int((time.time() - self.startTime) * 1000)
         cmd = bytearray(f"{t},Test", encoding="utf-8")
-        await self.sendCommand(cmd)
+        await self.sendCommand(cmd, self.config['trigger_uuid'])
+
+    async def init(self):
+        cmd = bytes.fromhex("3535313737322C507375622C30303030")
+        await self.sendCommand(cmd, self.config['trigger_uuid'])
 
     async def setValues(self, values):
         def eq(key, i, a, b):
@@ -227,11 +226,12 @@ class GodoxWorker(Thread):
             cmd[9] = power.ttl2godox(pwr)
         await self.sendCommand(self.checksum(bytearray(cmd)))
 
-    async def sendCommand(self, command):
+    async def sendCommand(self, command, uuid = None):
         if self.client and self.client.is_connected:
-            VERBOSE(f'{command}')
+            uuid = uuid if uuid else self.config['uuid']
+            VERBOSE(f'{command}: {uuid}')
             VERBOSE(' '.join('{:02x}'.format(x) for x in command))
-            await self.client.write_gatt_char(self.config['uuid'], command)
+            await self.client.write_gatt_char(uuid, command)
 
     async def stop(self):
         if self.client:
