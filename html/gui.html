@@ -7,40 +7,41 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <a href="#" id="close-all-popups" class="close-popup hidden"></a>
-  <div id="meta-popup" class="popup hidden">
+  <div id="meta-popup" class="popup" style="position-anchor: --meta-anchor;" popover>
     <span class="message">Empty</span><br/><br/>
   </div>
 
-  <div id="flash-popup" class="popup hidden">
+  <div id="flash-popup" class="popup" style="position-anchor: --flash-anchor;" popover>
     <span class="message">Connecting...</span><br/><br/>
     <button id="try-trigger-button" class="hidden">Try Again...</button>
   </div>
 
-  <div id="nano-popup" class="popup hidden">
+  <div id="nano-popup" class="popup" style="position-anchor: --nano-anchor;" popover>
     <span class="message">Connecting...</span><br/><br/>
     <button id="try-nano-button" class="hidden">Try Again...</button>
   </div>
 
-  <div id="skull-popup" class="popup hidden">
+  <div id="skull-popup" class="popup" style="position-anchor: --skull-anchor;" popover>
     <img src="svg/skull.svg" width="50rem"><br><br>
     <span id="skull-text" class="message"></span><br/><br/>
-    <button id="skull-close-button">Close</button>
+    <button command="hide-popover" commandfor="skull-popup" id="skull-close-button">Close</button>
   </div>
 
   <div class="top-bar">
     <div class="icon-bar">
       <div id="icon-bar-text"></div>
-      <a href="#meta-popup" id="meta-button" class="hidden mini-button disabled">
+      <button id="meta-button" command="toggle-popover" commandfor="meta-popup" style="anchor-name: --meta-anchor;" class="hidden mini-button disabled">
         <img src="svg/metadata.svg">
-      </a>
-      <a href="#flash-popup" id="flash-button" class="hidden mini-button pulse">
+      </button>
+      <button id="flash-button" command="toggle-popover" commandfor="flash-popup" style="anchor-name: --flash-anchor;" class="hidden mini-button pulse">
         <img src="svg/flash.svg">
-      </a>
-      <a href="#nano-popup" id="nano-button" class="hidden mini-button pulse">
+      </button>
+      <button id="nano-button" command="toggle-popover" commandfor="nano-popup" style="anchor-name: --nano-anchor;" class="hidden mini-button pulse">
         <img src="svg/nano.svg">
-      </a>
-      <a href="#skull-popup" id="skull-button" class="mini-button"><img src="svg/skull.svg"></a>
+      </button>
+      <button id="skull-button" command="toggle-popover" commandfor="skull-popup" style="anchor-name: --skull-anchor;" class="mini-button">
+        <img src="svg/skull.svg">
+      </button>
     </div>
     <div class="info-bar">
       <select id="stands" data-key="stand"></select>

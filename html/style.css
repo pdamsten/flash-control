@@ -99,7 +99,7 @@ button:active, button:focus {
   background-color: black;
 }
 
-.mini-button:active img, .mini-button:hover img, 
+.mini-button:active img, .mini-button:hover img,
 #shutter-button:active img, #shutter-button:hover img {
   opacity: var(--active);
   transition: all 0.2s ease-in-out;
@@ -108,12 +108,12 @@ button:active, button:focus {
 .disabled {
   transition: all 0.2s ease-in-out;
   --widget-opacity: var(--disabled);
-} 
+}
 
 .disabled img {
   opacity: var(--disabled);
   transition: all 0.2s ease-in-out;
-} 
+}
 
 .mini-button {
   width: 2rem;
@@ -121,7 +121,7 @@ button:active, button:focus {
   border: none;
   margin: 0;
   padding: 0;
-} 
+}
 
 .mini-button img {
   width: 1.5rem;
@@ -129,7 +129,7 @@ button:active, button:focus {
   border: none;
   margin: 0;
   padding: 0;
-} 
+}
 
 .icon-bar {
   position: sticky;
@@ -306,15 +306,15 @@ button:active, button:focus {
 }
 
 .popup {
-  position: fixed;
+  top: anchor(bottom);
+  right: anchor(right);
+  left: auto;
+  margin-top: 1rem;
   padding: 1rem;
   border-radius: 1rem;
   background: hsla(0, 0%, 20%, 0.5);
   backdrop-filter: blur(3px);
   z-index: 11;
-  position-area: start end;
-  top: 3rem;
-  right: 6rem;
   min-width: 20rem;
   text-align: center;
   border: 1px solid hsla(0, 0%, 100%, 0.1);

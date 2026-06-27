@@ -3,7 +3,7 @@
 #
 #**************************************************************************
 #
-#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com> 
+#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com>
 #                         https://petridamsten.com
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #**************************************************************************
 
 import argparse
-import platform 
+import platform
 import os
 import sys
 from threading import Timer
@@ -176,17 +176,17 @@ class FlashControlWindow(HTMLMainWindow):
             self.godox.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
         if self.nano:
             self.nano.setBeepAndLight(self.cv('Sound'), self.cv('ModellingLight'))
-    
+
     def forExiftool(self, data):
         data = {k: v if v else '' for k, v in data.items()}
         data[meta.FLASHES] = [x for x in data[meta.FLASHES] if x[meta.MODE] != '-']
         return data
-    
+
     def onSelectChange(self, e):
         elem = self.elem(e)
         key = getattr(meta, elem.attributes['data-key'].upper())
         pid = elem.parent.parent.id
-        n = e['target']['selectedIndex'] 
+        n = e['target']['selectedIndex']
         value = None if n == 0 else e['target']['childNodes'][n]['text']
         if pid.startswith('flash-'):
             index = pid[-1:]
@@ -209,10 +209,10 @@ class FlashControlWindow(HTMLMainWindow):
         self.setGroupDisabled(gid, not self.disabled(gid))
 
     def setGroupDisabled(self, group_id, disabled):
-        a = ['flash-group-', 'flash-power-', 'flash-mode-', 
+        a = ['flash-group-', 'flash-power-', 'flash-mode-',
              'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory-', 'flash-gel-']
 
-        mode = '-' if disabled else self.cv(f'save/{group_id}/mode', 'M') 
+        mode = '-' if disabled else self.cv(f'save/{group_id}/mode', 'M')
         self.config['shooting-info'][meta.FLASHES][self.findex(group_id)][meta.MODE] = mode
         if not disabled:
             self.config['save'][group_id]['mode'] = mode
@@ -515,32 +515,6 @@ class FlashControlWindow(HTMLMainWindow):
         if msg[1] > 0:
             self.setNotification('#meta-button', True)
 
-    def onShowFlashPopup(self, e):
-        self.setVisible('#flash-popup', True)
-        self.setVisible('#close-all-popups', True)
-        self.setNotification('#flash-button', False)
-
-    def onShowMetaPopup(self, e):
-        self.setVisible('#meta-popup', True)
-        self.setVisible('#close-all-popups', True)
-        self.setNotification('#meta-button', False)
-
-    def onShowNanoPopup(self, e):
-        self.setVisible('#nano-popup', True)
-        self.setVisible('#close-all-popups', True)
-        self.setNotification('#nano-button', False)
-
-    def onShowSkullPopup(self, e):
-        self.setVisible('#skull-popup', True)
-        self.setVisible('#close-all-popups', True)
-
-    def onCloseAllPopups(self, e):
-        self.setVisible('#flash-popup', False)
-        self.setVisible('#meta-popup', False)
-        self.setVisible('#nano-popup', False)
-        self.setVisible('#skull-popup', False)
-        self.setVisible('#close-all-popups', False)
-
     def onOkPressed(self, e):
         exiftool.write(args.edit[0], self.forExiftool(self.config['shooting-info']))
         self.close(0)
@@ -593,17 +567,17 @@ class FlashControlWindow(HTMLMainWindow):
         return data
 
     def fill_shooting_info(self, si):
-        self.fill_select('#stands', util.stringList('user/stands.txt'), 
+        self.fill_select('#stands', util.stringList('user/stands.txt'),
                          self.value(si, meta.STAND))
-        self.fill_select('#remotes', util.stringList('user/remotes.txt'), 
+        self.fill_select('#remotes', util.stringList('user/remotes.txt'),
                          self.value(si, meta.REMOTE))
-        self.fill_select('#triggers', util.stringList('user/triggers.txt'), 
+        self.fill_select('#triggers', util.stringList('user/triggers.txt'),
                          self.value(si, meta.TRIGGER))
-        self.fill_select('#tethering', util.stringList('user/tethering.txt'), 
+        self.fill_select('#tethering', util.stringList('user/tethering.txt'),
                          self.value(si, meta.TETHERING))
-        self.fill_select('#filters', util.stringList('user/filters.txt'), 
+        self.fill_select('#filters', util.stringList('user/filters.txt'),
                          self.value(si, meta.FILTER))
-        self.fill_select('#extension_tubes', util.stringList('user/extension_tubes.txt'), 
+        self.fill_select('#extension_tubes', util.stringList('user/extension_tubes.txt'),
                          self.value(si, meta.EXTENSION_TUBE))
         e = self.elem(f'#frames-edit')
         e.value = self.value(si, meta.EXPOSURES, 1)
@@ -619,13 +593,13 @@ class FlashControlWindow(HTMLMainWindow):
                              self.value(si, fid + meta.NAME))
             self.fill_select(f'#flash-{gid} .flash-role', util.stringList('user/flash_roles.txt'),
                              self.value(si, fid + meta.ROLE))
-            self.fill_select(f'#flash-{gid} .flash-modifier', 
-                             util.stringList('user/flash_modifiers.txt'), 
+            self.fill_select(f'#flash-{gid} .flash-modifier',
+                             util.stringList('user/flash_modifiers.txt'),
                              self.value(si, fid + meta.MODIFIER))
-            self.fill_select(f'#flash-{gid} .flash-accessory', 
-                             util.stringList('user/flash_accessories.txt'), 
+            self.fill_select(f'#flash-{gid} .flash-accessory',
+                             util.stringList('user/flash_accessories.txt'),
                              self.value(si, fid + meta.ACCESSORY))
-            self.fill_select(f'#flash-{gid} .flash-gel', util.stringList('user/flash_gels.txt'), 
+            self.fill_select(f'#flash-{gid} .flash-gel', util.stringList('user/flash_gels.txt'),
                              self.value(si, fid + meta.GEL))
 
             self.elem(f'#flash-mode-{gid}').events.click += self.onModeClicked
@@ -653,26 +627,18 @@ class FlashControlWindow(HTMLMainWindow):
         self.setLight(self.cv('ModellingLight', False))
 
         self.elem('#try-trigger-button').events.click += self.onTryAgain
-        self.elem('#skull-button').events.click += self.onShowConfig
-
-        self.elem('#flash-button').events.click += self.onShowFlashPopup
-        self.elem('#meta-button').events.click += self.onShowMetaPopup
-        self.elem('#nano-button').events.click += self.onShowNanoPopup
-        self.elem('#skull-button').events.click += self.onShowSkullPopup
-        self.elem('#skull-close-button').events.click +=self.onCloseAllPopups
-        self.elem('#close-all-popups').events.click += self.onCloseAllPopups
 
         self.elem('#ok-button').events.click += self.onOkPressed
         self.elem('#cancel-button').events.click += self.onCancelPressed
 
         txt = f'<span>{self.info["name"]} {self.info["version"]}<br>{self.info["copyright"]}</span>'
-        txt = txt.replace('\nhttps://petridamsten.com', 
+        txt = txt.replace('\nhttps://petridamsten.com',
             '<br><a target="_blank" href="https://petridamsten.com">https://petridamsten.com</a>')
         self.elem('#skull-text').append(txt)
 
         if not args.edit:
             self.fill_shooting_info(self.cv('shooting-info', {}))
-        
+
             self.setVisible('#flash-button', True)
             self.setVisible('#meta-button', True)
             self.setVisible('#nano-button', True)
@@ -695,7 +661,7 @@ class FlashControlWindow(HTMLMainWindow):
             TETH_PATH = os.path.expanduser('~/Documents/TETHERING/')
             TETH_PATH = TETH_PATH if os.path.exists(TETH_PATH) else ''
             tethering_path = self.cv('TetheringPath', TETH_PATH)
-            tethering_pat = self.cv('TetheringPattern', 
+            tethering_pat = self.cv('TetheringPattern',
                                     '*.RAF;*.ARW;*.NEF;*.CR3;*.DNG')
             if tethering_path:
                 DEBUG('Tethering folder:', tethering_path, tethering_pat)
@@ -711,7 +677,7 @@ class FlashControlWindow(HTMLMainWindow):
                     DEBUG(f'Using json: {args.edit[1]}')
                     data = util.json(args.edit[1])
                     self.elem('#icon-bar-text').text = \
-                            f'{os.path.basename(args.edit[0])} / {os.path.basename(args.edit[1])}' 
+                            f'{os.path.basename(args.edit[0])} / {os.path.basename(args.edit[1])}'
                 else:
                     self.messageBox(f'File not found: {args.edit[1]}')
                     self.close()
@@ -719,7 +685,7 @@ class FlashControlWindow(HTMLMainWindow):
                 if os.path.exists(args.edit[0]):
                     DEBUG(f'Using image: {args.edit[0]}')
                     data = exiftool.read(args.edit[0])
-                    self.elem('#icon-bar-text').text = f'{os.path.basename(args.edit[0])}' 
+                    self.elem('#icon-bar-text').text = f'{os.path.basename(args.edit[0])}'
                 else:
                     self.messageBox(f'File not found: {args.edit[0]}')
                     self.close()
@@ -743,7 +709,7 @@ class FlashControlWindow(HTMLMainWindow):
 
         # self.bring_window_to_front()
         if self.overlay:
-            self.overlay.center_((self.config['x'], self.config['y'], 
+            self.overlay.center_((self.config['x'], self.config['y'],
                                   self.config['width'], self.config['height']))
 
         if (args.debug):
@@ -755,11 +721,11 @@ class FlashControlWindow(HTMLMainWindow):
 def main():
     splash.start(util.path('splash.png'), 20)
     FlashControlWindow('Flash Control', util.path('html/gui.html'))
-    
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', type = int, default = None, 
+    parser.add_argument('-d', '--debug', type = int, default = None,
         help = 'Debug level eg. 5 = debug level 5 to console, 1005 debug file level to log file.')
     parser.add_argument('-e', '--edit', nargs = '+', help = 'Edit metadata in file')
-    args = parser.parse_args()    
+    args = parser.parse_args()
     main()
