@@ -3,7 +3,7 @@
 #
 #**************************************************************************
 #
-#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com> 
+#   Copyright (c) 2025 by Petri Damstén <petri.damsten@gmail.com>
 #                         https://petridamsten.com
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ class HTMLMainWindow():
         def _message(msg):
             self.window.gui.BrowserView.display_confirmation_dialog('Close', None, msg)
             semaphore.release()
-            
+
         if sys.platform.startswith('darwin'):
             semaphore = Semaphore(0)
             AppHelper.callAfter(_message, msg)
@@ -170,7 +170,7 @@ class HTMLMainWindow():
 
     def cv(self, key, default = None):
         return self.value(self.config, key, default)
-   
+
     def __init__(self, title, html, css = None, api = None, size = (1000, 800), debug_level = None):
         HTMLMainWindow.instances.append(self)
 
@@ -190,8 +190,8 @@ class HTMLMainWindow():
         hpath = html if util.isPath(html) else None
         html = html if not util.isPath(html) else None
         time.sleep(0.1)
-        self.window = webview.create_window(title, hpath, html = html, 
-                frameless = sys.platform.startswith('darwin'), js_api = api, 
+        self.window = webview.create_window(title, hpath, html = html,
+                frameless = sys.platform.startswith('darwin'), js_api = api,
                 width = int(self.cv('width', size[0])), height = int(self.cv('height', size[1])),
                 x = int(self.cv('x', 0)), y = int(self.cv('y', 0)))
         self.window.events.closing += self.on_closing
@@ -234,8 +234,7 @@ class HTMLMainWindow():
         if self.css:
             window.load_css(self.css)
         self.showTrafficLights()
-       
-if __name__ == '__main__':
-    HTMLMainWindow('Python html GUI', '<html><body><h1>Test</h1></body></html>', 
-                   css = 'h1 {color: red;}', api = None)
 
+if __name__ == '__main__':
+    HTMLMainWindow('Python html GUI', '<html><body><h1>Test</h1></body></html>',
+                   css = 'h1 {color: red;}', api = None)
