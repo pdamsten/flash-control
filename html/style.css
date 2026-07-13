@@ -65,11 +65,15 @@ select {
   padding-right: 1.5rem;
   height: 2rem;
   font-size: var(--font-size);
-}
 
-select:active, select:hover, select:focus {
-  background-color: var(--select-bg-hover);
-  border-color: var(--select-border-hover);
+  &:active, &:hover, &:focus {
+    background-color: var(--select-bg-hover);
+    border-color: var(--select-border-hover);
+  }
+
+  img {
+    opacity: var(--normal);
+  }
 }
 
 button {
@@ -77,26 +81,22 @@ button {
   font-size: 1.7rem;
   font-weight: bold;
   padding: 1rem;
-}
 
-button img {
-  width: 2rem;
-  height: 2rem;
-  opacity: var(--normal);
-}
+  &:active, &:focus {
+    background-color: var(--select-bg-hover);
+    border-color: var(--select-border-hover);
+  }
 
-select img {
-  opacity: var(--normal);
-}
+  &:hover {
+    transition: all 0.2s ease-in-out;
+    --widget-opacity: var(--active);
+  }
 
-button:hover {
-  transition: all 0.2s ease-in-out;
-  --widget-opacity: var(--active);
-}
-
-button:active, button:focus {
-  filter:invert(100%);
-  background-color: black;
+  img {
+    width: 2rem;
+    height: 2rem;
+    opacity: var(--normal);
+  }
 }
 
 .mini-button:active img, .mini-button:hover img,
