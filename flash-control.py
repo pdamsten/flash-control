@@ -78,7 +78,12 @@ class KeyHandler:
         self.window = window
         js_code = """
         document.addEventListener('keypress', function(event) {
-            if (!event.target.isContentEditable) {
+            if ((event.key >= '0' && event.key <= '9') ||
+                (event.key >= 'a' && event.key <= 'l') ||
+                (event.key === ' ')) {
+               event.preventDefault();
+               window.pywebview.api.onKeyPress(event.keyCode);
+            } else if (!event.target.isContentEditable) {
                 const tag = event.target.tagName.toLowerCase();
                 if (!['input', 'select', 'button'].includes(tag)) {
                     event.preventDefault();
@@ -337,6 +342,7 @@ class FlashControlWindow(HTMLMainWindow):
                     self.power += '.'
                 self.power += str(n)
                 if self.power == '10' or len(self.power) == 3:
+                    DEBUG(f'Setting power {self.activeGroup} {self.power}')
                     self.setPower(self.activeGroup, self.power)
             else:
                 if len(self.power) == 0:
