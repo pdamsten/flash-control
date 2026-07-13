@@ -228,6 +228,26 @@ button {
   align-self: start;
   min-height: 8rem;
   padding-bottom: 0.3rem;
+  background-color: hsla(0, 0%, 100%, var(--widget-opacity));
+  color: black;
+  border: 0;
+
+  &:active, &:focus {
+    background-color: hsla(0, 0%, 100%, var(--widget-opacity));
+    border-color: none;
+  }
+}
+
+.group-color {
+    width: 50%;
+    margin: auto;
+    height: 0.65rem;
+    background-color: var(--group-color);
+    border-radius: 0.325rem;
+
+    .disabled & {
+        background-color: black;
+    }
 }
 
 .flash-power {

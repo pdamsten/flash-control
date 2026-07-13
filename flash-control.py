@@ -27,6 +27,7 @@ import argparse
 import platform
 import os
 import sys
+import traceback
 from threading import Timer
 from webview.dom import DOMEventHandler
 import subprocess
@@ -47,7 +48,7 @@ if sys.platform.startswith('darwin'):
 
 flash_group = '''
     <div id="flash-{group_id}" class="flash-container">
-      <button id="flash-group-{group_id}" tabindex="0" class="flash-group">{group_id}</button>
+      <button id="flash-group-{group_id}" tabindex="0" class="flash-group">{group_id}<div class="group-color" style="--group-color: {group_color};"></div></button>
       <div id="flash-power-{group_id}" class="flash-power">
             <div class="big-power"><span id="flash-power-prefix{group_id}" class="flash-prefix">-</span><span id="flash-power-number{group_id}" class="flash-power-nbr">3.0</span></div>
             <div id="flash-power-fnumber{group_id}" class="small-power">1/256</div>
@@ -65,6 +66,25 @@ flash_group = '''
     </div>
 '''
 
+godox_colors = [
+  'hsl(0, 75%, 60%)',
+  'hsl(120, 50%, 60%)',
+  'hsl(240, 90%, 70%)',
+  'hsl(180, 50%, 60%)',
+  'hsl(300, 60%, 60%)',
+  'hsl(60, 80%, 70%)',
+  'hsl(30, 100%, 50%)',
+  'hsl(90, 100%, 50%)',
+  'hsl(150, 100%, 50%)',
+  'hsl(210, 100%, 50%)',
+  'hsl(270, 100%, 50%)',
+  'hsl(330, 100%, 50%)',
+  'hsl(51, 100%, 50%)',
+  'hsl(180, 100%, 25%)',
+  'hsl(300, 100%, 27%)',
+  'hsl(16, 100%, 50%)'
+];
+
 ENTER = 13
 BACKSPACE = 8
 ESCAPE = 27
@@ -77,15 +97,17 @@ class KeyHandler:
     def start(self, window):
         self.window = window
         js_code = """
-        document.addEventListener('keypress', function(event) {
+        document.addEventListener('keydown', function(event) {
             if ((event.key >= '0' && event.key <= '9') ||
-                (event.key >= 'a' && event.key <= 'l') ||
-                (event.key === ' ')) {
+                (event.key >= 'a' && event.key <= 'l')) {
                event.preventDefault();
                window.pywebview.api.onKeyPress(event.keyCode);
             } else if (!event.target.isContentEditable) {
                 const tag = event.target.tagName.toLowerCase();
-                if (!['input', 'select', 'button'].includes(tag)) {
+                const gbtn = event.target.classList?.contains('flash-group');
+                const input = ['input', 'select', 'button'].includes(tag);
+
+                if (!input ||(event.code === 'Space' && gbtn)) {
                     event.preventDefault();
                     window.pywebview.api.onKeyPress(event.keyCode);
                 }
@@ -214,6 +236,7 @@ class FlashControlWindow(HTMLMainWindow):
         self.setGroupDisabled(gid, not self.disabled(gid))
 
     def setGroupDisabled(self, group_id, disabled):
+        #traceback.print_stack()
         a = ['flash-group-', 'flash-power-', 'flash-mode-',
              'flash-name-', 'flash-role-', 'flash-modifier-', 'flash-accessory-', 'flash-gel-']
 
@@ -593,7 +616,7 @@ class FlashControlWindow(HTMLMainWindow):
             fid = f'{meta.FLASHES}/{i}/'
             gid = chr(ord('A') + i)
             c = self.elem('#scroll-container')
-            e = c.append(flash_group.format(group_id = gid))
+            e = c.append(flash_group.format(group_id = gid, group_color = godox_colors[i]))
             e.events.click += self.onGroupClicked
             self.fill_select(f'#flash-{gid} .flash-name', util.stringList('user/flash_names.txt'),
                              self.value(si, fid + meta.NAME))
