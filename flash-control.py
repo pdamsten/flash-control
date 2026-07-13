@@ -104,10 +104,9 @@ class KeyHandler:
                window.pywebview.api.onKeyPress(event.keyCode);
             } else if (!event.target.isContentEditable) {
                 const tag = event.target.tagName.toLowerCase();
-                const gbtn = event.target.classList?.contains('flash-group');
                 const input = ['input', 'select', 'button'].includes(tag);
 
-                if (!input ||(event.code === 'Space' && gbtn)) {
+                if (!input) {
                     event.preventDefault();
                     window.pywebview.api.onKeyPress(event.keyCode);
                 }
