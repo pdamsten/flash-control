@@ -94,16 +94,22 @@ class KeyHandler:
     def onKeyPress(self, key):
         self.window.onKeyPress(key)
 
+    def print(self, s):
+        print(s)
+
     def start(self, window):
         self.window = window
         js_code = """
         document.addEventListener('keydown', function(event) {
+            const tag = event.target.tagName.toLowerCase();
+            if (tag == 'input') {
+                return;
+            }
             if ((event.key >= '0' && event.key <= '9') ||
                 (event.key >= 'a' && event.key <= 'l')) {
                event.preventDefault();
                window.pywebview.api.onKeyPress(event.keyCode);
             } else if (!event.target.isContentEditable) {
-                const tag = event.target.tagName.toLowerCase();
                 const input = ['input', 'select', 'button'].includes(tag);
 
                 if (!input) {
